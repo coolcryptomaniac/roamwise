@@ -14,9 +14,12 @@ var RW_DREAMS=[
   'somewhere green and quiet','the mountains, cheaply','a beach with no crowds',
   'a city that stays up late','snow, for the first time','where my friends can all afford'
 ];
+/* The head script adds html.rw-first-visit so a dark cover paints before anything else; it is removed
+   once the welcome screen is up (it sits above the cover) or when the visitor has already seen it. */
+function rwFirstVisitCoverOff(){ try{ document.documentElement.classList.remove('rw-first-visit'); }catch(e){} }
 function rwOpeningSeen(){ try{ return lsGet('rw_opening')==='1'; }catch(e){ return true; } }
 function rwOpeningShow(force){
-  if(!force && rwOpeningSeen()) return;
+  if(!force && rwOpeningSeen()){ rwFirstVisitCoverOff(); return; }
   var ov=el('rwOpening');
   if(!ov){ ov=document.createElement('div'); ov.id='rwOpening'; document.body.appendChild(ov); }
   ov.className='rw-open';
@@ -35,6 +38,7 @@ function rwOpeningShow(force){
     +  '<button class="rw-open-skip" onclick="rwOpeningDone()">I\u2019ll look around myself</button>'
     +'</div>';
   document.body.style.overflow='hidden';
+  setTimeout(rwFirstVisitCoverOff, 850);
   setTimeout(function(){ var i=el('rwOpenIn'); if(i){ i.focus(); i.addEventListener('keydown',function(e){ if(e.key==='Enter') rwOpeningGo(); }); } }, 700);
 }
 function rwOpeningGo(){
@@ -77,6 +81,7 @@ function rwOpeningEnter(seed){
   }, 420);
 }
 function rwOpeningDone(){
+  rwFirstVisitCoverOff();
   try{ lsSet('rw_opening','1'); }catch(e){ /* storage best-effort, ignore */ }
   var ov=el('rwOpening'); if(!ov) return;
   ov.classList.add('rw-open-out');
