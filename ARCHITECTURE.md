@@ -62,7 +62,7 @@ start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **241 files** under `js/` (incl. `js/copilot/atlas-cards.js` and `js/copilot/atlas-grounding.js` for safe atlas cards and destination-only grounding, `js/ui/destination-filmstrip.js`, the progressive local-first destination rail with safe media fallbacks, `js/ui/home-mobile-recovery.js` for a single wallet control and easy Settings access, `js/ui/home-curated-discovery.js`, the accessible one-category-at-a-time homepage storefront, `js/ui/ailon-first.js` and `js/ui/home-quick-access.js`, the round shortcut row on the home screen, `js/payments/wallet-chip.js`, the header wallet chip and drawer link with the cash and bonus-coin icons, `js/ui/amor-offers.js`, the season-ordered homepage Amor offers, and `js/ui/trailmesh-entry.js`, which opens the native Android Trail Mesh or the web kit, `js/ui/events-home-rail.js`, the homepage events carousel, and `js/booking/tusk-direct-offers.js`, Tusk's live-priced package cards)
+rewire, not a new extraction round) and there are **244 files** under `js/` (incl. `js/ui/ambassador-banner.js` and `js/ui/swipe-discover.js` for the Natasha ambassador banner and the Discover swipe deck, `js/ui/home-creators.js`, the home creators banner and rail with masked numbers, `js/copilot/atlas-cards.js` and `js/copilot/atlas-grounding.js` for safe atlas cards and destination-only grounding, `js/ui/destination-filmstrip.js`, the progressive local-first destination rail with safe media fallbacks, `js/ui/home-mobile-recovery.js` for a single wallet control and easy Settings access, `js/ui/home-curated-discovery.js`, the accessible one-category-at-a-time homepage storefront, `js/ui/ailon-first.js` and `js/ui/home-quick-access.js`, the round shortcut row on the home screen, `js/payments/wallet-chip.js`, the header wallet chip and drawer link with the cash and bonus-coin icons, `js/ui/amor-offers.js`, the season-ordered homepage Amor offers, and `js/ui/trailmesh-entry.js`, which opens the native Android Trail Mesh or the web kit, `js/ui/events-home-rail.js`, the homepage events carousel, and `js/booking/tusk-direct-offers.js`, Tusk's live-priced package cards)
 (including the later `js/admin/` dashboard modules and
 `js/core/push-notifications.js` — see the `js/core/` and `js/admin/`
 entries below; the count was last re-verified via `npm run mod-status`,
@@ -1385,3 +1385,10 @@ Daily home feed reader. Fetches `GET /home/daily` from the Worker (1.5 s limit, 
 ### Voice stay quote selection
 
 `js/voice/stay-concierge.js` intercepts explicit spoken stay requests in the shared copilot dispatcher. It gathers dates, guests and budget, reads the live rate book and full-price quotes, and requires an option plus explicit confirmation before producing the existing Cashfree checkout URL. Voice Studio mirrors the same choices. This module never creates orders or debits a wallet. See `docs/voice-stay-booking.md` for transactional prerequisites.
+
+## Creators, number exchange and organisers (26 Nov 2026)
+
+- `js/ui/home-creators.js` + `design/home-creators.css`: home creators banner (up to two featured) and rail, read from `network/directory.json` (artists as fallback). Numbers are never in the data.
+- `network/publish-core.mjs`: admin export can include founder-listed creators (public Instagram fields only).
+- `creators/matches.html` / `matches.js` / `match-exchange-core.mjs`: collab requests and contact cards. Firestore rules `ownerListings`, `listingOwners` (admin-linked), `matchInterest`, `contactCards` (readable only on a mutual creator↔property yes).
+- `organisers/`: group trip organiser page; plan prices in `organisers/plans.json`.
