@@ -31,7 +31,10 @@ export function splitAddress(line1, line2) {
 }
 
 /* Builds the create-order body from a paid shopOrders document. Returns { body } or { error }.
- * `skuFor(line)` maps a stored order line to its Qikink My Products SKU (null when not configured). */
+ * `skuFor(line)` maps a stored order line to its Qikink My Products SKU (null when not configured), or to
+ * { sku, design } for a shop-engine design printed on a blank (search_from_my_products = 0): Qikink then
+ * prints `design.link` at the placement. Field names follow Qikink's create-order API; verify one sandbox
+ * order per product type before SHOP_ENGINE_ENABLED is switched on in live. */
 export function buildQikinkOrder(order, skuFor) {
   const number = qikinkOrderNumber(order && order.orderId);
   if (!number) return { error: 'bad_order_number' };
@@ -42,10 +45,26 @@ export function buildQikinkOrder(order, skuFor) {
   if (!Array.isArray(order.lines) || !order.lines.length) return { error: 'no_lines' };
   const line_items = [];
   for (const l of order.lines) {
-    const sku = skuFor(l);
+    const got = skuFor(l);
+    const sku = got && typeof got === 'object' ? got.sku : got;
     if (!sku) return { error: 'missing_sku', detail: l.id + '/' + l.variant };
     if (String(sku).length > 50) return { error: 'bad_sku' };
-    line_items.push({ search_from_my_products: 1, quantity: l.qty, sku, price: Number(rupees(l.unitPaise)) });
+    const design = got && typeof got === 'object' ? got.design : null;
+    if (!design) {
+      line_items.push({ search_from_my_products: 1, quantity: l.qty, sku, price: Number(rupees(l.unitPaise)) });
+      continue;
+    }
+    const https = (u) => typeof u === 'string' && /^https:\/\/\S+$/.test(u);
+    if (!https(design.link) || !https(design.mockup) || !design.code) return { error: 'bad_design', detail: l.id };
+    line_items.push({
+      search_from_my_products: 0, quantity: l.qty, sku, price: Number(rupees(l.unitPaise)),
+      designs: [{
+        design_code: String(design.code).slice(0, 50),
+        width_inches: Number(design.widthIn) || 12, height_inches: Number(design.heightIn) || 14,
+        placement_sku: design.placement === 'front' ? 'fr' : 'bk',
+        design_link: design.link, mockup_link: design.mockup,
+      }],
+    });
   }
   const nm = splitName(order.customer.name);
   const ad = splitAddress(order.ship.line1, order.ship.line2);

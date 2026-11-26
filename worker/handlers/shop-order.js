@@ -20,6 +20,7 @@ import { createShopWallet } from './shop-wallet.js';
 import { walletKeyFromRequest, spendWallet } from './wallet.js';
 import { verifyCashfreeWorkerWebhook } from '../lib/cashfree-booking-webhook-verify.js';
 import { SHOP_CATALOGUE, publicCatalogue } from '../lib/shop-catalogue.js';
+import { catalogueFor as engineCatalogue, recordShippedOrder, popularFor } from '../lib/shop-engine.js';
 import {
   ORDER_ID_RE, hex, newOrderId, priceCart, sha256Hex, timingSafeEqualHex, upiIntent,
   validateCustomer, validateShipTo,
@@ -66,7 +67,11 @@ const bearer = (request) => { const m = /^Bearer\s+(.+)$/i.exec(request.headers.
 
 export function createShopHandlers(overrides) {
   const deps = Object.assign({
-    catalogue: SHOP_CATALOGUE, context: serviceContext, getDoc, createDocIfAbsent, updateDoc, queryEqualsString,
+    catalogue: SHOP_CATALOGUE, context: serviceContext,
+    /* Static catalogue plus live shop-engine designs (identical to `catalogue` while the engine is off). */
+    loadCatalogue: (env, opts) => engineCatalogue(env, deps.catalogue, opts),
+    recordShipped: (env, order) => recordShippedOrder(env, order),
+    popular: (env) => popularFor(env), getDoc, createDocIfAbsent, updateDoc, queryEqualsString,
     qikinkFetch: (...a) => fetch(...a),
     fetchImpl: (...a) => fetch(...a),
     now: () => new Date(),
@@ -76,6 +81,8 @@ export function createShopHandlers(overrides) {
   const fulfil = createFulfilment({
     getDoc: (...a) => deps.getDoc(...a), updateDoc: (...a) => deps.updateDoc(...a), queryEqualsString: (...a) => deps.queryEqualsString(...a),
     fetchImpl: (...a) => deps.qikinkFetch(...a), now: () => deps.now(), catalogue: deps.catalogue,
+    catalogueFor: (env) => deps.loadCatalogue(env, { includeRetired: true }),
+    onSubmitted: (env, order) => deps.recordShipped(env, order),
   });
 
   const shopWallet = createShopWallet({
@@ -131,7 +138,8 @@ export function createShopHandlers(overrides) {
         checkoutOpen = m.cashfree || m.upi;
       }
     } catch (_) { checkoutOpen = false; }
-    return new Response(JSON.stringify({ ...publicCatalogue(deps.catalogue), checkoutOpen }), {
+    const popular = await deps.popular(env).catch(() => []);
+    return new Response(JSON.stringify({ ...publicCatalogue(await deps.loadCatalogue(env)), popular, checkoutOpen }), {
       status: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60', ...CORS },
     });
   }
@@ -144,7 +152,7 @@ export function createShopHandlers(overrides) {
     if (ctx.error) return ctx.error;
     const state = await loadMethods(env, ctx);
     if (state.error) return state.error;
-    const priced = priceCart(body.items, body.pin, deps.catalogue);
+    const priced = priceCart(body.items, body.pin, await deps.loadCatalogue(env));
     if (priced.error) return json({ error: priced.error, message: priced.message }, 422);
     return json({ ok: true, currency: 'INR', ...priced, methods: { cashfree: state.methods.cashfree, upi: state.methods.upi } });
   }
@@ -165,7 +173,7 @@ export function createShopHandlers(overrides) {
     if (customer.error) return json({ error: customer.error, message: customer.message }, 422);
     const ship = validateShipTo(body.ship);
     if (ship.error) return json({ error: ship.error, message: ship.message }, 422);
-    const priced = priceCart(body.items, ship.value.pin, deps.catalogue);
+    const priced = priceCart(body.items, ship.value.pin, await deps.loadCatalogue(env));
     if (priced.error) return json({ error: priced.error, message: priced.message }, 422);
 
     if(Object.prototype.hasOwnProperty.call(body,'expectedAmountPaise')&&(!Number.isSafeInteger(body.expectedAmountPaise)||body.expectedAmountPaise!==priced.totalPaise))return json({error:'quote_changed',message:'Price changed. Review a fresh quote before paying.'},409);

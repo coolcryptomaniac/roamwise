@@ -52,6 +52,10 @@ id = "be31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this f
 # unless PAYMENT_PROVIDER=cashfree and CASHFREE_ENVIRONMENT=live there too.
 # ---------------------------------------------------------------------------
 [vars]
+# Shop engine (shop/ENGINE.md): auto designs + in-site "Popular now" by clicks and purchases. No paid ads.
+# Safe before setup: nothing new is sellable until worker/lib/shop-engine-blanks.js has Qikink blank SKUs.
+SHOP_ENGINE_ENABLED = "true"
+SHOP_ENGINE_AUTOPUBLISH = "true"
 # Corporate CRM stays off until access rules, retention and lead delivery are verified.
 CORPORATE_INTAKE_ENABLED = "false"
 # No broadcast is generated. Only admin-reviewed status=approved messages send.
