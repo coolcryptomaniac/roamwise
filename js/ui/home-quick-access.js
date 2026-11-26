@@ -7,6 +7,7 @@
   var ITEMS = [
     { id: 'group-chat', icon: '💬', label: 'Group chat', run: function () { W.openGroupChat(); } },
     { id: 'group-plan', icon: '🤝', label: 'Plan together', run: function () { W.openGroupPlanner(); } },
+    { id: 'organisers', icon: '🧭', label: 'Organisers', href: '/organisers/' },
     { id: 'mesh', icon: '📡', label: 'TrailMesh', note: 'OFFLINE', href: '/trailmesh/' },
     { id: 'wallet', icon: '👛', label: 'Wallet', href: '/wallet/' },
     { id: 'memories', icon: '📸', label: 'Memories', href: '/memories/' },
