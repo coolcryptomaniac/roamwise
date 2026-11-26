@@ -34,7 +34,11 @@
     e.menu.addEventListener('click', function (ev) { var t = /** @type {Element} */ (ev.target); /* a model chip re-renders the list on click, so its button may already be detached */ if (!t.isConnected || t.closest('#heroModels button')) setTimeout(function () { setOpen(false); sync(); }, 0); });
     document.addEventListener('click', function (ev) { if (!e.menu.hidden && !e.menu.contains(/** @type {Node} */ (ev.target))) setOpen(false); });
     document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && !e.menu.hidden) { setOpen(false); e.pill.focus(); } });
-    window.addEventListener('resize', place); window.addEventListener('scroll', place, { passive: true });
+    /* Close on any outside tap (capture phase, so buttons that stop propagation, like AI settings, still close it)
+       and on scroll or resize, so the menu never floats over another screen. */
+    document.addEventListener('pointerdown', function (ev) { var t = /** @type {Node} */ (ev.target); if (!e.menu.hidden && !e.menu.contains(t) && !e.pill.contains(t)) setOpen(false); }, true);
+    window.addEventListener('resize', function () { if (!e.menu.hidden) setOpen(false); });
+    window.addEventListener('scroll', function (ev) { var t = /** @type {any} */ (ev.target); if (!e.menu.hidden && !(t && t.nodeType === 1 && e.menu.contains(t))) setOpen(false); }, { passive: true, capture: true });
     new MutationObserver(sync).observe(e.list || e.menu, { childList: true, subtree: true });
     sync(); setTimeout(sync, 1500);
   }

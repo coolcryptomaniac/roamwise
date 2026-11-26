@@ -74,6 +74,7 @@ import { createTripOrder, redeemVoucher } from './handlers/trip-wallet.js';
 import { runPartnerPayouts, handlePayoutMark, handlePayoutAdmin, handlePayeeSubmit } from './handlers/stay-finance.js';
 import { handleBooksDownload, runMonthlyBooks } from './handlers/stay-books.js';
 import { runKvBackup, handleMediaGet } from './lib/records.js';
+import { handleTeam } from './handlers/team-portal.js';
 import { requireAdmin } from './handlers/push.js';
 import { parseServiceAccount } from './lib/service-account.js';
 import { handleShopDecide, runShopRefundCron } from './handlers/shop-order.js';
@@ -250,6 +251,8 @@ export default {
     if(path === 'payees/submit') return handlePayeeSubmit(request, env);
     if(path === 'books/download' && request.method === 'GET') return handleBooksDownload(request, env);
     if(path.startsWith('media/r2/') && request.method === 'GET') return handleMediaGet(request, env, '/' + path);
+    if(path.startsWith('team/')) return handleTeam(request, env, path, {
+      isAdmin: async (req, e) => { try { const r = await requireAdmin(req, e, parseServiceAccount(e).project_id); return !r.error; } catch (_) { return false; } } });
     if(path === 'admin/payees' || path === 'admin/payouts' || path === 'admin/stays/net') return handlePayoutAdmin(request, env, path,
       async (req, e) => { try { const r = await requireAdmin(req, e, parseServiceAccount(e).project_id); return !r.error; } catch (_) { return false; } });
     if(path === 'credit/checkout' && request.method === 'POST') return createCreditOrder(request, env);
