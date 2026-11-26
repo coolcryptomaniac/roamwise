@@ -57,7 +57,7 @@ export async function onStayPaid(env, record, nowMs = Date.now(), deps = {}) {
     'We are confirming the room with the property now and will write to you within 24 hours.',
     ...(record.balance > 0 ? ['This was your advance. The balance of ' + rs(record.balance) + ' is due by ' + record.balanceDueBy + '; we send the payment link once the booking is confirmed.'] : []),
     ...(record.nonRefundable ? ['These festive dates are non-refundable at the property once confirmed.'] : []),
-    'If the room cannot be confirmed, the full amount goes straight to your RoamWise wallet. You can book another stay with it, or it is sent back to your bank automatically after 24 hours.',
+    'If the room cannot be confirmed, the full amount goes straight back to the way you paid.',
     '', 'Questions: reply to this email or write to support@roamwise.co.in.', '— RoamWise',
   ].join('\n') });
   await putOrder(env, record);
@@ -79,11 +79,10 @@ export async function refundStayToWallet(env, record, reason, nowMs = Date.now()
   await env.RW_KV.delete('staydue:' + record.id);
   const send = deps.sendMail || sendMail;
   const wl = await walletLinkFor(env, record.email, nowMs);
-  await send(env, { to: record.email, subject: rs(record.amount) + ' is in your RoamWise wallet', text: [
+  await send(env, { to: record.email, subject: 'Refund on its way: ' + rs(record.amount), text: [
     'We could not confirm ' + record.property + ' for ' + record.checkin + '. Sorry about that.',
-    rs(record.amount) + ' is in your RoamWise wallet right now.', '',
-    'Book another stay with it: ' + SITE + '/packages/amor-checkout.html' + (wl ? '?wallet=' + encodeURIComponent(wl.token) : ''),
-    'Or do nothing: it goes back to your original payment method automatically on ' + (r.releaseAt || '').slice(0, 10) + '.',
+    rs(record.amount) + ' '+'is on its way back to the way you paid. Card and UPI refunds usually show within 5 to 7 working days. Anything you paid with RoamWise credit is back in your wallet.', '',
+    'Book another stay any time: ' + SITE + '/packages/amor-checkout.html',
     wl ? 'Your wallet: ' + wl.url : '', '', '— RoamWise',
   ].filter((x) => x !== null).join('\n') });
   return { ok: true, releaseAt: r.releaseAt };
@@ -96,9 +95,9 @@ async function refundGroupStay(env, record, reason, nowMs, deps) {
     const r = await creditWallet(env, { email: m.email, phone: m.phone, refId: m.orderId, origins: [{ orderId: m.orderId, amount: m.amount }],
       note: 'Refund: group stay ' + record.property + ' ' + record.checkin }, nowMs);
     releaseAt = r.releaseAt || releaseAt;
-    await send(env, { to: m.email, subject: rs(m.amount) + ' is in your RoamWise wallet', text: [
+    await send(env, { to: m.email, subject: 'Refund on its way: ' + rs(m.amount), text: [
       'Hi ' + (m.first || 'there') + ', we could not confirm ' + record.property + ' for ' + record.checkin + '. Sorry about that.',
-      'Your share of ' + rs(m.amount) + ' is in your RoamWise wallet right now. Use it for another stay, or do nothing and it goes back to your original payment method automatically' + (r.releaseAt ? ' on ' + r.releaseAt.slice(0, 10) : '') + '.',
+      'Your share of ' + rs(m.amount) + ' '+'is on its way back to the way you paid. Card and UPI refunds usually show within 5 to 7 working days. Anything you paid with RoamWise credit is back in your wallet.',
       '', '— RoamWise',
     ].join('\n') });
   }

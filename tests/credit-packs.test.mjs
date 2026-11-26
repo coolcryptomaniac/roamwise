@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as W from '../worker/lib/wallet-core.js';
 import { priceCreditPack, publicPacks, MAX_BONUS_PCT, CREDIT_PACKS } from '../worker/lib/credit-packs.js';
-import { onCreditPaid, runCreditExpiry, createCreditOrder, creditOrderStatus } from '../worker/handlers/credit-packs.js';
+import { onCreditPaid, runCreditExpiry, createCreditOrder } from '../worker/handlers/credit-packs.js';
 import { runWalletReleases, loadWallet } from '../worker/handlers/wallet.js';
 import { refundStayToWallet } from '../worker/handlers/stay-lifecycle.js';
 
@@ -108,17 +108,10 @@ test('expiry: reminders at 30 and 7 days, then unused paid credit is really paid
   assert.equal(back.lots[0].state, 'bank');
 });
 
-test('checkout rejects missing terms and never trusts a browser amount; status verifies with Cashfree', async () => {
+test('new credit packs are paused (WALLET_POLICY.newPaidCredit): checkout refuses before any payment is created', async () => {
+  assert.equal(W.WALLET_POLICY.newPaidCredit, false);
   const env = mkEnv();
-  const req = (b) => new Request('https://x/credit/checkout', { method: 'POST', body: JSON.stringify(b) });
-  let r = await createCreditOrder(req({ pack: 'explorer', email: 'a@b.in', phone: '9876543210' }), env, T0);
-  assert.equal(r.status, 422);
-  let sent;
-  const fetch = async (url, init) => { if (init && init.method === 'POST') { sent = JSON.parse(init.body); return new Response(JSON.stringify({ order_id: sent.order_id, order_amount: sent.order_amount, payment_session_id: 'ps' })); }
-    return new Response(JSON.stringify({ order_id: sent.order_id, order_amount: sent.order_amount, order_currency: 'INR', order_status: 'PAID' })); };
-  r = await createCreditOrder(req({ pack: 'explorer', email: 'a@b.in', phone: '9876543210', acceptTerms: true, amount: 1 }), env, T0, { fetch });
-  assert.equal(r.status, 200); assert.equal(sent.order_amount, 5000);
-  mails.length = 0;
-  const st = await (await creditOrderStatus(new Request('https://x'), env, sent.order_id, T0, { ...deps, fetch })).json();
-  assert.equal(st.status, 'paid'); assert.equal(st.credit, 5300, 'Explorer 4% + founding 2%');
+  let called = false; const fetch = async () => { called = true; return new Response('{}'); };
+  const r = await createCreditOrder(new Request('https://x/credit/checkout', { method: 'POST', body: JSON.stringify({ pack: 'explorer', email: 'a@b.in', phone: '9876543210', acceptTerms: true }) }), env, T0, { fetch });
+  assert.equal(r.status, 410); assert.equal((await r.json()).error, 'packs_paused'); assert.equal(called, false, 'no Cashfree order');
 });

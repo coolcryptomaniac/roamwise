@@ -36,7 +36,7 @@ function show(p){
 }
 async function load(){if(!/^rwpot_[a-f0-9]{24}$/.test(pot)){$('sub').textContent='This group link is not valid.';return}
  try{if(/^rwgrp_[a-f0-9]{32}$/.test(order)){$('sub').textContent='Checking your payment…';const r=await fetch(API+'/group/order/'+order),d=await r.json();if(d.pot)show(d.pot);
-   $('note').textContent=d.status==='paid'?'Payment received, thank you! Your receipt is on its way by email.':d.status==='refunded_to_wallet'?'This share was already taken, so your payment is back in your RoamWise wallet.':'Payment not completed yet.';if(d.status==='paid')$('join').hidden=true;return}
+   $('note').textContent=d.status==='paid'?'Payment received, thank you! Your receipt is on its way by email.':d.status==='refunded_to_wallet'?'This share was already taken, so your payment is on its way back to the way you paid.':'Payment not completed yet.';if(d.status==='paid')$('join').hidden=true;return}
   const r=await fetch(API+'/group/'+pot);if(!r.ok)throw 0;show(await r.json())}catch(_){$('sub').textContent='Could not load this group. Please try again.'}}
 $('join').addEventListener('submit',async e=>{e.preventDefault();$('go').disabled=true;$('msg').textContent='Opening secure checkout…';
  try{const r=await fetch(API+'/group/'+pot+'/join',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:$('n').value,email:$('e').value,phone:$('p').value,acceptTerms:$('t').checked})}),d=await r.json();

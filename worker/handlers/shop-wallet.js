@@ -33,7 +33,7 @@ export function createShopWallet(deps) {
       if (order.customer && order.customer.email) await send(env, { to: order.customer.email, subject: 'Order received: ' + id, text: [
         'Thank you! We have received ' + rs(order.totalPaise) + ' for ' + itemsText(order) + '.',
         'Your order ID: ' + id + '. It is made on demand and usually dispatched in 3 to 5 working days; we will share tracking.',
-        'If we cannot fulfil it, the full amount goes straight to your RoamWise wallet and back to your bank automatically.',
+        'If we cannot fulfil it, the full amount goes straight back to the way you paid.',
         '', '— RoamWise',
       ].join('\n') });
     } catch (_) { /* email is best effort */ }
@@ -53,9 +53,8 @@ export function createShopWallet(deps) {
     const shipped = order.fulfilmentState === 'submitted';
     await patch(env, ctx, id, { status: 'refunded_to_wallet', refundReason: reason, refundedAt: new Date(nowMs).toISOString(), fulfilmentState: shipped ? 'submitted' : 'cancelled' });
     const wl = await walletLinkFor(env, email, nowMs);
-    await send(env, { to: email, subject: rs(order.totalPaise) + ' is in your RoamWise wallet', text: [
-      'We could not complete your shop order ' + id + '. Sorry about that.', rs(order.totalPaise) + ' is in your RoamWise wallet right now.',
-      'Use it for another order or a stay, or do nothing: it goes back to your original payment on ' + String(r.releaseAt || '').slice(0, 10) + '.',
+    await send(env, { to: email, subject: 'Refund on its way: ' + rs(order.totalPaise), text: [
+      'We could not complete your shop order ' + id + '. Sorry about that.', rs(order.totalPaise) + ' '+'is on its way back to the way you paid. Card and UPI refunds usually show within 5 to 7 working days. Anything you paid with RoamWise credit is back in your wallet.',
       wl ? 'Your wallet: ' + wl.url : '', '— RoamWise'].join('\n') });
     if (shipped) await send(env, { to: FOUNDER, subject: 'Cancel at Qikink: ' + id, text: 'Order ' + id + ' was refunded to the buyer wallet but had already been sent to Qikink (' + (order.qikinkOrderId || '') + '). Cancel it in the Qikink dashboard if it has not shipped.' });
     return { ok: true, releaseAt: r.releaseAt };

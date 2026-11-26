@@ -15,34 +15,36 @@ function kvStore() {
 const mkEnv = () => ({ RW_KV: kvStore(), WALLET_LINK_SECRET: 'test-secret', CASHFREE_APP_ID: 'a', CASHFREE_SECRET_KEY: 's', CASHFREE_ENV: 'live' });
 const mails = []; const deps = { sendMail: async (env, m) => { mails.push(m); return { ok: true }; } };
 
-test('refund credit: 24h hold normally, 7 days for large or repeated refunds, idempotent per booking', () => {
+test('refunds go straight back to the original payment: no hold, not spendable, cannot be kept (WALLET_POLICY)', () => {
+  assert.equal(W.WALLET_POLICY.refundsToSource, true); assert.equal(W.WALLET_POLICY.newPaidCredit, false);
   let w = W.emptyWallet('Guest@Example.com');
   let r = W.creditRefund(w, { refId: 'rwstay_a', origins: [{ orderId: 'rwstay_a', amount: 1000 }], phone: '9876543210' }, T0);
-  assert.equal(Date.parse(r.releaseAt) - T0, 24 * H); assert.equal(W.balance(r.wallet), 1000); assert.deepEqual(r.wallet.phones, ['919876543210']);
+  assert.equal(Date.parse(r.releaseAt), T0); assert.equal(W.balance(r.wallet), 0, 'a refund on its way is not wallet money');
+  assert.equal(r.wallet.lots[0].noKeep, true); assert.deepEqual(r.wallet.phones, ['919876543210']);
+  assert.equal(W.dueLots(r.wallet, T0).length, 1, 'due at once for the hourly refund job');
   assert.equal(W.creditRefund(r.wallet, { refId: 'rwstay_a', origins: [{ orderId: 'rwstay_a', amount: 1000 }] }, T0).duplicate, true);
-  const big = W.creditRefund(r.wallet, { refId: 'rwstay_b', origins: [{ orderId: 'rwstay_b', amount: 25000 }] }, T0);
-  assert.equal(big.review, true); assert.equal(Date.parse(big.releaseAt) - T0, 7 * 24 * H);
-  const third = W.creditRefund(big.wallet, { refId: 'rwstay_c', origins: [{ orderId: 'rwstay_c', amount: 500 }] }, T0);
-  assert.equal(third.review, true, 'third refund in 30 days waits for checks');
+  assert.equal(W.publicWallet(r.wallet, T0).refundsOnTheWay, 1000);
+  const big = W.holdFor(r.wallet, 25000, T0); assert.equal(big.review, true, 'the review rule still exists if the policy is ever relaxed');
 });
 
 test('spending uses the oldest credit first and remembers which payments it came from', () => {
+  /* Older pack credit (sold before the policy) is still honoured: paid money first, bonus coins last. */
   let w = W.emptyWallet('g@x.in');
-  w = W.creditRefund(w, { refId: 'r1', origins: [{ orderId: 'o1', amount: 600 }] }, T0).wallet;
-  w = W.creditRefund(w, { refId: 'r2', origins: [{ orderId: 'o2', amount: 800 }] }, T0 + H).wallet;
+  w = W.creditPrepaid(w, { refId: 'p1', orderId: 'o1', paid: 600, bonus: 0 }, T0).wallet;
+  w = W.creditPrepaid(w, { refId: 'p2', orderId: 'o2', paid: 800, bonus: 0 }, T0 + H).wallet;
   const s = W.spend(w, 1000, 'rwstay_new', T0 + 2 * H);
   assert.deepEqual(s.used.map((u) => [u.orderId, u.amount]), [['o1', 600], ['o2', 400]]);
   assert.equal(W.balance(s.wallet), 400);
   assert.throws(() => W.spend(s.wallet, 1000, 'x', T0), /not enough credit/);
 });
 
-test('keep as credit stops the automatic bank refund until the guest asks', () => {
+test('a refund cannot be kept as credit: it always goes back to the original payment', () => {
   let w = W.creditRefund(W.emptyWallet('g@x.in'), { refId: 'r1', origins: [{ orderId: 'o1', amount: 1000 }] }, T0).wallet;
   const lot = w.lots[0].lotId;
   w = W.keepLot(w, lot);
-  assert.equal(W.dueLots(w, T0 + 48 * H).length, 0);
-  w = W.bankSoon(w, lot, T0 + 48 * H);
-  assert.equal(W.dueLots(w, T0 + 48 * H).length, 1);
+  assert.equal(w.lots[0].state, 'credit');
+  assert.equal(W.dueLots(w, T0).length, 1);
+  assert.throws(() => W.spend(w, 500, 'x', T0), /not enough credit/);
 });
 
 test('signed links: wallet and decision links verify, expire and cannot be reused for another order', async () => {
@@ -60,7 +62,7 @@ test('signed links: wallet and decision links verify, expire and cannot be reuse
 const order = (id, extra) => ({ id, stay: 'milan', property: 'Milan Heights, Almora', kind: 'advance', checkin: '2026-12-01', checkout: '2026-12-03', nights: 2, guests: 2, amount: 1000, email: 'guest@example.com', phone: '9876543210', status: 'payment_pending', ...extra });
 const ID = 'rwstay_' + 'a'.repeat(32);
 
-test('paid stay: founder and guest are emailed, no answer in 24h refunds to the wallet, then to the bank', async () => {
+test('paid stay: founder and guest are emailed, no answer in 24h refunds straight to the original payment', async () => {
   const env = mkEnv(); mails.length = 0;
   const rec = order(ID); await env.RW_KV.put('stayorder:' + ID, JSON.stringify(rec));
   await onStayPaid(env, rec, T0, deps);
@@ -69,12 +71,11 @@ test('paid stay: founder and guest are emailed, no answer in 24h refunds to the 
   assert.equal((await runStayDeadlines(env, T0 + 23 * H, deps)).refunded, 0);
   assert.equal((await runStayDeadlines(env, T0 + 25 * H, deps)).refunded, 1);
   assert.equal((await env.RW_KV.get('stayorder:' + ID, 'json')).status, 'refunded_to_wallet');
-  assert.match(mails.at(-1).subject, /Rs 1,000 is in your RoamWise wallet/);
-  assert.match(mails.at(-1).text, /roamwise\.co\.in\/wallet\/\?t=/);
+  assert.match(mails.at(-1).subject, /Refund on its way: Rs 1,000/);
+  assert.match(mails.at(-1).text, /back to the way you paid/);
   const refunds = [];
   const cf = async (e, r) => { refunds.push(r); return { ok: true, refundId: r.refundId, status: 'PENDING' }; };
-  assert.equal((await runWalletReleases(env, T0 + 26 * H, { ...deps, cfRefund: cf })).refunded, 0, 'still inside the 24h wallet hold');
-  assert.equal((await runWalletReleases(env, T0 + 50 * H, { ...deps, cfRefund: cf })).refunded, 1);
+  assert.equal((await runWalletReleases(env, T0 + 26 * H, { ...deps, cfRefund: cf })).refunded, 1, 'no wallet hold: the next hourly run refunds it');
   assert.deepEqual([refunds[0].orderId, refunds[0].amount], [ID, 1000]);
   assert.equal((await runWalletReleases(env, T0 + 60 * H, { ...deps, cfRefund: cf })).refunded, 0, 'never refunded twice');
 });
@@ -102,10 +103,10 @@ test('wallet endpoints: magic link opens it, keep works, wrong token is refused,
   const { token } = { token: await W.walletLinkToken('test-secret', await W.walletKey('guest@example.com'), T0) };
   const g = await handleWallet(new Request('https://w/wallet?t=' + encodeURIComponent(token)), env, 'wallet', T0, deps);
   const body = await g.json();
-  assert.equal(body.wallet.balance, 1000); assert.equal(body.wallet.email, 'gu***@example.com');
+  assert.equal(body.wallet.balance, 0); assert.equal(body.wallet.refundsOnTheWay, 1000); assert.equal(body.wallet.email, 'gu***@example.com');
   assert.doesNotMatch(JSON.stringify(body), /rwstay_/, 'order ids stay private');
   const k = await handleWallet(new Request('https://w/wallet/keep', { method: 'POST', body: JSON.stringify({ t: token, lotId: body.wallet.lots[0].lotId }) }), env, 'wallet/keep', T0, deps);
-  assert.equal((await k.json()).wallet.lots[0].state, 'kept');
+  assert.equal((await k.json()).wallet.lots[0].state, 'credit', 'refunds cannot be kept as credit');
   assert.equal((await handleWallet(new Request('https://w/wallet?t=bad'), env, 'wallet', T0, deps)).status, 401);
   const a = await (await handleWallet(new Request('https://w/wallet/link', { method: 'POST', body: JSON.stringify({ email: 'nobody@example.com' }) }), env, 'wallet/link', T0, deps)).json();
   const b = await (await handleWallet(new Request('https://w/wallet/link', { method: 'POST', body: JSON.stringify({ email: 'guest@example.com' }) }), env, 'wallet/link', T0, deps)).json();
@@ -123,14 +124,19 @@ test('a bank refund Cashfree keeps refusing is handed to the founder after 3 tri
   assert.equal((await runWalletReleases(env, T0 + 80 * H, { ...deps, cfRefund: cf })).failed, 0, 'stops retrying');
 });
 
-test('booking another stay with wallet credit needs no new payment and stays refundable to the original payment', async () => {
+test('older pack credit still books a stay with no new payment; refund money alone cannot', async () => {
   const { createStayOrder } = await import('../worker/handlers/stay-cashfree.js');
+  const { saveWallet } = await import('../worker/handlers/wallet.js');
   const env = mkEnv();
-  await creditWallet(env, { email: 'guest@example.com', refId: ID, origins: [{ orderId: ID, amount: 1500 }] }, Date.now());
+  const key = await W.walletKey('guest@example.com');
+  const refundOnly = mkEnv();
+  await creditWallet(refundOnly, { email: 'guest@example.com', refId: ID, origins: [{ orderId: ID, amount: 1500 }] }, Date.now());
+  await saveWallet(env, key, W.creditPrepaid(W.emptyWallet('guest@example.com'), { refId: 'pk', orderId: ID, paid: 1500, bonus: 0 }, Date.now()).wallet);
   const token = await W.walletLinkToken('test-secret', await W.walletKey('guest@example.com'), Date.now());
   const req = (b) => new Request('https://x/', { method: 'POST', body: JSON.stringify({ stay: 'soulmate', checkin: '2027-01-10', checkout: '2027-01-12', email: 'guest@example.com', phone: '9876543210', paymentType: 'full', ...b }) });
   const realFetch = globalThis.fetch; globalThis.fetch = async () => { throw new Error('no Cashfree call expected'); };
   try {
+    assert.equal((await createStayOrder(req({ payWith: 'wallet', wallet: token }), refundOnly)).status, 409, 'a refund on its way is not spendable');
     const res = await createStayOrder(req({ payWith: 'wallet', wallet: token }), env);
     const d = await res.json();
     assert.equal(d.paid, true);

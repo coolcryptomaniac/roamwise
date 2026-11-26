@@ -95,7 +95,7 @@
 
   const STATUS_TEXT = {
     paid: 'Payment received. Your order is confirmed. We will update you on WhatsApp.',
-    refunded_to_wallet: 'This order was refunded to your RoamWise wallet. Check your email for the wallet link.',
+    refunded_to_wallet: 'This order was refunded. The money is on its way back to the way you paid; check your email for details.',
     awaiting_payment: 'We have not received confirmation of your payment yet. If money left your account, do not pay again; message us with your order ID.',
     awaiting_upi_payment: 'Waiting for your UPI payment to be verified in our bank record. This is not instant. Do not pay twice.',
     payment_setup_failed: 'The payment could not be started and no money was taken. Please try again.',
