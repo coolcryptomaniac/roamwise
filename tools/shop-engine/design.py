@@ -165,7 +165,8 @@ def fit_text(draw, text, font_path, max_w, start, min_size=60):
 def compose(art, theme, fdir):
     from PIL import Image, ImageDraw, features
     canvas = Image.new('RGBA', (PRINT_W, PRINT_H), (0, 0, 0, 0))
-    emblem = art.copy(); emblem.thumbnail((3300, 3000), Image.LANCZOS)
+    box = art.getchannel('A').point(lambda v: 255 if v > 40 else 0).getbbox()  # trim the keyed-out margin
+    emblem = (art.crop(box) if box else art.copy()); emblem.thumbnail((3300, 2900), Image.LANCZOS)
     canvas.alpha_composite(emblem, ((PRINT_W - emblem.width) // 2, 120))
     d = ImageDraw.Draw(canvas)
     text = theme.get('text') or theme['title'].upper()
