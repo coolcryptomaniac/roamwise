@@ -92,7 +92,7 @@
     track.__rwLoop = true;
     var check = onNear(track, function () {
       var originals = Array.prototype.filter.call(track.children, function (c) { return !c.hasAttribute('data-rw-loop'); });
-      if (originals.length < 4) return;
+      if (originals.length < 3) return;
       originals.forEach(function (c, i) { var copy = /** @type {Element} */ (c.cloneNode(true)); copy.setAttribute('data-rw-loop', '1'); copy.setAttribute('data-rw-loop-of', String(i)); copy.removeAttribute('id'); copy.querySelectorAll('[id]').forEach(function (x) { x.removeAttribute('id'); }); track.appendChild(copy); });
       trim(track);
     });
@@ -129,10 +129,66 @@
   }
   document.addEventListener('pointerdown', zap, { passive: true });
 
+  /* Self-scroll: a slow drift (about 24 px/s) while the rail is on screen. Any touch, wheel, hover or
+     keyboard focus pauses it; it resumes 6 s after the last interaction. Off with reduced motion. */
+  var DRIFT_PX_PER_S = 24, RESUME_MS = 6000;
+  function drift(track) {
+    if (!track || track.__rwDrift) return; track.__rwDrift = true;
+    var visible = false, pausedUntil = 0, acc = 0, last = 0, hover = false;
+    function pause() { pausedUntil = Date.now() + RESUME_MS; if (track.__rwSnap != null) { track.style.scrollSnapType = track.__rwSnap; track.__rwSnap = null; } }
+    ['pointerdown', 'touchstart', 'wheel', 'keydown', 'focusin'].forEach(function (ev) { track.addEventListener(ev, pause, { passive: true }); });
+    track.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') { hover = true; pause(); } });
+    track.addEventListener('pointerleave', function () { hover = false; pause(); });
+    if ('IntersectionObserver' in W) new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }, { threshold: 0.35 }).observe(track); else visible = true;
+    function step(t) {
+      if (!track.isConnected) { track.__rwDrift = false; return; }
+      var dt = last ? Math.min(64, t - last) : 16; last = t;
+      if (visible && !hover && !document.hidden && Date.now() > pausedUntil && motionOk() && track.scrollWidth > track.clientWidth + 8) {
+        if (track.__rwSnap == null) { track.__rwSnap = track.style.scrollSnapType || ''; track.style.scrollSnapType = 'none'; track.style.scrollBehavior = 'auto'; }
+        acc += DRIFT_PX_PER_S * dt / 1000;
+        if (acc >= 1) { var px = Math.floor(acc); acc -= px; track.scrollLeft += px; track.dispatchEvent(new Event('scroll')); }
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* Spotlight: the card nearest the middle is fully lit, the others sit back in shadow, so a rail or a
+     long vertical list can hold many items in little space. axis 'x' (default) or 'y'. */
+  function spotlight(track, axis) {
+    if (!track || track.__rwSpot) return; track.__rwSpot = true;
+    var y = axis === 'y', raf = 0;
+    track.classList.add('rw-spot', y ? 'rw-spot-y' : 'rw-spot-x');
+    function update() {
+      raf = 0; var box = track.getBoundingClientRect(), mid = y ? box.top + box.height / 2 : box.left + box.width / 2, best = null, bestD = 1e9;
+      Array.prototype.forEach.call(track.children, function (c) {
+        if (c.hidden) return; var r = c.getBoundingClientRect(); if (!r.width) return;
+        var d = Math.abs((y ? r.top + r.height / 2 : r.left + r.width / 2) - mid); if (d < bestD) { bestD = d; best = c; }
+      });
+      Array.prototype.forEach.call(track.children, function (c) { if (c === best) c.setAttribute('data-spot', 'on'); else c.removeAttribute('data-spot'); });
+    }
+    function queue() { if (!raf) raf = requestAnimationFrame(update); }
+    track.addEventListener('scroll', queue, { passive: true });
+    W.addEventListener('resize', queue);
+    if ('MutationObserver' in W) new MutationObserver(queue).observe(track, { childList: true });
+    track.__rwSpotUpdate = update; queue();
+  }
+  /* Big-card rails (a card at least ~45% of the rail width) get the spotlight automatically. */
+  function wantsSpot(track) { var c = track.firstElementChild; return !!c && c.getBoundingClientRect().width >= track.clientWidth * 0.45; }
+
   /* Rails other modules render; each is looped once it exists. */
-  var LOOP_SELECTORS = ['#rwDestinationTrack', '.rw-world-track', '.rw-amb-works', '.rw-room-carousel'];
-  function autoLoop() { LOOP_SELECTORS.forEach(function (s) { document.querySelectorAll(s).forEach(loopTrack); }); }
-  W.RWRail = { create: create, loop: loopTrack, autoLoop: autoLoop };
-  function start() { autoLoop(); setTimeout(autoLoop, 2500); setTimeout(autoLoop, 7000); }
+  var LOOP_SELECTORS = ['#rwDestinationTrack', '.rw-world-track', '.rw-amb-works', '.rw-room-carousel', '.rw-sales-track', '.rwx-track', '.rwa-row'];
+  var DRIFT_SELECTORS = LOOP_SELECTORS.concat(['.rw-property-track', '.rwc-track']);
+  function autoLoop() {
+    LOOP_SELECTORS.forEach(function (s) { document.querySelectorAll(s).forEach(loopTrack); });
+    DRIFT_SELECTORS.forEach(function (s) { document.querySelectorAll(s).forEach(function (/** @type {any} */ t) { drift(t); if (!t.__rwSpot && t.clientWidth && wantsSpot(t)) spotlight(t, 'x'); }); });
+  }
+  W.RWRail = { create: create, loop: loopTrack, autoLoop: autoLoop, drift: drift, spotlight: spotlight };
+  function start() {
+    autoLoop(); setTimeout(autoLoop, 2500); setTimeout(autoLoop, 7000);
+    /* Rails that appear later (tab switches, lazy sections) are picked up too. */
+    var pending = 0;
+    if ('MutationObserver' in W) new MutationObserver(function () { if (!pending) pending = setTimeout(function () { pending = 0; autoLoop(); }, 600); }).observe(document.body, { childList: true, subtree: true });
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
