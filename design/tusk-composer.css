@@ -14,16 +14,17 @@ html[data-rw-design] body.shell[data-view="home"] #copilotHero .copilot-compose:
 #copilotHero .rw-tb-voice{background:linear-gradient(135deg,#4b3a8c,#2a2350);border-color:#8f7bff}
 #copilotHero .rw-tb-voice span{font-size:13px}
 #copilotHero .rw-tb-scan{display:none}
-#copilotHero .rw-tb-lang{width:100%;height:44px;padding:0 10px;border-radius:999px;border:1px solid rgba(201,173,220,.28);background:#1c1730;color:#efe3f7;font:600 13px system-ui}
+#copilotHero .rw-tb-lang,.rw-model-menu .rw-tb-lang{width:100%;height:44px;padding:0 10px;border-radius:999px;border:1px solid rgba(201,173,220,.28);background:#1c1730;color:#efe3f7;font:600 13px system-ui}
 #copilotHero .rw-tb-send{width:48px;height:48px;border-radius:50%;border:0;background:linear-gradient(135deg,#e8ba6c,#c8913e);color:#0a0a0c;font:800 18px system-ui;cursor:pointer;flex:0 0 auto}
 #copilotHero .rw-model-pick{position:relative}
 #copilotHero .rw-tb-pill{height:44px;max-width:112px;padding:0 12px;border-radius:999px;border:1px solid #e8c58b;background:rgba(232,186,108,.12);color:#ffd38f;font:700 13px system-ui;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 #copilotHero .rw-tb-pill i{font-style:normal;opacity:.7;margin-left:2px}
-#copilotHero .rw-model-menu{position:absolute;right:0;top:52px;z-index:20;min-width:230px;max-width:min(84vw,290px);padding:10px;border-radius:16px;background:#151226;border:1px solid #4a3f66;box-shadow:0 14px 40px rgba(0,0,0,.55)}
-#copilotHero .rw-model-menu[hidden]{display:none}
-#copilotHero .rw-mm-h{display:block;margin:2px 4px 6px;color:#9be7ff;font:800 10px system-ui;letter-spacing:.12em;text-transform:uppercase}
-#copilotHero #heroModels{position:static!important;display:flex!important;flex-direction:column!important;gap:4px!important;max-width:none!important;margin-bottom:10px}
-#copilotHero #heroModels button{min-height:44px;width:100%;text-align:left;font-size:14px!important;padding:8px 12px!important;border-radius:12px!important}
+/* The menu is moved to <body> when opened (js/ui/tusk-composer.js place()), so nothing clips it and it sits above the bottom nav. */
+.rw-model-menu{position:fixed;z-index:100003;min-width:230px;max-width:min(84vw,290px);overflow-y:auto;overscroll-behavior:contain;padding:10px;border-radius:16px;background:#151226;border:1px solid #4a3f66;box-shadow:0 14px 40px rgba(0,0,0,.55);color:#efe3f7;box-sizing:border-box}
+.rw-model-menu[hidden]{display:none}
+.rw-model-menu .rw-mm-h,#copilotHero .rw-mm-h{display:block;margin:2px 4px 6px;color:#9be7ff;font:800 10px system-ui;letter-spacing:.12em;text-transform:uppercase}
+#copilotHero #heroModels,.rw-model-menu #heroModels{position:static!important;overflow-x:visible!important;flex-wrap:nowrap!important;display:flex!important;flex-direction:column!important;gap:4px!important;max-width:none!important;margin-bottom:10px}
+#copilotHero #heroModels button,.rw-model-menu #heroModels button{min-height:44px;width:100%;text-align:left;font-size:14px!important;padding:8px 12px!important;border-radius:12px!important}
 @media (max-width:380px){#copilotHero .rw-tb-voice span{display:none}#copilotHero .rw-tb-pill{max-width:86px}}
 /* Voice agent: answers keep their structure (js/voice/tusk-studio.js formatted()). */
 .rw-orb-rich{line-height:1.6;color:#f8f0ff;font-size:clamp(14px,3vw,15.5px)}
