@@ -101,3 +101,37 @@ export async function handleShopClick(request, env, base, deps = {}) {
 }
 
 export const _test = { reset: () => { cache = {}; } };
+
+/* POST /shop/engine/art {nonce, prompt, seed}: lets the daily design workflow use the Worker's own Workers AI
+ * binding (the deploy token has no Workers AI permission). Authorised by a one-time nonce the workflow first
+ * writes to the PRIVATE records bucket (only holders of the Cloudflare deploy token can). The nonce is deleted
+ * on use and must be under 15 minutes old. Returns {image: base64} or an error. Never touches orders or money. */
+const NONCE = /^[a-f0-9]{32,64}$/;
+export async function handleShopArt(request, env) {
+  const no = (status, error) => new Response(JSON.stringify({ error }), { status, headers: { 'Content-Type': 'application/json' } });
+  if (!env || !env.RECORDS || !env.AI) return no(404, 'not_configured');
+  let body = null;
+  try { body = await request.json(); } catch (_) { return no(400, 'invalid_json'); }
+  const nonce = body && typeof body.nonce === 'string' ? body.nonce : '';
+  const prompt = body && typeof body.prompt === 'string' ? body.prompt.slice(0, 2000) : '';
+  if (!NONCE.test(nonce) || prompt.length < 20) return no(400, 'invalid_request');
+  const key = 'shop-engine/nonce/' + nonce;
+  const obj = await env.RECORDS.get(key);
+  if (!obj) return no(403, 'forbidden');
+  await env.RECORDS.delete(key);
+  if (Date.now() - new Date(obj.uploaded).getTime() > 15 * 60 * 1000) return no(403, 'expired');
+  const seed = Number.isInteger(body.seed) ? body.seed : undefined;
+  try {
+    const form = new FormData();
+    form.append('prompt', prompt); form.append('width', '1024'); form.append('height', '1024');
+    if (seed !== undefined) form.append('seed', String(seed));
+    const r = new Response(form);
+    const out = await env.AI.run('@cf/black-forest-labs/flux-2-klein-9b', { multipart: { body: r.body, contentType: r.headers.get('content-type') } });
+    if (out && out.image) return Response.json({ image: out.image, model: 'flux-2-klein-9b' });
+  } catch (_) { /* fall back below */ }
+  try {
+    const out = await env.AI.run('@cf/black-forest-labs/flux-1-schnell', { prompt, steps: 8, ...(seed !== undefined ? { seed } : {}) });
+    if (out && out.image) return Response.json({ image: out.image, model: 'flux-1-schnell' });
+  } catch (e) { return no(502, 'ai_failed: ' + String(e && e.message || e).slice(0, 120)); }
+  return no(502, 'ai_no_image');
+}

@@ -131,3 +131,18 @@ test('click counter: only real product ids, speed bump respected, always 204', a
   assert.equal(writes.length, 1);
   assert.deepEqual(writes[0][1], ['almora-after-dark-hoodie', '2026-12-01']);
 });
+
+test('art bridge needs a fresh one-time nonce from the private bucket, then uses the AI binding once', async () => {
+  const { handleShopArt } = await import('../worker/lib/shop-engine.js');
+  const store = new Map([['shop-engine/nonce/' + 'a'.repeat(64), { uploaded: new Date() }]]);
+  const env = {
+    RECORDS: { get: async (k) => store.get(k) || null, delete: async (k) => { store.delete(k); } },
+    AI: { run: async () => ({ image: 'QUJD' }) },
+  };
+  const req = (nonce) => new Request('https://x.test/shop/engine/art', { method: 'POST', body: JSON.stringify({ nonce, prompt: 'a mountain emblem on black background', seed: 1 }) });
+  assert.equal((await handleShopArt(req('b'.repeat(64)), env)).status, 403);
+  const ok = await handleShopArt(req('a'.repeat(64)), env);
+  assert.equal(ok.status, 200);
+  assert.equal((await ok.json()).image, 'QUJD');
+  assert.equal((await handleShopArt(req('a'.repeat(64)), env)).status, 403); // single use
+});

@@ -29,7 +29,7 @@ BLOCKLIST = re.compile(r'\b(gta|grand theft|rockstar|vice city|leonida|marvel|di
 
 
 def ist_today():
-    return (datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)).date().isoformat()
+    return (datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None) + datetime.timedelta(hours=5, minutes=30)).date().isoformat()
 
 
 def pick_theme(key=None):
@@ -53,22 +53,40 @@ def check_rights(theme):
 
 
 def cf_generate(prompt, seed, w=1024, h=1024):
+    """Workers AI image. Direct REST when CF_AI_TOKEN works; otherwise through the RoamWise Worker's own AI
+    binding, authorised by a one-time nonce written to the private R2 records bucket with wrangler."""
     acc = os.environ.get('CF_ACCOUNT_ID') or os.environ.get('CLOUDFLARE_ACCOUNT_ID')
-    tok = os.environ.get('CF_AI_TOKEN') or os.environ.get('CLOUDFLARE_API_TOKEN')
-    if not acc or not tok:
+    tok = os.environ.get('CF_AI_TOKEN')
+    if acc and tok:
+        b = '----' + uuid.uuid4().hex
+        fields = {'prompt': prompt, 'width': w, 'height': h, 'seed': seed}
+        data = (''.join(f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n' for k, v in fields.items()) + f'--{b}--\r\n').encode()
+        req = urllib.request.Request(f'https://api.cloudflare.com/client/v4/accounts/{acc}/ai/run/{MODEL}', data=data,
+                                     headers={'Authorization': 'Bearer ' + tok, 'Content-Type': 'multipart/form-data; boundary=' + b})
+        try:
+            with urllib.request.urlopen(req, timeout=180) as r:
+                return base64.b64decode(json.loads(r.read())['result']['image'])
+        except urllib.error.HTTPError as e:
+            print('Workers AI REST refused:', e.code, e.read()[:200], '- trying the Worker bridge', file=sys.stderr)
+    api = os.environ.get('SHOP_API', 'https://roamwise-api.founder-f53.workers.dev').rstrip('/')
+    nonce = uuid.uuid4().hex + uuid.uuid4().hex
+    nf = FONTS / 'nonce.txt'; FONTS.mkdir(parents=True, exist_ok=True); nf.write_text('1')
+    try:
+        subprocess.run(['wrangler', 'r2', 'object', 'put', 'roamwise-records/shop-engine/nonce/' + nonce, '--remote', '--file', str(nf)],
+                       check=True, capture_output=True, timeout=120)
+    except Exception as e:  # noqa: BLE001
+        print('could not write bridge nonce:', e, file=sys.stderr)
         raise SystemExit(3)
-    b = '----' + uuid.uuid4().hex
-    fields = {'prompt': prompt, 'width': w, 'height': h, 'seed': seed}
-    data = (''.join(f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n' for k, v in fields.items()) + f'--{b}--\r\n').encode()
-    req = urllib.request.Request(f'https://api.cloudflare.com/client/v4/accounts/{acc}/ai/run/{MODEL}', data=data,
-                                 headers={'Authorization': 'Bearer ' + tok, 'Content-Type': 'multipart/form-data; boundary=' + b})
+    req = urllib.request.Request(api + '/shop/engine/art', data=json.dumps({'nonce': nonce, 'prompt': prompt, 'seed': seed}).encode(),
+                                 headers={'Content-Type': 'application/json'})
     try:
         with urllib.request.urlopen(req, timeout=180) as r:
             d = json.loads(r.read())
     except urllib.error.HTTPError as e:
-        print('Workers AI refused:', e.code, e.read()[:200], file=sys.stderr)
+        print('Worker AI bridge refused:', e.code, e.read()[:200], file=sys.stderr)
         raise SystemExit(3)
-    return base64.b64decode(d['result']['image'])
+    print('art model:', d.get('model'), file=sys.stderr)
+    return base64.b64decode(d['image'])
 
 
 def fonts():
