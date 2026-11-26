@@ -71,6 +71,7 @@
 .rw-dsc-chips span{padding:4px 9px;border-radius:999px;font-size:12px;background:#ffffff16;border:1px solid #ffffff22;color:#f1e6f4}
 .rw-dsc-chips span.hit{border-color:#e8ba6c;color:#f7d98f;background:#e8ba6c22}
 .rw-dsc-links{display:flex;gap:8px;margin-top:12px}
+.rw-dsc-links button{min-height:38px;padding:0 12px;border-radius:12px;font:800 13px system-ui;color:#140f05;background:#e8ba6c;border:0;cursor:pointer}.rw-dsc-links button:disabled{background:#5fd3a0;opacity:.9}
 .rw-dsc-links a{min-height:38px;display:inline-flex;align-items:center;padding:0 12px;border-radius:12px;font:700 13px system-ui;color:#fff;background:#ffffff18;text-decoration:none;border:1px solid #ffffff2a}
 .rw-dsc-match{position:absolute;top:14px;right:14px;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font:800 15px system-ui;color:#fff;
   background:conic-gradient(#e8ba6c calc(var(--m,0)*1%),#ffffff22 0);box-shadow:0 6px 20px #0008}

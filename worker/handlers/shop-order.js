@@ -20,6 +20,7 @@ import { createShopWallet } from './shop-wallet.js';
 import { walletKeyFromRequest, spendWallet } from './wallet.js';
 import { verifyCashfreeWorkerWebhook } from '../lib/cashfree-booking-webhook-verify.js';
 import { SHOP_CATALOGUE, publicCatalogue } from '../lib/shop-catalogue.js';
+import { liveProducts, mergeCatalogue } from '../lib/shop-d1-catalogue.js';
 import {
   ORDER_ID_RE, hex, newOrderId, priceCart, sha256Hex, timingSafeEqualHex, upiIntent,
   validateCustomer, validateShipTo,
@@ -73,9 +74,17 @@ export function createShopHandlers(overrides) {
     randomBytes: (n) => crypto.getRandomValues(new Uint8Array(n)),
   }, overrides || {});
 
+  /* Code catalogue plus live products managed in D1 (founder screen). Prices still come only from here. */
+  let current = deps.catalogue;
+  async function cat(env) {
+    if (deps.catalogue !== SHOP_CATALOGUE || !env || !env.DB) return (current = deps.catalogue);
+    try { current = mergeCatalogue(deps.catalogue, await (deps.liveProducts || liveProducts)(env)); } catch (_) { current = deps.catalogue; }
+    return current;
+  }
+
   const fulfil = createFulfilment({
     getDoc: (...a) => deps.getDoc(...a), updateDoc: (...a) => deps.updateDoc(...a), queryEqualsString: (...a) => deps.queryEqualsString(...a),
-    fetchImpl: (...a) => deps.qikinkFetch(...a), now: () => deps.now(), catalogue: deps.catalogue,
+    fetchImpl: (...a) => deps.qikinkFetch(...a), now: () => deps.now(), catalogue: () => current,
   });
 
   const shopWallet = createShopWallet({
@@ -99,6 +108,7 @@ export function createShopHandlers(overrides) {
 
   /* Looks the order up at Cashfree and marks it paid only if id, amount and currency all match. */
   async function verifyAndMarkPaid(env, ctx, id, order) {
+    await cat(env);
     let got;
     try { got = await cfGetOrder(env, order.cashfreeOrderId); }
     catch (_) { return { state: 'unverified' }; }
@@ -131,7 +141,7 @@ export function createShopHandlers(overrides) {
         checkoutOpen = m.cashfree || m.upi;
       }
     } catch (_) { checkoutOpen = false; }
-    return new Response(JSON.stringify({ ...publicCatalogue(deps.catalogue), checkoutOpen }), {
+    return new Response(JSON.stringify({ ...publicCatalogue(await cat(env)), checkoutOpen }), {
       status: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60', ...CORS },
     });
   }
@@ -144,7 +154,7 @@ export function createShopHandlers(overrides) {
     if (ctx.error) return ctx.error;
     const state = await loadMethods(env, ctx);
     if (state.error) return state.error;
-    const priced = priceCart(body.items, body.pin, deps.catalogue);
+    const priced = priceCart(body.items, body.pin, await cat(env));
     if (priced.error) return json({ error: priced.error, message: priced.message }, 422);
     return json({ ok: true, currency: 'INR', ...priced, methods: { cashfree: state.methods.cashfree, upi: state.methods.upi } });
   }
@@ -165,7 +175,7 @@ export function createShopHandlers(overrides) {
     if (customer.error) return json({ error: customer.error, message: customer.message }, 422);
     const ship = validateShipTo(body.ship);
     if (ship.error) return json({ error: ship.error, message: ship.message }, 422);
-    const priced = priceCart(body.items, ship.value.pin, deps.catalogue);
+    const priced = priceCart(body.items, ship.value.pin, await cat(env));
     if (priced.error) return json({ error: priced.error, message: priced.message }, 422);
 
     if(Object.prototype.hasOwnProperty.call(body,'expectedAmountPaise')&&(!Number.isSafeInteger(body.expectedAmountPaise)||body.expectedAmountPaise!==priced.totalPaise))return json({error:'quote_changed',message:'Price changed. Review a fresh quote before paying.'},409);
@@ -286,6 +296,7 @@ export function createShopHandlers(overrides) {
   async function runShopFulfilmentCron(env) {
     const ctx = await deps.context(env);
     if (ctx.error) return { skipped: 'backend_unavailable' };
+    await cat(env);
     return fulfil.runFulfilmentCron(env, ctx);
   }
 

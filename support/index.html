@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Support RoamWise</title>
+<meta name="description" content="Chip in from ₹1 to ₹10,000 to help an independent travel startup from Almora. Nothing in return, just thanks.">
+<meta name="theme-color" content="#07090F">
+<link rel="icon" href="/assets/img/roamwise-logo-176.webp">
+<style>
+@font-face{font-family:Outfit;src:url(/assets/fonts/outfit-latin-wght.woff2) format('woff2');font-weight:100 900;font-display:swap}
+:root{--line:rgba(201,173,220,.2);--t1:#F2EEF7;--t2:#B9B4CC;--t3:#7E7A94;--gold:#E8BA6C}
+*{box-sizing:border-box}html,body{margin:0;background:#07090F;color:var(--t1);font:400 15px/1.55 Outfit,system-ui,sans-serif}
+.sky{position:fixed;inset:-20%;z-index:-1;background:radial-gradient(closest-side at 22% 18%,rgba(124,107,255,.22),transparent 70%),radial-gradient(closest-side at 80% 70%,rgba(232,186,108,.14),transparent 70%)}
+main{max-width:620px;margin:0 auto;padding:18px 14px 40px;display:grid;gap:14px}
+.top{display:flex;align-items:center;gap:10px;color:var(--t1);text-decoration:none;font-size:18px}.top img{border-radius:12px;box-shadow:0 0 0 1.5px rgba(232,186,108,.7)}
+.card{background:linear-gradient(160deg,rgba(40,30,78,.55),rgba(14,14,28,.88));border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+h1{font-size:clamp(28px,7vw,40px);line-height:1.1;margin:4px 0 8px}h1 em{font-style:normal;color:var(--gold)}
+.muted{color:var(--t2)}.small{font-size:12.5px;color:var(--t3)}
+.amts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+button,input,textarea{font:600 15px Outfit,system-ui;border-radius:14px;border:1px solid var(--line);background:rgba(10,10,22,.7);color:var(--t1);min-height:48px;padding:0 14px;width:100%}
+textarea{min-height:80px;padding:12px 14px;font-weight:500}
+.amts button[aria-pressed=true]{background:var(--gold);color:#140f05;border-color:transparent}
+.primary{background:linear-gradient(135deg,#ffd38f,#e8ba6c 45%,#c8913e);color:#140f05;border:0;font-weight:800;margin-top:10px}
+label{display:grid;gap:6px;font-size:13px;color:var(--t2);margin-top:10px}
+.tick{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--t2);margin-top:10px}.tick input{width:22px;min-height:22px;flex:0 0 22px}
+.msg{margin-top:10px;font-weight:600}.ok{color:#5fd3a0}.bad{color:#ff7a85}
+.wall{display:flex;flex-wrap:wrap;gap:6px}.wall span{padding:4px 10px;border-radius:999px;border:1px solid var(--line);font-size:13px}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+<main>
+  <a class="top" href="/"><img src="/assets/img/roamwise-logo-176.webp" alt="" width="40" height="40"><span>RoamWise</span></a>
+  <section class="card">
+    <h1>Support <em>RoamWise</em></h1>
+    <p class="muted">RoamWise is built by a small team in Almora. If it helped you plan a trip, you can chip in any amount from ₹1 to ₹10,000. You get nothing in return except our thanks. That's what makes it a gift, not a purchase.</p>
+    <div class="amts" role="group" aria-label="Amount">
+      <button data-a="11">₹11</button><button data-a="51">₹51</button><button data-a="101" aria-pressed="true">₹101</button>
+      <button data-a="251">₹251</button><button data-a="501">₹501</button><button data-a="1001">₹1,001</button>
+    </div>
+    <label>Or any amount (₹1 – ₹10,000)<input id="amt" type="number" min="1" max="10000" step="1" value="101" inputmode="numeric"></label>
+    <label>Mobile number (for the payment receipt)<input id="phone" inputmode="tel" autocomplete="tel" placeholder="10-digit Indian mobile"></label>
+    <label>Name (optional)<input id="name" autocomplete="name"></label>
+    <label>Email (optional)<input id="email" type="email" autocomplete="email"></label>
+    <label>A note for the team (optional)<textarea id="note" maxlength="280"></textarea></label>
+    <div class="tick"><input type="checkbox" id="show"><label for="show" style="margin:0">Show my first name on the supporters wall</label></div>
+    <div class="tick"><input type="checkbox" id="c1"><label for="c1" style="margin:0">I understand this is a voluntary contribution. I get nothing in return, it is not refundable, and it is not a donation to a charity, so there is no tax receipt.</label></div>
+    <div class="tick"><input type="checkbox" id="c2"><label for="c2" style="margin:0">I am an Indian citizen paying from my own Indian account.</label></div>
+    <button class="primary" id="pay">Support with ₹101</button>
+    <p class="msg" id="msg" role="status"></p>
+  </section>
+  <section class="card" id="wallCard" hidden>
+    <h2 style="margin:0 0 6px;font-size:18px">Thank you, supporters</h2>
+    <p class="muted" id="wallSum"></p>
+    <div class="wall" id="wall"></div>
+  </section>
+  <p class="small">RoamWise uses support to keep the free planner running and the servers on. Payments are processed by Cashfree. Questions: support@roamwise.co.in</p>
+</main>
+<script>
+(function(){
+  var API='https://roamwise-api.founder-f53.workers.dev', $=function(i){return document.getElementById(i)}, amt=$('amt'), pay=$('pay'), msg=$('msg');
+  function say(t,c){msg.textContent=t;msg.className='msg '+(c||'');}
+  function sync(){var v=Math.round(+amt.value)||0;pay.textContent='Support with ₹'+v.toLocaleString('en-IN');document.querySelectorAll('.amts button').forEach(function(b){b.setAttribute('aria-pressed',String(+b.dataset.a===v));});}
+  document.querySelectorAll('.amts button').forEach(function(b){b.onclick=function(){amt.value=b.dataset.a;sync();};});
+  amt.oninput=sync;
+  function load(src){return new Promise(function(ok,no){var s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s);});}
+  async function check(id){
+    say('Checking your payment…');
+    for(var i=0;i<6;i++){var r=await fetch(API+'/support/status/'+id).then(function(r){return r.json();}).catch(function(){return {};});
+      if(r.status==='paid'){say('Thank you! ₹'+r.amount+' received. It means a lot.','ok');wall();return;}
+      await new Promise(function(z){setTimeout(z,2500);});}
+    say('Payment not confirmed yet. If money left your account it will show here shortly; nothing is charged twice.');
+  }
+  pay.onclick=async function(){
+    var v=Math.round(+amt.value);
+    if(!(v>=1&&v<=10000))return say('Choose an amount from ₹1 to ₹10,000.','bad');
+    if(!$('c1').checked||!$('c2').checked)return say('Please tick both confirmations.','bad');
+    pay.disabled=true;say('Starting secure payment…');
+    try{
+      var r=await fetch(API+'/support/order',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({amount:v,phone:$('phone').value,name:$('name').value,email:$('email').value,message:$('note').value,showName:$('show').checked,confirmNothingInReturn:true,confirmIndian:true})});
+      var d=await r.json().catch(function(){return {};});
+      if(!r.ok)throw new Error(d.message||'Could not start payment.');
+      await load('https://sdk.cashfree.com/js/v3/cashfree.js');
+      var cf=window.Cashfree({mode:d.environment==='production'?'production':'sandbox'});
+      await cf.checkout({paymentSessionId:d.payment_session_id,redirectTarget:'_modal'});
+      check(d.id);
+    }catch(e){say(e.message,'bad');}finally{pay.disabled=false;}
+  };
+  function wall(){fetch(API+'/support/wall').then(function(r){return r.json();}).then(function(w){
+    if(w.open===false){pay.disabled=true;say('Support payments open soon. Thank you for wanting to help!');}
+    if(!w.supporters)return;$('wallCard').hidden=false;$('wallSum').textContent=w.supporters+' people have chipped in so far.';
+    $('wall').replaceChildren.apply($('wall'),w.names.map(function(n){var s=document.createElement('span');s.textContent=n;return s;}));
+  }).catch(function(){});}
+  var q=new URLSearchParams(location.search).get('id');if(q&&/^RWSUP-[A-Z0-9]{14}$/.test(q))check(q);
+  sync();wall();
+})();
+</script>
+</body>
+</html>

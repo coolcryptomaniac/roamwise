@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" width="1200" height="1500"><defs><pattern id="ht" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r="3.2" fill="#000" opacity=".22"/></pattern></defs><rect width="1200" height="1500" fill="#7c6bff"/><rect width="1200" height="1500" fill="url(#ht)"/>
+<path d="M150,1300 C350,1250 250,1050 480,1000 S560,760 820,720 S900,420 1050,300" stroke="#fff" stroke-width="16" stroke-dasharray="2 34" stroke-linecap="round" fill="none"/>
+<g transform="translate(150,1300)"><circle r="38" fill="#ffcf3f" stroke="#000" stroke-width="8"/><text y="14" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="40">1</text></g><g transform="translate(480,1000)"><circle r="38" fill="#ffcf3f" stroke="#000" stroke-width="8"/><text y="14" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="40">2</text></g><g transform="translate(820,720)"><circle r="38" fill="#ffcf3f" stroke="#000" stroke-width="8"/><text y="14" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="40">3</text></g><g transform="translate(1050,300)"><circle r="38" fill="#ffcf3f" stroke="#000" stroke-width="8"/><text y="14" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="40">4</text></g>
+<g transform="rotate(-6 600 210)"><rect x="140" y="120" width="720" height="170" fill="#ffcf3f" stroke="#000" stroke-width="12"/>
+<text x="500" y="245" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="120">GETAWAY</text></g>
+<text x="1040" y="250" text-anchor="end" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="54" fill="#fff">THE TOP</text>
+<g transform="translate(380,1460) scale(0.9)"><g class="car">
+<path d="M10,-30 C30,-34 80,-40 140,-52 L230,-92 C260,-104 330,-108 390,-100 L470,-74 C520,-70 570,-60 592,-44 L596,-22 C596,-12 588,-8 576,-8 L10,-8 C2,-8 0,-14 2,-20 Z" fill="#ffcf3f"/>
+<path d="M250,-88 L300,-100 C340,-104 380,-102 400,-96 L440,-76 L268,-70 Z" fill="#000"/>
+<path d="M40,-30 L560,-40" stroke="#000" stroke-width="3" fill="none" opacity=".7"/>
+<circle cx="130" cy="-10" r="34" fill="#0b0b12"/><circle cx="130" cy="-10" r="18" fill="#e3262f"/>
+<circle cx="480" cy="-10" r="34" fill="#0b0b12"/><circle cx="480" cy="-10" r="18" fill="#e3262f"/>
+<path d="M560,-48 l30,4" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+</g></g>
+<path d="M100,380 h460 v130 h-300 l-50,50 l6,-50 h-116 Z" fill="#fff" stroke="#000" stroke-width="8"/>
+<text x="330" y="462" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="42">NO MAPS. ONLY VIBES.</text></svg>
