@@ -1,12 +1,14 @@
-name: Mirror destination photos and itineraries to R2
-# Keeps a copy of the curated destination photos (media/destinations/) and the itinerary library
-# (itinerary-library/) in the Cloudflare R2 bucket "roamwise-media", so they live in R2 as well as on the site.
+name: Mirror long-term assets to R2
+# Keeps a copy of RoamWise's long-term assets in the Cloudflare R2 bucket "roamwise-media":
+# site images and audio (assets/), curated destination photos (media/) and the itinerary library.
+# On a push, only the files that changed are uploaded; a manual run ("Run workflow") uploads everything.
 # The site keeps serving its own copies until a public R2 domain is connected.
 on:
   push:
     branches: [main]
     paths:
-      - 'media/destinations/**'
+      - 'assets/**'
+      - 'media/**'
       - 'itinerary-library/**'
       - '.github/workflows/r2-mirror-site-media.yml'
   workflow_dispatch:
@@ -18,13 +20,15 @@ concurrency:
 jobs:
   mirror:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       BUCKET: roamwise-media
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
@@ -33,19 +37,39 @@ jobs:
           if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
             echo "::error::Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID in repository Actions secrets."; exit 1
           fi
+      - name: Install wrangler
+        run: npm i -g wrangler@4
       - name: Create the bucket if it does not exist
-        run: npx --yes wrangler@4 r2 bucket create "$BUCKET" || echo "Bucket already exists"
-      - name: Upload files
+        run: wrangler r2 bucket create "$BUCKET" || echo "Bucket already exists"
+      - name: Choose files
+        env:
+          BEFORE: ${{ github.event.before }}
         run: |
           set -e
-          n=0
-          while IFS= read -r -d '' f; do
-            case "$f" in
-              *.webp) t=image/webp ;; *.jpg|*.jpeg) t=image/jpeg ;; *.png) t=image/png ;;
-              *.json) t=application/json ;; *.html) t=text/html ;; *.js) t=application/javascript ;; *.css) t=text/css ;;
-              *) continue ;;
-            esac
-            npx --yes wrangler@4 r2 object put "$BUCKET/${f#./}" --remote --file "$f" --content-type "$t" >/dev/null
-            n=$((n+1))
-          done < <(find ./media/destinations ./itinerary-library -type f -print0)
-          echo "Uploaded $n files to R2 bucket $BUCKET"
+          if [ "${{ github.event_name }}" = "push" ] && [ -n "$BEFORE" ] && git cat-file -e "$BEFORE" 2>/dev/null \
+             && ! git diff --name-only "$BEFORE" "$GITHUB_SHA" | grep -q '^.github/workflows/r2-mirror-site-media.yml$'; then
+            git diff --name-only --diff-filter=AM "$BEFORE" "$GITHUB_SHA" -- assets media itinerary-library > /tmp/files.txt
+          else
+            find assets media itinerary-library -type f > /tmp/files.txt
+          fi
+          echo "$(wc -l < /tmp/files.txt) files to upload"
+      - name: Upload files (8 at a time)
+        run: |
+          set -e
+          cat > /tmp/put.sh <<'SH'
+          f="$1"
+          case "$f" in
+            *.webp) t=image/webp ;; *.jpg|*.jpeg) t=image/jpeg ;; *.png) t=image/png ;; *.gif) t=image/gif ;; *.svg) t=image/svg+xml ;;
+            *.mp3) t=audio/mpeg ;; *.ogg) t=audio/ogg ;; *.mp4) t=video/mp4 ;;
+            *.json) t=application/json ;; *.html) t=text/html ;; *.js) t=application/javascript ;; *.css) t=text/css ;; *.md) t=text/markdown ;;
+            *) exit 0 ;;
+          esac
+          for i in 1 2 3; do
+            wrangler r2 object put "$BUCKET/$f" --remote --file "$f" --content-type "$t" >/dev/null 2>&1 && exit 0
+            sleep $((i*3))
+          done
+          echo "::error::Upload failed: $f"; exit 1
+          SH
+          chmod +x /tmp/put.sh
+          tr '\n' '\0' < /tmp/files.txt | xargs -0 -r -n1 -P8 /tmp/put.sh
+          echo "Uploaded $(wc -l < /tmp/files.txt) files to R2 bucket $BUCKET"
