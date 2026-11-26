@@ -6,8 +6,10 @@
  *              SAC summary, and the month's document count
  *   payouts  - partner payments: partner, GSTIN, their invoice number and GST (for input credit), amount, UTR, status
  *   margin   - private: RoamWise's pre-GST sale minus the partner net, per booking (founder only; never committed)
- * Storage (RW_KV): book:<YYYY-MM>:<recordId> (13 months). Months are India time (IST). */
+ * Storage: RW_KV book:<YYYY-MM>:<recordId> is the working copy (13 months). Permanent copies (GST needs ~6 years):
+ * D1 `sales` table and R2 books/<YYYY-MM>/... via lib/records.js. Months are India time (IST). */
 import { json } from '../lib/http.js';
+import { recordSale, salesFromD1, archive } from '../lib/records.js';
 import { sendMail } from '../lib/mailer.js';
 
 const API = 'https://roamwise-api.founder-f53.workers.dev';
@@ -23,17 +25,20 @@ export async function bookEntry(env, doc, record) {
   const share = net != null && (record.total || record.amount) ? r2(net * (doc.amountINR + (doc.coinsDiscount || 0)) / (record.total || record.amount)) : null;
   const e = { ...doc, property: record.property, supplier: record.supplier, stay: record.stay || '', checkin: record.checkin, partnerShare: doc.tax && doc.tax.model === 'agent' ? null : share };
   await env.RW_KV.put('book:' + istMonth(doc.paidAt) + ':' + doc.id, JSON.stringify(e), { expirationTtl: 60 * 60 * 24 * 400 });
+  await recordSale(env, istMonth(doc.paidAt), e);
   return e;
 }
 
 async function entries(env, month) {
-  const out = []; let cursor;
+  /* D1 keeps every month for years; KV only ~13 months. Union by id so nothing is lost if one write failed. */
+  const byId = new Map(); for (const e of (await salesFromD1(env, month)) || []) byId.set(e.id, e);
+  let cursor;
   do {
     const page = await env.RW_KV.list({ prefix: 'book:' + month + ':', cursor });
-    for (const k of page.keys) { const e = await env.RW_KV.get(k.name, 'json'); if (e) out.push(e); }
+    for (const k of page.keys) { const e = await env.RW_KV.get(k.name, 'json'); if (e) byId.set(e.id, e); }
     cursor = page.list_complete ? null : page.cursor;
   } while (cursor);
-  return out.sort((a, b) => a.paidAt.localeCompare(b.paidAt));
+  return [...byId.values()].sort((a, b) => a.paidAt.localeCompare(b.paidAt));
 }
 async function payouts(env, month) {
   const out = []; let cursor;
@@ -116,6 +121,10 @@ export async function runMonthlyBooks(env, nowMs = Date.now(), deps = {}) {
   const list = await entries(env, prev), tax = list.reduce((t, x) => t + ((x.tax && x.tax.gst) || 0), 0), sales = list.reduce((t, x) => t + (x.amountINR || 0), 0);
   const qEnd = [3, 6, 9, 12].includes(Number(prev.slice(5)));
   const links = []; for (const f of ['sales', 'gstr1', 'payouts', 'margin']) links.push(f + ': ' + await booksLink(env, prev, f, nowMs));
+  /* Permanent copy of the month's books in private R2 (the emailed links expire in 7 days). */
+  const pays = await payouts(env, prev);
+  for (const f of Object.keys(FILES)) await archive(env, 'books/' + prev + '/' + f + '.csv', FILES[f](list), 'text/csv', 'books');
+  await archive(env, 'books/' + prev + '/payouts.csv', payoutsCsv(pays), 'text/csv', 'books');
   await (deps.sendMail || sendMail)(env, { to: FOUNDER, subject: 'RoamWise books for ' + prev + ': sales Rs ' + Math.round(sales).toLocaleString('en-IN') + ', GST Rs ' + Math.round(tax).toLocaleString('en-IN'), text: [
     list.length + ' invoice records in ' + prev + '. Forward the sales, gstr1 and payouts files to the CA (margin is for you only).', '', ...links, '(links work for 7 days)', '',
     'GST calendar (QRMP, quarterly returns):',

@@ -11,7 +11,7 @@
     panel=document.createElement('section');
     panel.className='rw-orb-shell';panel.id='rwTuskStudio';panel.hidden=true;
     panel.setAttribute('role','dialog');panel.setAttribute('aria-label','Ailon Tusk voice conversation');
-    panel.innerHTML='<div class="rw-orb-layout"><header class="rw-orb-head"><strong>☁️ ✦ Ailon Tusk</strong><span>RoamWise · Shinobi voice</span><button type="button" class="rw-orb-close" aria-label="Close voice conversation">✕</button></header><div class="rw-orb-stage" data-phase="idle"><div class="rw-orb-glow"><div class="rw-orb-stars" aria-hidden="true"></div><div class="rw-orb-route" aria-hidden="true"></div><div class="rw-orb-core" aria-hidden="true"><span class="rw-orb-emblem" aria-hidden="true">☁</span><span class="rw-orb-brand">RW</span><span class="rw-orb-mountain" aria-hidden="true">⌁ ⛰ ⌁</span></div><div class="rw-orb-ring" aria-hidden="true"></div><div class="rw-orb-nodes" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div><p class="rw-orb-phase" role="status" aria-live="polite">Ready to listen</p></div><p class="rw-orb-transcript"></p><section class="rw-orb-conversation" aria-label="Voice conversation" role="log" aria-live="polite" aria-relevant="additions"></section><div class="rw-orb-reply" aria-label="Tusk answer"></div><details class="rw-orb-full-answer"><summary>📖 Full travel answer · tap to collapse</summary><div class="rw-orb-full-content"></div></details><section class="rw-orb-cards" aria-label="Travel results"></section><div class="rw-orb-controls"><button type="button" data-action="listen">🎙️ Speak</button><button type="button" data-action="realtime" hidden>⚡ Realtime beta</button><button type="button" data-action="interrupt">⏹ Stop</button><button type="button" data-action="read">🔊 Read again</button><button type="button" data-action="language">🌐 Voice language</button><button type="button" data-action="style">🎭 Friendly voice</button><button type="button" data-action="actor" aria-label="Select installed Indian voice actor">🎧 Voice actor</button><button type="button" data-action="provider">⚙️ Voice provider</button><button type="button" data-action="to-chat">💬 Continue in chat</button></div><section class="rw-orb-picker" hidden aria-label="Voice preferences"><header><strong class="rw-orb-picker-title">Voice options</strong><button type="button" data-action="dismiss-picker" aria-label="Close voice options">✕</button></header><p class="rw-orb-picker-note"></p><div class="rw-orb-picker-options" role="group" aria-label="Available choices"></div></section><p class="rw-orb-hint">Talk in Hindi, English or Hinglish. Responses depend on available device voices. Stop at any time. No always-on microphone.</p></div>';
+    panel.innerHTML='<div class="rw-orb-layout"><header class="rw-orb-head"><strong>☁️ ✦ Ailon Tusk</strong><span>RoamWise · Shinobi voice</span><button type="button" class="rw-orb-close" aria-label="Close voice conversation">✕</button></header><div class="rw-orb-stage" data-phase="idle"><div class="rw-orb-glow"><div class="rw-orb-stars" aria-hidden="true"></div><div class="rw-orb-route" aria-hidden="true"></div><div class="rw-orb-core" aria-hidden="true"><span class="rw-orb-emblem" aria-hidden="true">☁</span><span class="rw-orb-brand">RW</span><span class="rw-orb-mountain" aria-hidden="true">⌁ ⛰ ⌁</span></div><div class="rw-orb-ring" aria-hidden="true"></div><div class="rw-orb-nodes" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div><p class="rw-orb-phase" role="status" aria-live="polite">Ready to listen</p></div><p class="rw-orb-transcript"></p><section class="rw-orb-conversation" aria-label="Voice conversation" role="log" aria-live="polite" aria-relevant="additions"></section><div class="rw-orb-reply" aria-label="Tusk answer"></div><details class="rw-orb-full-answer" open><summary>📖 Your answer</summary><div class="rw-orb-full-content"></div></details><section class="rw-orb-cards" aria-label="Travel results"></section><div class="rw-orb-controls rw-orb-primary"><button type="button" data-action="listen">🎙️ Speak</button><button type="button" data-action="realtime" hidden>⚡ Realtime beta</button><button type="button" data-action="interrupt">⏹ Stop</button><button type="button" data-action="to-chat">💬 Open in chat</button></div><details class="rw-orb-more"><summary>⚙ Voice options</summary><div class="rw-orb-controls"><button type="button" data-action="read">🔊 Read again</button><button type="button" data-action="language">🌐 Voice language</button><button type="button" data-action="style">🎭 Friendly voice</button><button type="button" data-action="actor" aria-label="Select installed Indian voice actor">🎧 Voice actor</button><button type="button" data-action="provider">⚙️ Voice provider</button></div></details><section class="rw-orb-picker" hidden aria-label="Voice preferences"><header><strong class="rw-orb-picker-title">Voice options</strong><button type="button" data-action="dismiss-picker" aria-label="Close voice options">✕</button></header><p class="rw-orb-picker-note"></p><div class="rw-orb-picker-options" role="group" aria-label="Available choices"></div></section><p class="rw-orb-hint">Talk in Hindi, English or Hinglish. Responses depend on available device voices. Stop at any time. No always-on microphone.</p></div>';
     document.body.appendChild(panel);
     stage=panel.querySelector('.rw-orb-stage');body=panel.querySelector('.rw-orb-transcript');subtitle=panel.querySelector('.rw-orb-phase');reply=panel.querySelector('.rw-orb-reply');details=panel.querySelector('.rw-orb-full-content');cards=panel.querySelector('.rw-orb-cards');conversation=panel.querySelector('.rw-orb-conversation');
     panel.querySelector('.rw-orb-close').onclick=function(){stop(false);};
@@ -160,7 +160,7 @@
   }
   function start(){
     if(!ensure())return false;
-    panel.hidden=false;state.active=true;state.turns=0;state.answerPending=false;state.session++;
+    panel.hidden=false;if(panel.classList)panel.classList.remove('rw-orb-has-answer');state.active=true;state.turns=0;state.answerPending=false;state.session++;
     body.textContent='';reply.textContent='';if(details)details.textContent='';if(cards)cards.replaceChildren();if(conversation)conversation.replaceChildren();
     closeVoicePicker();refreshVoiceControlLabels();listen(true);panel.querySelector('[data-action="interrupt"]').focus();
     return true;
@@ -267,6 +267,34 @@
   }
   /* Expressive spoken introductions only. The factual answer remains intact.
      Kumaoni-inspired phrases are language style, not cloned regional audio. */
+  /* What Tusk says out loud: a short, natural summary of the answer (title + the first few points),
+     never the first 650 characters cut mid-sentence. Symbols, links and emoji are dropped so the voice
+     sounds like a person; the full answer stays on screen. */
+  function speakable(t){
+    return String(t||'').replace(/https?:\/\/\S+/g,'').replace(/₹\s?([\d,]+)/g,'$1 rupees')
+      .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}✦·•|*#_>~`]/gu,' ')
+      .replace(/\s*\([^)]{0,80}\)/g,'').replace(/\s+/g,' ').trim();
+  }
+  function sentences(t,max){
+    var out=[],len=0;
+    (String(t).match(/[^.!?।]+[.!?।]?/g)||[]).some(function(x){x=x.trim();if(!x)return false;if(len+x.length>max&&out.length)return true;out.push(x);len+=x.length;return len>=max;});
+    return out.join(' ');
+  }
+  function spokenSummary(div,usable,raw){
+    var hindi=/[ऀ-ॿ]/.test(String(raw||''))||(typeof root.rwSpeechOutputLang==='function'&&root.rwSpeechOutputLang(String(raw||''))==='hi-IN');
+    var head=div.querySelector&&div.querySelector('h1,h2,h3,h4');
+    var title=head?speakable(head.textContent):'';
+    var points=[];
+    if(div.querySelectorAll)Array.prototype.some.call(div.querySelectorAll('li'),function(li){var t=speakable(li.textContent);if(t.length>8)points.push(sentences(t,140));return points.length>=3;});
+    var lead=speakable(div.querySelector&&div.querySelector('p')?div.querySelector('p').textContent:usable);
+    var body;
+    if(points.length>=2){
+      body=(title?title+'. ':'')+(hindi?'मुख्य बातें: ':'Here are the highlights. ')+points.map(function(p,i){return (hindi?'':['First, ','Then, ','And '][i]||'')+p.replace(/[.!?]?$/,'.');}).join(' ');
+    }else body=sentences(lead||speakable(usable),360);
+    body=sentences(body,480);
+    var close=hindi?' पूरा प्लान स्क्रीन पर है। कुछ बदलना हो तो बोलिए।':' The full plan is on your screen. Tell me if you want to change anything.';
+    return body+close;
+  }
   function spokenStyle(text,query){
     var say=String(text||''),q=String(query||'').toLowerCase();
     var hindi=/[\u0900-\u097f]/.test(say)||
@@ -279,9 +307,9 @@
     if(state.style==='kumaoni-style'){
       return (hindi?'भुला, सुनो ज़रा। ':'Bhula, suno zara. ')+say;
     }
-    if(route)return (hindi?'रास्ते की बात है, थोड़ा ध्यान से। ':'Road trip? Safety first, adventure second! ')+say;
-    if(educational)return (hindi?'चलो, एक नई बात सीखते हैं। ':'A little travel wisdom, coming right up! ')+say;
-    return (hindi?'अरे वाह, चलिए जानते हैं। ':'Nice! Here is what I found. ')+say;
+    if(route)return (hindi?'रास्ते की बात है, ध्यान से सुनिए। ':'Quick road note first. ')+say;
+    if(educational)return say;
+    return say;
   }
   /* Keep the answer's own structure (headings, lists, tables, links) instead of flattening it to one block
      of text. Only safe tags survive; attributes are dropped except https/relative links. */
@@ -323,7 +351,8 @@
     // Preserve a valid built-in/cached answer even when a provider warning is appended.
     var diagnostic=/⚡ AI engines unreachable right now/i.test(complete);
     var usable=diagnostic?complete.split(/⚡ AI engines unreachable right now/i)[0].trim():complete;
-    var speech=intents&&intents._voiceStay?String(intents._voiceStaySpeech||usable):usable.slice(0,650);
+    var speech=intents&&intents._voiceStay?String(intents._voiceStaySpeech||usable):spokenSummary(div,usable,raw);
+    if(panel&&panel.classList)panel.classList.add('rw-orb-has-answer');
     if(!complete){setPhase('ready','Answer is on screen · tap Speak to continue');return false;}
     if(details && formatted(div)){ /* structured answer rendered below; skip the plain-text tiles */ }
     else if(details){

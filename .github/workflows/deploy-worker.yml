@@ -83,6 +83,30 @@ jobs:
         run: |
           if npx --yes wrangler@4 secret list 2>/dev/null | grep -q '"AMOR_RATES_KEY"'; then echo "AMOR_RATES_KEY already set"; exit 0; fi
           openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 2>/dev/null | npx --yes wrangler@4 secret put AMOR_RATES_KEY >/dev/null && echo "AMOR_RATES_KEY created" || echo "::warning::could not set AMOR_RATES_KEY"
+      - name: Storage bindings (R2 records + media, D1 database)
+        # KV = caches and short-lived state; D1 = sales register; R2 = permanent files (books, backups, media).
+        # Creates the private bucket and the database on first run, applies D1 migrations, and adds the bindings
+        # to wrangler.toml for this deploy only. If anything here fails, the Worker deploys without them
+        # (lib/records.js is a no-op without bindings), so a storage hiccup never blocks a release.
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set +e
+          W="npx --yes wrangler@4"
+          $W r2 bucket create roamwise-records >/dev/null 2>&1; $W r2 bucket create roamwise-media >/dev/null 2>&1
+          if $W r2 bucket list 2>/dev/null | grep -q 'roamwise-records'; then
+            printf '\n[[r2_buckets]]\nbinding = "RECORDS"\nbucket_name = "roamwise-records"\n\n[[r2_buckets]]\nbinding = "MEDIA"\nbucket_name = "roamwise-media"\n' >> wrangler.toml
+            echo "R2 bound: RECORDS (private), MEDIA"
+          else echo "::warning::R2 buckets unavailable (token may lack R2 permission); deploying without R2"; fi
+          id() { $W d1 list --json 2>/dev/null | python3 -c "import sys,json;print(next((d.get('uuid') or d.get('database_id') or '' for d in json.load(sys.stdin) if d.get('name')=='roamwise-db'),''))" 2>/dev/null; }
+          DB=$(id); [ -z "$DB" ] && $W d1 create roamwise-db >/dev/null 2>&1 && DB=$(id)
+          if [ -n "$DB" ]; then
+            printf '\n[[d1_databases]]\nbinding = "DB"\ndatabase_name = "roamwise-db"\ndatabase_id = "%s"\nmigrations_dir = "migrations"\n' "$DB" >> wrangler.toml
+            if $W d1 migrations apply roamwise-db --remote; then echo "D1 bound and migrated"; else echo "::warning::D1 migrations failed"; fi
+          else echo "::warning::D1 unavailable (token may lack D1 permission); deploying without D1"; fi
+          exit 0
       - name: Deploy
         working-directory: worker
         env:

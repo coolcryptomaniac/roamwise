@@ -54,8 +54,8 @@ test('topic cards use safe DOM text and informative duration cue',()=>{
 });
 test('friendly and educational speech retains original answer and respects topic',()=>{
  const x=studio(),s=x.studio;
- assert.match(s.spokenStyle('The route might be blocked','road safety'),/Safety first/);
- assert.match(s.spokenStyle('A temple history','history of temple'),/travel wisdom/);
+ assert.match(s.spokenStyle('The route might be blocked','road safety'),/^Quick road note first\. The route might be blocked$/);
+ assert.equal(s.spokenStyle('A temple history','history of temple'),'A temple history');
  s.state.style='guide';
  assert.equal(s.spokenStyle('Kausani','visit'),'Kausani');
  s.state.style='kumaoni-style';
