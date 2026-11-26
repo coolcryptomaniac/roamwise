@@ -13,7 +13,8 @@ import { verifyCashfreeWorkerWebhook } from '../lib/cashfree-booking-webhook-ver
 import { cfBase as CF, cfHeaders as headers } from '../lib/cashfree-pg.js';
 import { priceCreditPack, publicPacks, REJOIN_WINDOW_DAYS, priceMembership, publicMemberships, MEMBERSHIP_DAYS, MEMBER_COOLING_OFF_DAYS } from '../lib/credit-packs.js';
 import { WALLET_POLICY, COIN_CAP_PCT, creditCoins, walletKey, emptyWallet, creditPrepaid, expireCredit, expiringSoon, refundedAtExpiryWithin, normEmail, normPhone, validEmail } from '../lib/wallet-core.js';
-import { loadWallet, saveWallet, walletLinkFor } from './wallet.js';
+import { loadWallet, saveWallet, walletLinkFor, walletKeyFromRequest, spendWallet } from './wallet.js';
+import { onTripPaid, runVoucherExpiry } from './trip-wallet.js';
 
 const SITE = 'https://roamwise.co.in';
 const API = 'https://roamwise-api.founder-f53.workers.dev';
@@ -48,6 +49,16 @@ export async function createCreditOrder(request, env, nowMs = Date.now(), deps =
   const id = 'rwcred_' + crypto.randomUUID().replace(/-/g, '');
   const record = { id, kind: membership ? 'membership' : 'credit_pack', ...quote, amount: quote.pay, email, phone, giftTo, holder,
     wallName: b.showOnWall === true ? clean(b.wallName, 40) : '', status: 'payment_pending', createdAt: new Date(nowMs).toISOString() };
+  /* A membership is RoamWise's own service, so Trip Wallet money can pay for it (wallet-core PRINCIPAL_PRODUCTS). */
+  if (membership && b.payWith === 'wallet') {
+    const key = await walletKeyFromRequest(request, env, String(b.wallet || ''), nowMs);
+    if (!key) return json({ error: 'wallet_sign_in', message: 'Open your wallet link again to pay from your Trip Wallet.' }, 401);
+    try { record.paidFromLots = await spendWallet(env, key, quote.pay, id, nowMs, 'membership'); }
+    catch (_) { return json({ error: 'wallet_low', message: 'Your Trip Wallet does not have enough for this membership.' }, 409); }
+    record.paidWith = 'wallet';
+    await onMembershipPaid(env, record, nowMs, deps);
+    return json({ paid: true, orderId: id, quote });
+  }
   await env.RW_KV.put('creditorder:' + id, JSON.stringify(record), { expirationTtl: 60 * 60 * 24 * 180 });
   const body = { order_id: id, order_amount: quote.pay, order_currency: 'INR',
     customer_details: { customer_id: id, customer_phone: phone, customer_email: email },
@@ -64,6 +75,7 @@ export async function createCreditOrder(request, env, nowMs = Date.now(), deps =
 export async function onCreditPaid(env, record, nowMs = Date.now(), deps = {}) {
   if (record.status !== 'payment_pending') return record;
   if (record.mode === 'membership') return onMembershipPaid(env, record, nowMs, deps);
+  if (record.kind === 'topup' || record.kind === 'voucher') return onTripPaid(env, record, nowMs, deps);
   const send = deps.sendMail || sendMail;
   const key = await walletKey(record.holder);
   const w = (await loadWallet(env, key)) || emptyWallet(record.holder);
@@ -162,7 +174,7 @@ export async function creditOrderStatus(request, env, id, nowMs = Date.now(), de
     if (v.paid) await onCreditPaid(env, record, nowMs, deps);
     else return json({ orderId: id, status: v.status });
   }
-  return json({ orderId: id, status: record.status, memberNo: record.memberNo, credit: record.credit, mode: record.mode || 'credit', coins: record.coins || 0, pack: record.name, expiresAt: record.expiresAt, gift: !!record.giftTo });
+  return json({ orderId: id, status: record.status, memberNo: record.memberNo, credit: record.credit, mode: record.mode || 'credit', coins: record.coins || 0, amount: record.amount, qty: record.qty || 0, pack: record.name, expiresAt: record.expiresAt, gift: !!record.giftTo });
 }
 
 export async function handleCreditWebhook(request, env, nowMs = Date.now(), deps = {}) {
@@ -224,6 +236,8 @@ export async function runCreditExpiry(env, nowMs = Date.now(), deps = {}) {
     }
     cursor = page.list_complete ? undefined : page.cursor;
   } while (cursor);
-  return { wallets, reminded, expired };
+  let vouchers = { refunded: 0, reminded: 0 };
+  try { vouchers = await runVoucherExpiry(env, nowMs, deps); } catch (_) { /* retried tomorrow */ }
+  return { vouchers, wallets, reminded, expired };
 }
 

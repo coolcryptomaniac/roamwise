@@ -190,7 +190,7 @@ export function createShopHandlers(overrides) {
       let used;
       try {
         if (priced.totalPaise % 100) throw new Error('paise');
-        used = await spendWallet(env, walletKey, priced.totalPaise / 100, id);
+        used = await spendWallet(env, walletKey, priced.totalPaise / 100, id, Date.now(), 'shop');
       } catch (_) {
         try { await deps.updateDoc(env, ctx.accessToken, ctx.projectId, `shopOrders/${id}`, { status: 'payment_setup_failed', updatedAt: deps.now().toISOString() }); } catch (__) { /* best effort */ }
         return json({ error: 'wallet_low', message: 'Your wallet credit is not enough for this order. No credit was used.' }, 409);

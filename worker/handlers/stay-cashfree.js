@@ -6,7 +6,7 @@ import { cfBase as CF, cfHeaders as headers } from '../lib/cashfree-pg.js';
 import { onStayPaid } from './stay-lifecycle.js';
 import { sendMail } from '../lib/mailer.js';
 import { walletKeyFromRequest, spendWallet, loadWallet } from './wallet.js';
-import { coinsUsable, lotOpen } from '../lib/wallet-core.js';
+import { coinsUsable } from '../lib/wallet-core.js';
 /* What Cashfree charges: the booking minus any RoamWise Coins discount; nothing for a booking paid fully from wallet credit. */
 export const cashDue=(r)=>r.paidWith==='wallet'?0:(Number.isFinite(r.cashAmount)?r.cashAmount:r.amount);
 import { priceStay, pricePackage, publicAmor } from '../lib/amor-pricing.js';
@@ -108,10 +108,7 @@ export async function createStayOrder(request,env){
  if(b.payWith==='wallet'){
   const key=await walletKeyFromRequest(request,env,String(b.wallet||''));
   if(!key)return json({error:'wallet_sign_in',message:'Open your wallet link again to pay with credit.'},401);
-  /* Paid pack money is spent first and Coins last, so Coins may only fill what COIN_CAP_PCT allows; beyond that the guest pays by card. */
-  {const ww=await loadWallet(env,key);const own=ww?(ww.lots||[]).filter(l=>lotOpen(l)&&l.source!=='bonus').reduce((t,l)=>t+l.remaining,0):0;
-   if(own+(ww?coinsUsable(ww,quote.amount,Date.now()):0)<quote.amount)return json({error:'wallet_low',message:'Coins can cover up to 10% of a stay. Pay the rest by card or UPI with "Use my Coins" ticked.'},409)}
-  try{record.paidFromLots=await spendWallet(env,key,quote.amount,id)}catch(e){return json({error:'wallet_low',message:'Your wallet credit is not enough for this booking.'},409)}
+  try{record.paidFromLots=await spendWallet(env,key,quote.amount,id)}catch(e){return json({error:'wallet_low',message:'Your wallet cannot cover this stay. Coins cover up to 10% of a stay; pay the rest by card or UPI with "Use my Coins" ticked.'},409)}
   record.paidWith='wallet';
   await onStayPaid(env,record);
   return json({paid:true,orderId:id,quote});

@@ -102,17 +102,38 @@ export function creditRefund(w, { refId, origins, phone, note }, nowMs) {
 /* Spend credit. Order: refund and prepaid (paid) credit oldest first, bonus credit last, so a guest's own money is
    always used before RoamWise's bonus. Returns the lots used as origins for the new order: a later refund of that
    order goes back to the same Cashfree payments, and prepaid or bonus money goes back to the wallet as credit. */
-export function spend(w, amount, refId, nowMs) {
-  if (!(amount > 0) || balance(w) < amount) throw new Error('not enough credit');
-  let left = amount; const used = [];
+/* Closed-loop scope (founder decision 26 Nov 2026, following the closed-system PPI rule: stored value may buy only what
+   RoamWise itself sells). Money loaded by top-up or gift voucher (lot.scope 'roamwise') is spendable only where RoamWise
+   is the seller of record and invoices the guest itself: PRINCIPAL_PRODUCTS. Partner stays are sold on commission
+   (marketplace), so they stay off until RoamWise invoices them as principal. Older pack credit keeps its original promise. */
+export const PRINCIPAL_PRODUCTS = Object.freeze({ shop: true, membership: true, stay: false, package: false });
+export const TOPUP_MIN = 500, TOPUP_MAX_BALANCE = 50000;
+export const VOUCHER_DENOMS = Object.freeze([500, 1000, 2000, 5000, 10000]);
+const isCoin = (l) => l.source === 'bonus' && !l.paidLot;
+const spendable = (l, product, nowMs) => lotOpen(l) && !(isCoin(l) && l.expiresAt && Date.parse(l.expiresAt) <= nowMs)
+  && (l.scope !== 'roamwise' || PRINCIPAL_PRODUCTS[product] === true);
+/* What a checkout for `product` could take from this wallet for `amount` (coins capped at COIN_CAP_PCT). */
+export function spendableFor(w, amount, product = 'stay', nowMs = Date.now()) {
+  const open = (w && w.lots || []).filter((l) => spendable(l, product, nowMs));
+  const coins = Math.min(coinCapFor(amount), open.filter(isCoin).reduce((t, l) => t + l.remaining, 0));
+  return open.filter((l) => !isCoin(l)).reduce((t, l) => t + l.remaining, 0) + coins;
+}
+export function spend(w, amount, refId, nowMs, product = 'stay') {
+  if (!(amount > 0) || spendableFor(w, amount, product, nowMs) < amount) throw new Error('not enough credit');
+  let left = amount, coinsLeft = coinCapFor(amount); const used = [];
   const lots = (w.lots || []).map((l) => ({ ...l }));
-  lots.filter(lotOpen).sort((a, b) => ((a.source === 'bonus') - (b.source === 'bonus')) || a.createdAt.localeCompare(b.createdAt)).forEach((l) => {
-    if (!left) return;
-    const take = Math.min(left, l.remaining);
-    l.remaining -= take; left -= take; if (!l.remaining) l.state = 'used';
-    used.push({ orderId: l.orderId, amount: take, lotId: l.lotId, method: l.method || 'cashfree',
-      ...(l.source === 'prepaid' || l.source === 'bonus' ? { source: l.source, expiresAt: l.expiresAt, paidLot: l.paidLot, paidAt: l.paidAt } : {}) });
-  });
+  const rank = (l) => (isCoin(l) ? 2 : l.source === 'bonus' ? 1 : 0);
+  lots.filter((l) => spendable(l, product, nowMs))
+    .sort((a, b) => (rank(a) - rank(b)) || (isCoin(a) ? String(a.expiresAt || '').localeCompare(String(b.expiresAt || '')) : a.createdAt.localeCompare(b.createdAt)))
+    .forEach((l) => {
+      if (!left) return;
+      const take = Math.min(left, l.remaining, isCoin(l) ? coinsLeft : Infinity);
+      if (!take) return;
+      l.remaining -= take; left -= take; if (isCoin(l)) coinsLeft -= take; if (!l.remaining) l.state = 'used';
+      used.push({ orderId: l.orderId, amount: take, lotId: l.lotId, method: l.method || 'cashfree', ...(l.scope ? { scope: l.scope } : {}),
+        ...(l.source === 'prepaid' || l.source === 'bonus' ? { source: l.source, expiresAt: l.expiresAt, paidLot: l.paidLot, paidAt: l.paidAt } : {}) });
+    });
+  if (left) throw new Error('not enough credit');
   return { wallet: { ...w, lots, log: [...(w.log || []), { at: new Date(nowMs).toISOString(), kind: 'spend', amount, refId }].slice(-100) }, used };
 }
 
@@ -173,18 +194,18 @@ export function bankSoon(w, lotId, nowMs) {
    It is never rolled over on paper. Bonus credit is RoamWise's own gift: spent last, never cashed, lapses at expiry. */
 export const CREDIT_VALID_DAYS = 360;   // 5 days inside 365 so the refund itself lands within the year
 const DAY_MS = 24 * 3600 * 1000;
-export function creditPrepaid(w, { refId, orderId, paid, bonus, phone, note }, nowMs) {
+export function creditPrepaid(w, { refId, orderId, paid, bonus, phone, note, scope, expiresAt: until, kind }, nowMs) {
   if (!(paid > 0) || !(bonus >= 0)) throw new Error('bad pack amounts');
   if ((w.lots || []).some((l) => l.refId === refId)) return { wallet: w, lots: [], duplicate: true };
-  const at = new Date(nowMs).toISOString(), expiresAt = new Date(nowMs + CREDIT_VALID_DAYS * DAY_MS).toISOString();
+  const at = new Date(nowMs).toISOString(), expiresAt = until || new Date(nowMs + CREDIT_VALID_DAYS * DAY_MS).toISOString();
   const paidLot = { lotId: refId.slice(-24) + 'p', refId, orderId, method: 'cashfree', amount: paid, remaining: paid, source: 'prepaid',
-    state: 'kept', createdAt: at, paidAt: at, expiresAt, note: String(note || '').slice(0, 120) };
+    state: 'kept', createdAt: at, paidAt: at, expiresAt, note: String(note || '').slice(0, 120), ...(scope ? { scope } : {}) };
   const lots = [paidLot];
   if (bonus > 0) lots.push({ lotId: refId.slice(-24) + 'b', refId, orderId: null, method: 'bonus', amount: bonus, remaining: bonus, source: 'bonus',
     state: 'kept', createdAt: at, expiresAt, paidLot: paidLot.lotId, note: 'Bonus credit from RoamWise' });
   const p = normPhone(phone);
   const next = { ...w, phones: p && !(w.phones || []).includes(p) ? [...(w.phones || []), p] : (w.phones || []), lots: [...(w.lots || []), ...lots],
-    log: [...(w.log || []), { at, kind: 'pack', amount: paid + bonus, refId }].slice(-100) };
+    log: [...(w.log || []), { at, kind: kind || 'pack', amount: paid + bonus, refId }].slice(-100) };
   return { wallet: next, lots, duplicate: false, expiresAt };
 }
 /* Daily: pack credit past its expiry. Paid credit is queued for a real bank refund now; bonus credit lapses. */
@@ -193,7 +214,7 @@ export function expireCredit(w, nowMs) {
   const lots = (w.lots || []).map((l) => {
     if (!l.expiresAt || !(l.remaining > 0) || !lotOpen(l) || Date.parse(l.expiresAt) > nowMs) return l;
     if (l.source === 'bonus') { lapsed.push(l.remaining); return { ...l, state: 'lapsed', lapsedAmount: l.remaining, remaining: 0 }; }
-    refunding.push(l.remaining); return { ...l, state: 'credit', releaseAt: new Date(nowMs).toISOString(), expired: true };
+    refunding.push(l.remaining); return { ...l, state: 'credit', releaseAt: new Date(nowMs).toISOString(), expired: true, noKeep: true };
   });
   return { wallet: { ...w, lots }, refunding: refunding.reduce((s, a) => s + a, 0), lapsed: lapsed.reduce((s, a) => s + a, 0) };
 }
@@ -233,9 +254,11 @@ export function publicWallet(w, nowMs) {
     lots: (w.lots || []).filter((l) => l.state !== 'used' || l.remaining).map((l) => ({
       lotId: l.lotId, amount: l.amount, remaining: l.remaining, state: l.state, note: l.note, source: l.source || 'refund', expiresAt: l.expiresAt || null,
       bankOn: l.state === 'credit' ? l.releaseAt : null, review: !!l.review, bankStatus: l.bankStatus || '',
-      credited: l.createdAt, noKeep: !!l.noKeep,
+      credited: l.createdAt, noKeep: !!l.noKeep, scope: l.scope || '',
     })).reverse(),
     coins: coinBalance(w, nowMs), coinCapPct: COIN_CAP_PCT,
+    tripMoney: (w.lots || []).filter((l) => lotOpen(l) && l.scope === 'roamwise').reduce((t, l) => t + l.remaining, 0), topUpCap: TOPUP_MAX_BALANCE,
+    spendsOn: Object.keys(PRINCIPAL_PRODUCTS).filter((k) => PRINCIPAL_PRODUCTS[k]),
     refundsOnTheWay: (w.lots || []).filter((l) => l.state === 'credit' && l.noKeep && l.remaining > 0).reduce((s, l) => s + l.remaining, 0),
     policy: { refundsToSource: WALLET_POLICY.refundsToSource, newPaidCredit: WALLET_POLICY.newPaidCredit },
     stats: walletStats(w, nowMs),

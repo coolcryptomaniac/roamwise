@@ -1,0 +1,100 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trip Wallet and Gift Vouchers | RoamWise</title>
+<meta name="description" content="Add money to your RoamWise Trip Wallet or gift a RoamWise voucher (Rs 500 to Rs 10,000). Spend it on what RoamWise sells; anything unused goes back to the way you paid.">
+<link rel="canonical" href="https://roamwise.co.in/gift/">
+<style>
+body{background:#100c1c;color:#fff0dc;font:16px/1.5 system-ui;margin:0}main{max-width:760px;margin:0 auto;padding:22px 18px 60px}
+a{color:#ffd08a}h1{color:#f8c985;font-size:30px;margin:10px 0 6px;line-height:1.2}h2{color:#ffdea8;font-size:21px;margin:0 0 10px}
+.lead{color:#e9d9ea;font-size:17px;margin:0 0 14px}
+section.card{border:2px solid #bd7ce7;border-radius:20px;padding:20px;background:#20162e;margin-top:18px;scroll-margin-top:16px}
+label{display:block;margin:12px 0 5px}input[type=email],input[type=tel],input[type=text],input[type=number]{width:100%;box-sizing:border-box;padding:13px;border-radius:9px;border:1px solid #9989ac;background:#120d1d;color:#fff;font-size:16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chips button{border:2px solid #4b3a63;border-radius:999px;padding:9px 16px;background:#1a1226;color:#fff0dc;font:inherit;font-weight:700;cursor:pointer}
+.chips button[aria-pressed=true]{border-color:#ffd08a;background:#2c2140}
+.check{display:flex;gap:10px;align-items:flex-start;margin:12px 0}.check input{margin-top:4px;width:18px;height:18px;flex:none}
+button.go{padding:15px;border:0;border-radius:12px;background:linear-gradient(100deg,#ffd08a,#e9a864);color:#201426;font-weight:800;font-size:17px;cursor:pointer;width:100%;margin-top:14px}button.go:disabled{opacity:.5}
+.msg{min-height:1.4em;color:#ffd08a}.ok{border-color:#2ed6b4!important}small,.muted{color:#cbb9cd;font-size:13px}
+details{background:#1a1226;border:1px solid #3b2d50;border-radius:12px;padding:12px 14px;margin:8px 0}summary{cursor:pointer;font-weight:700;color:#ffdea8}
+</style>
+</head><body><main>
+<p><a href="/">← RoamWise</a> · <a href="/wallet/">My wallet</a></p>
+<h1>Trip Wallet and Gift Vouchers</h1>
+<p class="lead">Add money once and check out in one tap, or gift a RoamWise voucher. Spend it on <span id="where">the RoamWise shop and memberships</span>. Anything unused goes back to the way you paid.</p>
+
+<section class="card" id="done" hidden></section>
+
+<section class="card" id="topup">
+<h2>Add money to my Trip Wallet</h2>
+<div class="chips" id="tuChips"></div>
+<label for="tuAmt">Amount (₹500 to ₹50,000)</label><input id="tuAmt" type="number" min="500" max="50000" step="1" inputmode="numeric">
+<label for="tuEmail">Your email (your wallet)</label><input id="tuEmail" type="email" autocomplete="email">
+<label for="tuPhone">Phone</label><input id="tuPhone" type="tel" autocomplete="tel">
+<div class="check"><input id="tuTerms" type="checkbox"><label for="tuTerms" style="margin:0">I understand Trip Wallet money can only be spent on what RoamWise itself sells, cannot be withdrawn as cash or transferred, lasts 360 days, and anything unused is refunded to the way I paid. <a href="/terms.html#wallet">Terms §4B</a></label></div>
+<button class="go" id="tuGo" type="button">Add money with Cashfree / UPI</button><p class="msg" id="tuMsg" role="status" aria-live="polite"></p>
+</section>
+
+<section class="card" id="buy">
+<h2>Buy a gift voucher</h2>
+<div class="chips" id="vChips"></div>
+<label for="vQty">How many</label><input id="vQty" type="number" min="1" max="20" value="1" inputmode="numeric">
+<label for="vTo">Send it to (optional, for one voucher)</label><input id="vTo" type="email" placeholder="friend@example.com">
+<label for="vNote">Message (optional)</label><input id="vNote" type="text" maxlength="200">
+<label for="vEmail">Your email</label><input id="vEmail" type="email" autocomplete="email">
+<label for="vPhone">Your phone</label><input id="vPhone" type="tel" autocomplete="tel">
+<div class="check"><input id="vTerms" type="checkbox"><label for="vTerms" style="margin:0">I understand each voucher is single use, has no cash value, lasts 360 days, and an unused voucher is refunded to my payment when it ends. <a href="/terms.html#wallet">Terms §4B</a></label></div>
+<p id="vSum" class="muted"></p>
+<button class="go" id="vGo" type="button">Choose a value</button><p class="msg" id="vMsg" role="status" aria-live="polite"></p>
+<small>Gifting for a team or clients? Buy up to 20 at a time, or write to founder@roamwise.co.in for more.</small>
+</section>
+
+<section class="card" id="redeem">
+<h2>Redeem a voucher</h2>
+<label for="rCode">Voucher code</label><input id="rCode" type="text" placeholder="RWG-XXXX-XXXX-XXXX" autocapitalize="characters" autocomplete="off">
+<label for="rEmail">Your email (the value goes to this wallet)</label><input id="rEmail" type="email" autocomplete="email">
+<label for="rPhone">Phone (optional)</label><input id="rPhone" type="tel" autocomplete="tel">
+<button class="go" id="rGo" type="button">Redeem</button><p class="msg" id="rMsg" role="status" aria-live="polite"></p>
+</section>
+
+<h2 style="margin-top:28px">Questions</h2>
+<details><summary>Where can I spend it?</summary><p>On things RoamWise sells and invoices itself: right now the RoamWise shop and memberships. Partner stays are sold on the partner's behalf, so they are paid by card or UPI (your Coins still give up to 10% off). We will add more as RoamWise sells them directly.</p></details>
+<details><summary>Can I get my money back?</summary><p>Yes, any unused amount goes back to the payment it came from: automatically when it ends after 360 days, or earlier if you write to support@roamwise.co.in. It is never paid out as cash or to someone else.</p></details>
+<details><summary>Is there GST on adding money?</summary><p>No. Adding money or buying a voucher is not a purchase yet. GST is on the invoice for what you buy with it.</p></details>
+<details><summary>Is there a limit?</summary><p>A Trip Wallet holds up to ₹50,000. Vouchers are ₹500, ₹1,000, ₹2,000, ₹5,000 or ₹10,000 each.</p></details>
+</main>
+<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+<script>
+(function(){
+var API='https://roamwise-api.founder-f53.workers.dev',$=function(id){return document.getElementById(id)},val=0;
+var rs=function(n){return '₹'+Number(n||0).toLocaleString('en-IN')};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function chips(box,list,on){list.forEach(function(v){var b=document.createElement('button');b.type='button';b.textContent=rs(v);b.setAttribute('aria-pressed','false');
+ b.onclick=function(){[].forEach.call(box.children,function(x){x.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true');on(v)};box.appendChild(b)})}
+chips($('tuChips'),[1000,2000,5000,10000],function(v){$('tuAmt').value=v});
+chips($('vChips'),[500,1000,2000,5000,10000],function(v){val=v;vsum()});
+function vsum(){var q=Math.max(1,Math.min(20,parseInt($('vQty').value,10)||1));$('vSum').textContent=val?q+' x '+rs(val)+' = '+rs(q*val):'';$('vGo').textContent=val?'Pay '+rs(q*val)+' with Cashfree / UPI':'Choose a value';$('vGo').disabled=!val}
+$('vQty').oninput=vsum;vsum();
+async function pay(path,body,msg,btn){btn.disabled=true;msg.textContent='Creating your secure payment…';
+ try{var r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});var d=await r.json();
+  if(!r.ok)throw new Error(d.message||'Checkout unavailable. Please try again.');
+  var cf=Cashfree({mode:d.environment==='production'?'production':'sandbox'});msg.textContent='Opening secure checkout…';
+  await cf.checkout({paymentSessionId:d.paymentSessionId,redirectTarget:'_self'});
+ }catch(e){msg.textContent=e.message||'Checkout unavailable';btn.disabled=false}}
+$('tuGo').onclick=function(){if(!$('tuTerms').checked){$('tuMsg').textContent='Please tick the box to accept the wallet terms.';return}
+ pay('/wallet/topup',{amount:Number($('tuAmt').value),email:$('tuEmail').value,phone:$('tuPhone').value,acceptTerms:true},$('tuMsg'),$('tuGo'))};
+$('vGo').onclick=function(){if(!$('vTerms').checked){$('vMsg').textContent='Please tick the box to accept the voucher terms.';return}
+ pay('/vouchers/buy',{value:val,qty:parseInt($('vQty').value,10)||1,giftTo:$('vTo').value,message:$('vNote').value,email:$('vEmail').value,phone:$('vPhone').value,acceptTerms:true},$('vMsg'),$('vGo'))};
+$('rGo').onclick=async function(){var m=$('rMsg');$('rGo').disabled=true;m.textContent='Checking your code…';
+ try{var r=await fetch(API+'/vouchers/redeem',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:$('rCode').value,email:$('rEmail').value,phone:$('rPhone').value})});var d=await r.json();
+  if(!r.ok)throw new Error(d.message||'Could not redeem this code.');
+  m.textContent=rs(d.amount)+' is in your Trip Wallet, valid until '+String(d.expiresAt).slice(0,10)+'. We emailed your wallet link to '+d.sentTo+'.';
+ }catch(e){m.textContent=e.message}$('rGo').disabled=false};
+var oid=new URLSearchParams(location.search).get('order_id');
+if(oid){var done=$('done');done.hidden=false;done.textContent='Checking your payment…';
+ fetch(API+'/credit/order/'+encodeURIComponent(oid)).then(function(r){return r.json()}).then(function(d){
+  if(d.status==='paid'){done.className='card ok';done.innerHTML=d.mode==='voucher'
+   ?'<h2>Your voucher'+(d.qty>1?'s are':' is')+' ready</h2><p>We emailed the code'+(d.qty>1?'s':'')+' ('+esc(d.qty)+' x '+rs(d.amount/d.qty)+'). Valid until '+esc(String(d.expiresAt||'').slice(0,10))+'.</p>'
+   :'<h2>'+rs(d.amount)+' added</h2><p>It is in your Trip Wallet, valid until '+esc(String(d.expiresAt||'').slice(0,10))+'. Check your email for your wallet link.</p><p><a href="/shop/#collection">Shop now →</a></p>'}
+  else done.textContent='Payment not completed yet ('+esc(d.status||d.error||'unknown')+'). If money left your account, it will show here within a few minutes, or write to support@roamwise.co.in.';
+ }).catch(function(){done.textContent='Could not check the payment. Refresh in a minute.'})}
+})();
+</script>
+</body></html>
