@@ -39,7 +39,7 @@ const body = (extra) => ({ items: [{ id: 'roamwise-mandala-headband', variant: '
   ship: { line1: '12 Mall Road', city: 'Almora', state: 'Uttarakhand', pin: '263601' }, ...extra });
 const req = (path, b, headers) => new Request('https://w/' + path, { method: b ? 'POST' : 'GET', headers: headers || {}, body: b ? JSON.stringify(b) : undefined });
 
-test('a paid shop order emails the founder a refund link; the link refunds the buyer to the wallet', async () => {
+test('a paid shop order emails the founder a refund link; the link refunds the buyer straight to the original payment', async () => {
   const { h, env, docs, mails } = harness();
   const o = await (await h.handleShopOrder(req('shop/order', body({ method: 'cashfree' })), env)).json();
   await h.handleShopStatus(req('shop/order/' + o.orderId + '/status', null, { authorization: 'Bearer ' + o.token }), env, o.orderId);
@@ -53,9 +53,9 @@ test('a paid shop order emails the founder a refund link; the link refunds the b
   const d = docs.get('shopOrders/' + o.orderId);
   assert.equal(d.status, 'refunded_to_wallet'); assert.equal(d.fulfilmentState, 'cancelled');
   const w = await env.RW_KV.get('wallet:' + await W.walletKey('asha@example.com'), 'json');
-  assert.equal(W.balance(w), 298); assert.equal(w.lots[0].orderId, o.orderId);
+  assert.equal(W.publicWallet(w, 0).refundsOnTheWay, 298); assert.equal(W.balance(w), 0); assert.equal(w.lots[0].orderId, o.orderId);
   assert.match(await (await h.handleShopDecide(new Request(link), env)).text(), /Refunded|Not refunded/, 'second tap is harmless');
-  assert.equal(W.balance(await env.RW_KV.get('wallet:' + await W.walletKey('asha@example.com'), 'json')), 298);
+  assert.equal(W.publicWallet(await env.RW_KV.get('wallet:' + await W.walletKey('asha@example.com'), 'json'), 0).refundsOnTheWay, 298, 'never refunded twice');
 });
 
 test('Qikink could not take a paid order for 24 hours: the buyer is refunded to the wallet automatically', async () => {
@@ -69,9 +69,10 @@ test('Qikink could not take a paid order for 24 hours: the buyer is refunded to 
   assert.equal(docs.get('shopOrders/RWS-ABCDEFGHJK').status, 'refunded_to_wallet');
 });
 
-test('a buyer with enough wallet credit pays for a shop order with it; not enough credit spends nothing', async () => {
+test('a buyer with older pack credit pays for a shop order with it; not enough credit spends nothing', async () => {
   const { h, env, docs } = harness();
-  await creditWallet(env, { email: 'asha@example.com', refId: 'rwstay_x', origins: [{ orderId: 'rwstay_x', amount: 500 }] }, NOW.getTime());
+  const { saveWallet } = await import('../worker/handlers/wallet.js');
+  await saveWallet(env, await W.walletKey('asha@example.com'), W.creditPrepaid(W.emptyWallet('asha@example.com'), { refId: 'pk', orderId: 'rwstay_x', paid: 500, bonus: 0 }, NOW.getTime()).wallet);
   const token = await W.walletLinkToken('sec', await W.walletKey('asha@example.com'), NOW.getTime());
   const r = await (await h.handleShopOrder(req('shop/order', body({ method: 'wallet', wallet: token })), env)).json();
   assert.equal(r.status, 'paid');

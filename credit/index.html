@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Founding Traveller Credit | RoamWise</title>
-<meta name="description" content="Back RoamWise early: buy travel credit, get up to 10% extra, a founding member number and perks. Spend it on any RoamWise stay, package or wedding. Your unused money is always refunded.">
+<meta name="description" content="Back RoamWise early: buy travel credit, get up to 10% extra, a founding member number and perks. Packs are paused; existing credit works until expiry. Your unused money is always refunded.">
 <link rel="canonical" href="https://roamwise.co.in/credit/">
 <style>
 body{background:#100c1c;color:#fff0dc;font:16px/1.5 system-ui;margin:0}main{max-width:820px;margin:0 auto;padding:22px 18px 60px}
@@ -98,7 +98,7 @@ function sum(){var p=data&&data.packs.filter(function(x){return x.id===pick})[0]
  $('sum').textContent=p?'You pay '+rs(p.pay)+' · you get '+rs(p.credit)+' travel credit':'';$('buy').disabled=!p;$('buy').textContent=p?'Pay '+rs(p.pay)+' with Cashfree / UPI':'Choose a pack';}
 $('gift').onchange=function(){$('giftWrap').hidden=!this.checked;$('giftTo').required=this.checked};
 $('showOnWall').onchange=function(){$('wallWrap').hidden=!this.checked};
-fetch(API+'/credit/packs').then(function(r){return r.json()}).then(function(d){if(!d.ok)throw 0;data=d;var q=new URLSearchParams(location.search).get('pack');if(q&&d.packs.some(function(p){return p.id===q&&!p.soldOut}))pick=q;render();sum()})
+fetch(API+'/credit/packs').then(function(r){return r.json()}).then(function(d){if(!d.ok)throw 0;data=d;if(d.paused){var bc=document.getElementById('buyCard');if(bc){bc.innerHTML='<h2>New credit packs are paused</h2><p>RoamWise no longer holds customers\u2019 money as wallet credit, to stay safely inside RBI\u2019s rules for prepaid wallets. If you already bought a pack, your credit still works until its expiry date and anything unused goes back to your original payment. You still earn free RoamWise Coins from stays, invites and the Daily Match.</p><p><a href="/wallet/">Open my wallet</a></p>';}}var q=new URLSearchParams(location.search).get('pack');if(q&&d.packs.some(function(p){return p.id===q&&!p.soldOut}))pick=q;render();sum()})
  .catch(function(){$('packs').innerHTML='<p>Packs could not load. Please refresh, or write to support@roamwise.co.in.</p>'});
 $('f').addEventListener('submit',async function(e){e.preventDefault();if(!pick)return;$('buy').disabled=true;$('msg').textContent='Creating your secure payment…';
  try{var r=await fetch(API+'/credit/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pack:pick,email:$('email').value,phone:$('phone').value,

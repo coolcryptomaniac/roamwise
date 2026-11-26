@@ -12,7 +12,7 @@ import { sendMail } from '../lib/mailer.js';
 import { verifyCashfreeWorkerWebhook } from '../lib/cashfree-booking-webhook-verify.js';
 import { cfBase as CF, cfHeaders as headers } from '../lib/cashfree-pg.js';
 import { priceCreditPack, publicPacks, REJOIN_WINDOW_DAYS } from '../lib/credit-packs.js';
-import { walletKey, emptyWallet, creditPrepaid, expireCredit, expiringSoon, refundedAtExpiryWithin, normEmail, normPhone, validEmail } from '../lib/wallet-core.js';
+import { WALLET_POLICY, walletKey, emptyWallet, creditPrepaid, expireCredit, expiringSoon, refundedAtExpiryWithin, normEmail, normPhone, validEmail } from '../lib/wallet-core.js';
 import { loadWallet, saveWallet, walletLinkFor } from './wallet.js';
 
 const SITE = 'https://roamwise.co.in';
@@ -27,10 +27,12 @@ async function wall(env) { return (await env.RW_KV.get('credit:wall', 'json')) |
 export async function creditPacks(request, env) {
   if (!env.RW_KV) return json({ error: 'credit_unavailable' }, 503);
   const c = await counts(env);
-  return json({ ok: true, ...publicPacks(c), members: c.members || 0, wall: (await wall(env)).slice(-60).reverse() });
+  return json({ ok: true, paused: !WALLET_POLICY.newPaidCredit, ...publicPacks(c), members: c.members || 0, wall: (await wall(env)).slice(-60).reverse() });
 }
 
 export async function createCreditOrder(request, env, nowMs = Date.now(), deps = {}) {
+  /* Paid stored credit is paused (WALLET_POLICY.newPaidCredit). Existing pack lots keep working until expiry. */
+  if (!WALLET_POLICY.newPaidCredit) return json({ error: 'packs_paused', message: 'New credit packs are paused. Credit you already bought still works until its expiry date, and anything unused is refunded to your original payment.' }, 410);
   if (!env.CASHFREE_APP_ID || !env.CASHFREE_SECRET_KEY || !env.RW_KV) return json({ error: 'credit_unavailable' }, 503);
   let b; try { b = await request.json(); } catch (_) { return json({ error: 'invalid_json' }, 400); }
   const email = normEmail(b.email), phone = String(b.phone || '').replace(/[\s()-]/g, '');

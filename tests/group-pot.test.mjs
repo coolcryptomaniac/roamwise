@@ -21,6 +21,8 @@ function pot(n = 3){
 }
 const member = (p, slot, i) => ({ orderId: 'rwgrp_' + String(i).repeat(32).slice(0, 32), potId: p.id, slot, amount: p.slots[slot].amount, name: 'M' + i, first: 'M' + i, email: `m${i}@x.in`, phone: '+91999990000' + i, status: 'payment_pending' });
 
+const owed = (w) => W.publicWallet(w, 0).refundsOnTheWay;
+
 test('shares add up exactly and stay within 2..12 people', () => {
   assert.deepEqual(splitShares(10001, 3), [3334, 3334, 3333]);
   assert.equal(splitShares(99999, 7).reduce((a, b) => a + b), 99999);
@@ -56,10 +58,10 @@ test('booking is created only when every share is paid, and remembers each payer
   assert.equal((await e.RW_KV.get('pot:' + p.id, 'json')).status, 'complete');
   assert.deepEqual(await onMemberPaid(e, { ...a, status: 'paid' }, T0), { duplicate: true });
 
-  /* host declines: each member's own share goes to their own wallet */
+  /* host declines: each member's own share goes straight back to their own payment (WALLET_POLICY.refundsToSource) */
   await refundStayToWallet(e, stay, 'declined', T0, { sendMail: async () => ({ ok: true }) });
   const w1 = await loadWallet(e, await W.walletKey('m1@x.in')), w2 = await loadWallet(e, await W.walletKey('m2@x.in'));
-  assert.equal(W.balance(w1), a.amount); assert.equal(W.balance(w2), b.amount);
+  assert.equal(owed(w1), a.amount); assert.equal(owed(w2), b.amount); assert.equal(W.balance(w1), 0, 'not held as wallet money');
   assert.equal(await loadWallet(e, await W.walletKey('org@x.in')), null, 'organiser does not receive the others\' money');
 });
 
@@ -70,7 +72,7 @@ test('a payment on an already-paid share is refunded, never double-counted', asy
   const late = member(p, 0, 3);
   const r = await onMemberPaid(e, late, T0);
   assert.equal(r.refunded, true);
-  assert.equal(W.balance(await loadWallet(e, await W.walletKey('m3@x.in'))), late.amount);
+  assert.equal(owed(await loadWallet(e, await W.walletKey('m3@x.in'))), late.amount);
   assert.equal(paidCount(await e.RW_KV.get('pot:' + p.id, 'json')), 1);
 });
 
@@ -82,7 +84,7 @@ test('deadline missed: every paid member is refunded and nothing is booked', asy
   const r = await runGroupPots(e, T0 + 73 * 3600e3);
   assert.equal(r.refunded, 1);
   assert.equal((await e.RW_KV.get('pot:' + p.id, 'json')).status, 'expired_refunded');
-  assert.equal(W.balance(await loadWallet(e, await W.walletKey('m4@x.in'))), a.amount);
+  assert.equal(owed(await loadWallet(e, await W.walletKey('m4@x.in'))), a.amount);
   assert.equal([...e.RW_KV.m.keys()].some((k) => k.startsWith('stayorder:')), false);
 });
 

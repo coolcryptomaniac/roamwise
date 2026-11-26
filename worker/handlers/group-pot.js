@@ -116,8 +116,8 @@ async function refundMember(env, member, pot, reason, nowMs){
     origins: [{ orderId: member.orderId, amount: member.amount }], note: 'Group share refund: ' + pot.quote.property }, nowMs);
   member.status = 'refunded_to_wallet'; member.refundReason = reason;
   await env.RW_KV.put('grpm:' + member.orderId, JSON.stringify(member), TTL);
-  await sendMail(env, { to: member.email, subject: rs(member.amount) + ' is back in your RoamWise wallet', text: [
-    'Hi ' + member.first + ', ' + reason, rs(member.amount) + ' is in your RoamWise wallet now. Use it for any RoamWise stay, or do nothing and it goes back to your original payment method automatically' + (r && r.releaseAt ? ' on ' + r.releaseAt.slice(0, 10) : '') + '.',
+  await sendMail(env, { to: member.email, subject: 'Refund on its way: ' + rs(member.amount), text: [
+    'Hi ' + member.first + ', ' + reason, rs(member.amount) + ' '+'is on its way back to the way you paid. Card and UPI refunds usually show within 5 to 7 working days. Anything you paid with RoamWise credit is back in your wallet.',
     '', '— RoamWise',
   ].join('\n') }).catch(() => null);
 }

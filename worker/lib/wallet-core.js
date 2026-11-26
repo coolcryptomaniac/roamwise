@@ -15,6 +15,18 @@ export const REVIEW_AMOUNT = 20000;      // refunds at or above this wait the fu
 export const REVIEW_REFUNDS_30D = 3;     // so does a third refund to the same wallet within 30 days
 export const LINK_TTL_MS = 30 * 24 * 3600 * 1000;
 
+/* Wallet policy (founder decision 26 Nov 2026: "whatever is safe today or after the RBI draft").
+   RBI's current PPI Master Directions exempt only closed wallets used for the issuer's OWN goods and services, and the
+   April 2026 draft removes even that exemption for marketplaces. RoamWise lists third-party stays, so it holds no
+   customer money as stored value any more:
+     - refundsToSource: refunds are never kept as credit; they go straight back to the original payment (no hold,
+       no "keep" option). Money that came from older pack credit still returns to that pack lot.
+     - newPaidCredit: false: no new Founding Traveller Credit packs are sold (existing lots are honoured until their
+       expiry and then refunded to source, as promised at purchase).
+   What remains is RoamWise Coins: free reward credit (signup, referral, pack bonuses) that works as a discount, has no
+   cash value, cannot be bought, transferred or withdrawn, and lapses at its expiry. */
+export const WALLET_POLICY = Object.freeze({ refundsToSource: true, newPaidCredit: false, decidedOn: '2026-11-26' });
+
 const enc = new TextEncoder();
 const hexOf = (buf) => Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
 export const normEmail = (e) => String(e || '').trim().toLowerCase();
@@ -55,7 +67,8 @@ export async function readWalletLinkToken(secret, token, nowMs) {
 }
 
 export function emptyWallet(email) { return { email: normEmail(email), phones: [], lots: [], log: [] }; }
-export const lotOpen = (l) => l.remaining > 0 && (l.state === 'credit' || l.state === 'kept');
+/* Spendable credit. A refund on its way back to the original payment (noKeep) is not spendable. */
+export const lotOpen = (l) => l.remaining > 0 && (l.state === 'kept' || (l.state === 'credit' && !l.noKeep));
 export const balance = (w) => (w && w.lots || []).filter(lotOpen).reduce((s, l) => s + l.remaining, 0);
 
 /* Hold length for a new refund: 24 h normally, 7 days for large or repeated refunds. */
@@ -70,7 +83,7 @@ export function creditRefund(w, { refId, origins, phone, note }, nowMs) {
   const total = origins.reduce((s, o) => s + o.amount, 0);
   if (!(total > 0)) throw new Error('nothing to refund');
   if ((w.lots || []).some((l) => l.refId === refId)) return { wallet: w, lots: [], duplicate: true };
-  const hold = holdFor(w, total, nowMs);
+  const hold = WALLET_POLICY.refundsToSource ? { review: false, ms: 0 } : holdFor(w, total, nowMs);
   const at = new Date(nowMs).toISOString(), releaseAt = new Date(nowMs + hold.ms).toISOString();
   const lots = origins.filter((o) => o.amount > 0).map((o, i) => {
     const base = { lotId: refId.slice(-24) + 'x' + i, refId, orderId: o.orderId, method: o.method === 'upi' ? 'upi' : 'cashfree', amount: o.amount, remaining: o.amount,
@@ -78,7 +91,7 @@ export function creditRefund(w, { refId, origins, phone, note }, nowMs) {
     /* Money that came from a Founding Traveller Credit pack goes back into the pack, with the pack's own expiry. */
     if (o.source === 'bonus') return { ...base, orderId: null, source: 'bonus', state: 'kept', expiresAt: o.expiresAt, paidLot: o.paidLot || null };
     if (o.source === 'prepaid') return { ...base, source: 'prepaid', state: 'kept', expiresAt: o.expiresAt, paidAt: o.paidAt || at };
-    return { ...base, source: 'refund', state: 'credit', review: hold.review, releaseAt };
+    return { ...base, source: 'refund', state: 'credit', review: hold.review, releaseAt, ...(WALLET_POLICY.refundsToSource ? { noKeep: true } : {}) };
   });
   const p = normPhone(phone);
   const next = { ...w, phones: p && !(w.phones || []).includes(p) ? [...(w.phones || []), p] : (w.phones || []), lots: [...(w.lots || []), ...lots],
@@ -105,7 +118,7 @@ export function spend(w, amount, refId, nowMs) {
 
 /* Guest choices on one lot. */
 export function keepLot(w, lotId) {
-  return { ...w, lots: w.lots.map((l) => (l.lotId === lotId && l.state === 'credit' ? { ...l, state: 'kept' } : l)) };
+  return { ...w, lots: w.lots.map((l) => (l.lotId === lotId && l.state === 'credit' && !l.noKeep ? { ...l, state: 'kept' } : l)) };
 }
 export function bankSoon(w, lotId, nowMs) {
   const lot = (w.lots || []).find((l) => l.lotId === lotId && l.state === 'kept');
@@ -188,8 +201,10 @@ export function publicWallet(w, nowMs) {
     lots: (w.lots || []).filter((l) => l.state !== 'used' || l.remaining).map((l) => ({
       lotId: l.lotId, amount: l.amount, remaining: l.remaining, state: l.state, note: l.note, source: l.source || 'refund', expiresAt: l.expiresAt || null,
       bankOn: l.state === 'credit' ? l.releaseAt : null, review: !!l.review, bankStatus: l.bankStatus || '',
-      credited: l.createdAt,
+      credited: l.createdAt, noKeep: !!l.noKeep,
     })).reverse(),
+    refundsOnTheWay: (w.lots || []).filter((l) => l.state === 'credit' && l.noKeep && l.remaining > 0).reduce((s, l) => s + l.remaining, 0),
+    policy: { refundsToSource: WALLET_POLICY.refundsToSource, newPaidCredit: WALLET_POLICY.newPaidCredit },
     stats: walletStats(w, nowMs),
     activity: (w.log || []).slice(-15).reverse().map((e) => ({ at: e.at, kind: e.kind, amount: e.amount })),
     now: new Date(nowMs).toISOString(),
