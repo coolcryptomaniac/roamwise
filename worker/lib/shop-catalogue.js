@@ -69,6 +69,7 @@ export function publicCatalogue(cat = SHOP_CATALOGUE) {
     products: cat.products.map((p) => ({
       id: p.id, name: p.name, type: p.type, description: p.description, image: p.image,
       pricePaise: p.pricePaise, maxQty: p.maxQty,
+      ...(p.auto ? { auto: true, collection: p.collection || 'drops' } : {}),
       variants: p.variants.map((v) => ({ id: v.id, label: v.label })),
     })),
   };

@@ -69,16 +69,17 @@ export async function runKvBackup(env, nowMs = Date.now()) {
   return { done: st.i >= KV_BACKUP_PREFIXES.length, date: today, keys: st.keys };
 }
 
-/* Public long-term assets from the MEDIA bucket: GET /media/r2/<assets|media|itinerary-library>/... */
+/* Public long-term assets from the MEDIA bucket: GET /media/r2/<assets|media|itinerary-library|shop>/...
+ * shop/ holds shop-engine print files and mockups (immutable) and the daily promotion plan (short cache). */
 export async function handleMediaGet(request, env, path) {
   if (!env || !env.MEDIA) return new Response('Not configured', { status: 404 });
   const key = decodeURIComponent(path.replace(/^\/media\/r2\//, ''));
-  if (!/^(assets|media|itinerary-library)\/[A-Za-z0-9_./ %,()-]+$/.test(key) || key.includes('..')) return new Response('Not found', { status: 404 });
+  if (!/^(assets|media|itinerary-library|shop)\/[A-Za-z0-9_./ %,()-]+$/.test(key) || key.includes('..')) return new Response('Not found', { status: 404 });
   const obj = await env.MEDIA.get(key);
   if (!obj) return new Response('Not found', { status: 404 });
   const h = new Headers();
   obj.writeHttpMetadata(h);
-  h.set('Cache-Control', 'public, max-age=2592000, immutable');
+  h.set('Cache-Control', key.startsWith('shop/engine/') ? 'public, max-age=300' : 'public, max-age=2592000, immutable');
   h.set('Access-Control-Allow-Origin', '*');
   h.set('ETag', obj.httpEtag);
   return new Response(obj.body, { headers: h });

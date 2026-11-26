@@ -1,0 +1,66 @@
+name: Shop engine — one AI design per day
+# Generates the next theme in shop/engine/themes.json (AI emblem + typography + QC), uploads the print file
+# and mockup to R2 and registers the design in D1. Nothing becomes buyable here: the Worker's daily cron
+# makes QC-passed designs live only when SHOP_ENGINE_ENABLED and SHOP_ENGINE_AUTOPUBLISH are 'true'.
+# Scheduled runs happen only when the repository variable SHOP_ENGINE_DESIGN is 'on'.
+on:
+  schedule:
+    - cron: '40 3 * * *' # 09:10 IST, before the Worker's 11:00 IST daily cron
+  workflow_dispatch:
+    inputs:
+      theme:
+        description: 'Theme key from shop/engine/themes.json (blank = next in queue)'
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: shop-engine-design
+  cancel-in-progress: false
+
+jobs:
+  design:
+    if: github.event_name == 'workflow_dispatch' || vars.SHOP_ENGINE_DESIGN == 'on'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq tesseract-ocr >/dev/null
+          python -m pip install --disable-pip-version-check -q 'pillow==12.0.0' 'opencv-contrib-python-headless==4.10.0.84'
+          npm i -g wrangler@4 >/dev/null
+      - name: Generate today's design
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_AI_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          MEDIA_BASE: ${{ vars.SHOP_MEDIA_BASE || 'https://roamwise-api.founder-f53.workers.dev/media/r2' }}
+        run: |
+          set +e
+          python tools/shop-engine/design.py --out build/shop-engine ${{ inputs.theme && format('--theme {0}', inputs.theme) || '' }}
+          code=$?
+          if [ $code -eq 3 ]; then echo "::warning::Workers AI unavailable for this token (add secret CF_AI_TOKEN with Workers AI permission). No design made."; exit 0; fi
+          exit $code
+      - name: Upload to R2 and register in D1
+        if: hashFiles('build/shop-engine/*/design.json') != ''
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: python tools/shop-engine/publish.py build/shop-engine
+      - uses: actions/upload-artifact@v4
+        if: hashFiles('build/shop-engine/*/design.json') != ''
+        with:
+          name: shop-engine-design-${{ github.run_id }}
+          path: build/shop-engine/
+          retention-days: 30
+      - name: Record the theme as used
+        if: hashFiles('build/shop-engine/*/design.json') != ''
+        run: |
+          git config user.name "roamwise-merch-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add shop/engine/used.json
+          git diff --cached --quiet || { git commit -m "shop engine: design made for $(TZ=Asia/Kolkata date +%F)"; git pull --rebase origin main; git push origin HEAD:main; }

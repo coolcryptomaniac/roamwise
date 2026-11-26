@@ -128,6 +128,8 @@ import { handlePartnerSelfList } from './handlers/partner-self-list.js';
 import { sendAdminDigest } from './handlers/bot-admin.js';
 import { handleAdvisoryAlerts, runAdvisoryAlerts } from './handlers/advisory-alerts.js';
 import { createShopHandlers } from './handlers/shop-order.js';
+import { runShopEngineCron } from './lib/shop-engine.js';
+import { SHOP_CATALOGUE } from './lib/shop-catalogue.js';
 import { handleMouSigned } from './handlers/b2b-mou.js';
 import { refreshHomeDaily, handleHomeDaily } from './handlers/home-daily.js';
 
@@ -349,6 +351,8 @@ export default {
     /* Referral rewards: bonus coins to both people once the friend's first paid stay is finished. Off unless REFERRALS_ENABLED. */
     try{ await runReferralRewards(env); }catch(e){ /* retried tomorrow */ }
     try{ await runCompanyLedger(env); }catch(e){ /* rebuilt tomorrow or on demand */ }
+    /* Shop engine: go-live of reviewed designs, retire unsold ones, write today's promotion plan. Off unless SHOP_ENGINE_ENABLED. */
+    try{ await runShopEngineCron(env, SHOP_CATALOGUE); }catch(e){ /* retried tomorrow */ }
     /* Home page: store today's snapshot of the curated promo stays and travel advisories (one KV write a day). */
     try{ await refreshHomeDaily(env); }catch(e){ /* yesterday's snapshot keeps serving */ }
     try{ await syncApprovedPublicTargets(env); }catch(e){ /* preserve prior cache */ }

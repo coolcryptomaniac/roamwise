@@ -12,11 +12,18 @@ export const STALE_SUBMIT_MS = 15 * 60 * 1000;
 
 export function createFulfilment(deps) {
   const { getDoc, updateDoc, queryEqualsString, fetchImpl, now, catalogue } = deps;
+  /* Shop-engine products live in D1; resolve them (including retired designs) at fulfilment time. */
+  const catalogueFor = deps.catalogueFor || (async () => catalogue);
+  const onSubmitted = deps.onSubmitted || (async () => {});
 
-  function skuFor(line) {
-    const p = catalogue.products.find((x) => x.id === line.id);
-    const v = p && p.variants.find((x) => x.id === line.variant);
-    return v && v.qikinkSku ? v.qikinkSku : null;
+  /* My Products SKU (string) for static products; { sku, design } for engine products on a blank. */
+  function skuResolver(cat) {
+    return function skuFor(line) {
+      const p = cat.products.find((x) => x.id === line.id);
+      const v = p && p.variants.find((x) => x.id === line.variant);
+      if (!v || !v.qikinkSku) return null;
+      return v.design ? { sku: v.qikinkSku, design: v.design } : v.qikinkSku;
+    };
   }
 
   const tokenStore = (env, ctx) => {
@@ -43,7 +50,7 @@ export function createFulfilment(deps) {
         await patch(env, ctx, id, { fulfilmentState: 'needs_attention', fulfilmentNote: 'Paid in sandbox; not sent to live Qikink.' });
         return { state: 'needs_attention' };
       }
-      const built = buildQikinkOrder(order, skuFor);
+      const built = buildQikinkOrder(order, skuResolver(await catalogueFor(env)));
       if (built.error === 'missing_sku') return { state: 'skipped', reason: 'missing_sku' };
       if (built.error) {
         await patch(env, ctx, id, { fulfilmentState: 'needs_attention', fulfilmentNote: 'Cannot build Qikink order: ' + built.error });
@@ -55,6 +62,7 @@ export function createFulfilment(deps) {
       const r = await client.createOrder(built.body);
       if (r.ok) {
         await patch(env, ctx, id, { fulfilmentState: 'submitted', qikinkOrderId: r.qikinkOrderId, qikinkEnvironment: envName, qikinkOrderNumber: built.body.order_number, fulfilmentNote: '' });
+        try { await onSubmitted(env, { ...order, orderId: order.orderId || id }); } catch (_) { /* stats only */ }
         return { state: 'submitted' };
       }
       if (r.retryable && attempts < MAX_ATTEMPTS) {
