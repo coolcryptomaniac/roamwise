@@ -79,15 +79,21 @@
   }
   function rail(list) {
     var track = node('div', 'rwc-track'); track.setAttribute('role', 'list');
-    list.forEach(function (c) {
+    function cardFor(c) {
+      if (c.join) {
+        var join = node('a', 'rwc-card rwc-join'); join.href = '/creators/match.html?role=creator&invite=founding';
+        join.append(node('span', 'rwc-av', '+'), node('strong', '', 'Are you a creator?'), node('p', 'rwc-meta', 'Get listed and matched with stays'));
+        return join;
+      }
       var card = node('article', 'rwc-card'); card.setAttribute('role', 'listitem');
       var name = node('a', 'rwc-name', c.name); name.href = c.page;
       card.append(avatar(c, false), name, meta(c), actions(c), masked());
-      track.appendChild(card);
-    });
-    var join = node('a', 'rwc-card rwc-join'); join.href = '/creators/match.html?role=creator&invite=founding';
-    join.append(node('span', 'rwc-av', '+'), node('strong', '', 'Are you a creator?'), node('p', 'rwc-meta', 'Get listed and matched with stays'));
-    track.appendChild(join);
+      return card;
+    }
+    var items = list.concat([{ join: true, id: 'join', name: '' }]);
+    /* Endless, paged rail (js/ui/rail-engine.js); search and filters can be added through rail.setQuery later. */
+    if (W.RWRail) { setTimeout(function () { W.rwCreatorsRail = W.RWRail.create(track, { items: items, render: cardFor, pageSize: 12, match: function (c, q) { return c.join || !q.text || (c.name + ' ' + c.niche + ' ' + c.town).toLowerCase().indexOf(String(q.text).toLowerCase()) >= 0; } }); }, 0); }
+    else items.forEach(function (c) { track.appendChild(cardFor(c)); });
     return track;
   }
   function render(creators, fromArtists) {

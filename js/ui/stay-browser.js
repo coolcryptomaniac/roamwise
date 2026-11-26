@@ -2,7 +2,7 @@
    browsing never needs an AI request, sign-in or a payment. */
 (function () {
   'use strict';
-  var W = /** @type {any} */ (window), section, track, search, status;
+  var W = /** @type {any} */ (window), section, track, search, status, rail = null;
   /** @template {keyof HTMLElementTagNameMap} T
    * @param {T} tag @param {string} [cls] @param {string} [text]
    * @returns {HTMLElementTagNameMap[T]} */
@@ -61,7 +61,9 @@
     if (!track) return;
     var query = search.value.trim().toLowerCase(), all = properties();
     var matches = all.filter(function (p) { return query.split(/\s+/).every(function (word) { return [p.name, p.zone, p.area].join(' ').toLowerCase().includes(word); }); });
-    track.replaceChildren(); matches.forEach(function (p) { track.append(card(p)); }); track.scrollLeft = 0;
+    /* Endless rail: cards are built a page at a time and the list starts again after the last property (js/ui/rail-engine.js). */
+    if (W.RWRail) { if (!rail) rail = W.RWRail.create(track, { render: card, pageSize: 10, items: [] }); rail.setItems(matches); }
+    else { track.replaceChildren(); matches.forEach(function (p) { track.append(card(p)); }); track.scrollLeft = 0; }
     status.textContent = matches.length ? matches.length + ' of ' + all.length + ' properties · swipe to explore' : 'No property matches this search. Clear it to browse all ' + all.length + ' properties.';
     if (!all.length) status.textContent = 'The property list is not available yet. Browse the stays directory or contact booking support.';
     section.querySelectorAll('[data-stay-arrow]').forEach(function (b) { b.disabled = matches.length < 2; });
@@ -70,7 +72,7 @@
     var first = track.firstElementChild; if (!first) return;
     var step = first.getBoundingClientRect().width + (parseFloat(getComputedStyle(track).gap) || 13);
     var max = track.scrollWidth - track.clientWidth, next = track.scrollLeft + direction * step;
-    if (direction > 0 && track.scrollLeft >= max - 2) next = 0;
+    if (direction > 0 && track.scrollLeft >= max - 2 && !rail) next = 0;
     if (direction < 0 && track.scrollLeft <= 2) next = max;
     var motion = W.RWDesignEngine ? W.RWDesignEngine.motionEnabled() : !(W.matchMedia && W.matchMedia('(prefers-reduced-motion: reduce)').matches);
     track.scrollTo({ left: next, behavior: motion ? 'smooth' : 'auto' });
