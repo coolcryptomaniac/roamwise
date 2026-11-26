@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const read=p=>fs.readFileSync(p,'utf8');
 test('Voice Mode appears before answers on both home and chat surfaces',()=>{
  const h=read('index.html'),c=read('js/copilot/core.js');
- assert.match(h,/<div class="rw-tusk-hero-tools">[\s\S]*?RWTuskVoiceStudio\.start\(\)/);
+ assert.match(h,/<div class="rw-tusk-bar"[\s\S]*?RWTuskVoiceStudio\.start\(\)/);
  assert.match(c,/sheet-head[\s\S]*?rw-tusk-voice-entry[\s\S]*?RWTuskVoiceStudio\.start\(\)/);
 });
 test('local card size toggle is available in text and voice card surfaces',()=>{
