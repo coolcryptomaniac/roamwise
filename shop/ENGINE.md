@@ -41,3 +41,12 @@ Mohit's brief (27 Nov 2026): an AI shop that designs, lists and promotes print-o
 ## Not in v1
 - Dropshipping of non-printed goods. These stay on the affiliate route in `PROVIDERS-AND-CURATION.md` until a product passes its scoring gates.
 - Photographic mockups. v1 draws an honest garment preview.
+
+## Free listings beyond the shop page
+- **Product feed:** `https://roamwise-api.founder-f53.workers.dev/shop/feed.xml`. It lists every buyable product, with the same server prices as checkout.
+- **Google Merchant Center:** free listings in Google Search and Shopping. Add the feed as a scheduled fetch (daily). Shipping is ₹99, or free from ₹1,000.
+- **Meta Commerce Manager:** Instagram/Facebook catalogue for product tags on posts and Reels. Add the same feed URL as a data source.
+- **Marketplaces:**
+  - Amazon, Flipkart and Meesho need a GST registration first.
+  - Myntra also needs brand/trademark proof and a ₹15,000 growth fee, and its model is stocked inventory, not on-demand printing.
+  - Blinkit and Zepto (quick commerce) need stock in their dark stores, so they are not a fit for print on demand.

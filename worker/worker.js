@@ -37,6 +37,7 @@
      GET  /cashfree/order/:id/status   confirm order_status with Cashfree     -> handlers/cashfree.js
      GET  /shop/catalogue              public merchandise catalogue (no prices accepted from clients) -> handlers/shop-order.js
      POST /shop/quote | /shop/order    server-priced merchandise quote / order (Cashfree or direct UPI) -> handlers/shop-order.js
+     GET  /shop/feed.xml               product feed for Google Merchant Center / Meta catalogue -> lib/shop-feed.js
      POST /shop/click                  anonymous product click counter for on-site "Popular now" -> lib/shop-engine.js
      GET  /shop/order/:id/status       buyer status (order token); verifies Cashfree before marking paid
      POST /shop/cashfree/webhook       signed Cashfree callback for shop orders
@@ -129,7 +130,8 @@ import { handlePartnerSelfList } from './handlers/partner-self-list.js';
 import { sendAdminDigest } from './handlers/bot-admin.js';
 import { handleAdvisoryAlerts, runAdvisoryAlerts } from './handlers/advisory-alerts.js';
 import { createShopHandlers } from './handlers/shop-order.js';
-import { runShopEngineCron, handleShopClick, handleShopArt } from './lib/shop-engine.js';
+import { runShopEngineCron, handleShopClick, handleShopArt, catalogueFor as shopCatalogueFor } from './lib/shop-engine.js';
+import { buildFeed, feedResponse } from './lib/shop-feed.js';
 import { overLimit, sha256Hex } from './lib/rate-limit.js';
 import { SHOP_CATALOGUE } from './lib/shop-catalogue.js';
 import { handleMouSigned } from './handlers/b2b-mou.js';
@@ -271,6 +273,7 @@ export default {
 
     if(path === 'shop/catalogue' && request.method === 'GET') return handleShopCatalogue(request, env);
     if(path === 'shop/quote' && request.method === 'POST') return handleShopQuote(request, env);
+    if(path === 'shop/feed.xml' && request.method === 'GET') return feedResponse(buildFeed(await shopCatalogueFor(env, SHOP_CATALOGUE)));
     if(path === 'shop/engine/art' && request.method === 'POST') return handleShopArt(request, env);
     if(path === 'shop/click' && request.method === 'POST') return handleShopClick(request, env, SHOP_CATALOGUE, { overLimit, hash: sha256Hex });
     if(path === 'shop/order' && request.method === 'POST') return handleShopOrder(request, env);
