@@ -167,6 +167,12 @@ bucket_name = "roamwise-records"
 binding = "MEDIA"
 bucket_name = "roamwise-media"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "roamwise-db"
+database_id = "95dc00cf-c693-466f-99cf-695f5dc28bc5"
+migrations_dir = "migrations"
+
 # [[r2_buckets]]
 # binding = "RW_BUCKET"
 # bucket_name = "roamwise-data"
