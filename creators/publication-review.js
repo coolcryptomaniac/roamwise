@@ -3,7 +3,7 @@ import {compileDirectory} from '../network/publish-core.mjs';
 const dash=document.getElementById('caDash');
 if(dash&&window.firebase){
  const root=document.createElement('section');root.className='ca-panel';root.id='rwPublishReview';
- root.innerHTML='<div class="ca-head"><div><small>PUBLICATION CONTROL</small><h2>Network Atlas publishing review</h2><p>Only records explicitly marked publicApproved and publicConsent are eligible. Export a minimal JSON file for review before publishing. No automatic publication.</p></div><button class="ca-action secondary" id="rwPublishCheck">Review public-ready records</button></div><p id="rwPublishStatus" role="status">Sign in as an administrator to review.</p><div id="rwPublishCounts"></div><button class="ca-action" id="rwPublishDownload" disabled>Download approved directory JSON</button><p class="rw-publish-hint">Private emails, phone numbers, exact addresses, payouts, applications and hidden profile fields are excluded. A creator application is never itself publication consent.</p>';
+ root.innerHTML='<div class="ca-head"><div><small>PUBLICATION CONTROL</small><h2>Network Atlas publishing review</h2><p>Only records explicitly marked publicApproved and publicConsent are eligible. Export a minimal JSON file for review before publishing. No automatic publication.</p></div><button class="ca-action secondary" id="rwPublishCheck">Review public-ready records</button></div><p id="rwPublishStatus" role="status">Sign in as an administrator to review.</p><div id="rwPublishCounts"></div><label class="rw-publish-hint"><input type="checkbox" id="rwPublishFounder"> Also list every creator applicant who gave an Instagram profile (name, Instagram, niche, town and self-reported followers only). Set <code>featured: true</code> on a CRM record to pin it to the home banner.</label><button class="ca-action" id="rwPublishDownload" disabled>Download approved directory JSON</button><p class="rw-publish-hint">Private emails, phone numbers, exact addresses, payouts, applications and hidden profile fields are excluded. A creator application is never itself publication consent.</p>';
  dash.appendChild(root);
  let compiled=null;
  const $=id=>document.getElementById(id);
@@ -14,12 +14,12 @@ if(dash&&window.firebase){
   const failed=snapshots.map((x,i)=>x.status==='rejected'?names[i]:null).filter(Boolean);
   if(failed.length){$('rwPublishStatus').textContent='Cannot build complete directory. Missing access to '+failed.join(', ')+'. No export generated.';return}
   const lists=snapshots.map(s=>s.value.docs.map(d=>({id:d.id,...d.data()})));
-  compiled=compileDirectory({creators:lists[0],properties:lists[1],artists:lists[2]});
+  compiled=compileDirectory({creators:lists[0],properties:lists[1],artists:lists[2]},{includeFounderListed:$('rwPublishFounder').checked});
   const d=compiled.directory;
   $('rwPublishCounts').textContent='Eligible for review: '+d.creators.length+' creators · '+d.properties.length+' properties · '+d.artists.length+' artists. Excluded (unapproved, incomplete or duplicate): '+Object.values(compiled.rejected).reduce((a,b)=>a+b,0)+'.';
   $('rwPublishStatus').textContent='Preview generated locally. Download for founder review; nothing has been published.';
   $('rwPublishDownload').disabled=false;
  }catch(e){$('rwPublishStatus').textContent='Review failed: '+(e.code||e.message)}}
- $('rwPublishCheck').addEventListener('click',load);
+ $('rwPublishCheck').addEventListener('click',load);$('rwPublishFounder').addEventListener('change',()=>{if(compiled)load()});
  $('rwPublishDownload').addEventListener('click',()=>{if(!compiled)return;const b=new Blob([JSON.stringify(compiled.directory,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='roamwise-network-approved-review.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)});
 }
