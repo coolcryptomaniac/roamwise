@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#08070d">
+  <title>My matches · RoamWise creators × stays</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="../icons/favicon-32.png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="matchmaking.css"><link rel="stylesheet" href="matches.css">
+</head>
+<body>
+  <nav class="mm-nav"><a href="../" class="mm-brand"><img src="../icons/icon-192.png" alt=""><b>Roam<span>Wise</span></b></a><div></div><a href="../network/">Directory</a><a href="match.html">Join the network</a></nav>
+  <main class="mx">
+    <span class="mm-kicker">CREATOR × PROPERTY</span>
+    <h1>My matches</h1>
+    <p class="mx-lead">Numbers stay hidden until both sides say yes. Once you both do, each of you sees the other's contact card here.</p>
+    <p id="mxStatus" role="status">Loading…</p>
+    <div id="mxSignin" hidden><button class="mx-btn" id="mxSigninBtn">Sign in with Google</button></div>
+    <section id="mxPending" hidden><h2>Send collab request</h2><p id="mxPendingText"></p><button class="mx-btn" id="mxSend">Say yes to this collab</button></section>
+    <section id="mxMine" hidden>
+      <h2>Your contact card</h2>
+      <p class="mx-hint">Shown only to listings you have a mutual match with.</p>
+      <form id="mxCard"><label>Phone<input id="mxPhone" inputmode="tel" maxlength="20" placeholder="+91 98765 43210"></label><label>WhatsApp<input id="mxWa" inputmode="tel" maxlength="20"></label><label>Email<input id="mxEmail" type="email" maxlength="120"></label><button class="mx-btn" type="submit">Save card</button></form>
+    </section>
+    <section id="mxLists" hidden>
+      <h2>Matched — numbers unlocked</h2><div id="mxMutual" class="mx-grid"></div>
+      <h2>Wants to collab with you</h2><div id="mxIncoming" class="mx-grid"></div>
+      <h2>You asked</h2><div id="mxOutgoing" class="mx-grid"></div>
+    </section>
+  </main>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script type="module" src="matches.js"></script>
+</body>
+</html>

@@ -29,6 +29,6 @@ test('home creators section is wired and keeps numbers masked',()=>{
   const html=read('index.html'),js=read('js/ui/home-creators.js');
   assert.match(html,/js\/ui\/home-creators\.js/);assert.match(html,/design\/home-creators\.css/);
   assert.match(js,/\/network\/directory\.json/);
-  assert.match(js,/Shared only when you both accept a match/);
+  assert.match(js,/Shared only when you both accept a match/);assert.match(js,/matches\.html\?to=/);
   assert.ok(!/phone|whatsapp/i.test(js.replace(/rwc-phone|📞/g,'')),'no contact field is read');
 });

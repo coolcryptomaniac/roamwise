@@ -160,3 +160,36 @@ test('beacons: max 2 h lifetime, live beacons readable, expired ones hidden', as
   await assertFails(getDocs(query(collection(u2(), 'beacons'), limit(300)))); // unfiltered scrape refused
 });
 test.after(async () => { await env.cleanup(); });
+
+test('number exchange: a card is hidden until creator and property both say yes', async () => {
+  await env.withSecurityRulesDisabled(async ctx => {
+    const db = ctx.firestore();
+    await setDoc(doc(db, 'ownerListings/cr1'), { key: 'creator-c1' });
+    await setDoc(doc(db, 'listingOwners/creator-c1'), { uid: 'cr1' });
+    await setDoc(doc(db, 'ownerListings/pr1'), { key: 'property-p1' });
+    await setDoc(doc(db, 'listingOwners/property-p1'), { uid: 'pr1' });
+    await setDoc(doc(db, 'ownerListings/pr2'), { key: 'property-p2' });
+  });
+  const cr = () => env.authenticatedContext('cr1').firestore();
+  const pr = () => env.authenticatedContext('pr1').firestore();
+  const pr2 = () => env.authenticatedContext('pr2').firestore();
+  await assertSucceeds(setDoc(doc(cr(), 'contactCards/creator-c1'), { phone: '+91 98765 43210', updatedAt: serverTimestamp() }));
+  await assertFails(setDoc(doc(pr(), 'contactCards/creator-c1'), { phone: '+91 1', updatedAt: serverTimestamp() }));
+  await assertFails(getDoc(doc(pr(), 'contactCards/creator-c1')));
+  await assertSucceeds(setDoc(doc(pr(), 'matchInterest/property-p1__creator-c1'), { from: 'property-p1', to: 'creator-c1', createdAt: serverTimestamp() }));
+  await assertFails(getDoc(doc(pr(), 'contactCards/creator-c1')));
+  await assertFails(setDoc(doc(pr(), 'matchInterest/creator-c1__property-p1'), { from: 'creator-c1', to: 'property-p1', createdAt: serverTimestamp() }));
+  await assertFails(setDoc(doc(pr(), 'matchInterest/property-p1__property-p2'), { from: 'property-p1', to: 'property-p2', createdAt: serverTimestamp() }));
+  await assertSucceeds(setDoc(doc(cr(), 'matchInterest/creator-c1__property-p1'), { from: 'creator-c1', to: 'property-p1', createdAt: serverTimestamp() }));
+  await assertSucceeds(getDoc(doc(pr(), 'contactCards/creator-c1')));
+  await assertFails(getDoc(doc(pr2(), 'contactCards/creator-c1')));
+  await assertFails(getDoc(doc(anon(), 'contactCards/creator-c1')));
+  await assertFails(setDoc(doc(cr(), 'ownerListings/cr1'), { key: 'property-p1' }));
+});
+
+test('number exchange: a linked listing can query its own requests, not others', async () => {
+  const cr = () => env.authenticatedContext('cr1').firestore();
+  await assertSucceeds(getDocs(query(collection(cr(), 'matchInterest'), where('to', '==', 'creator-c1'), limit(50))));
+  await assertSucceeds(getDocs(query(collection(cr(), 'matchInterest'), where('from', '==', 'creator-c1'), limit(50))));
+  await assertFails(getDocs(query(collection(cr(), 'matchInterest'), where('to', '==', 'property-p2'), limit(50))));
+});
