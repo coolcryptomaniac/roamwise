@@ -32,6 +32,15 @@ h1{font-size:clamp(37px,7vw,55px);line-height:1.06;letter-spacing:-.05em;margin:
 .no-results .empty{display:block}.no-results .group{display:none}
 .note{font-size:12px;line-height:1.7;color:#aa9eb0;margin:25px 0 0}.foot{border-top:1px solid rgba(205,176,227,.17);padding:23px 0 0;margin-top:32px;display:flex;flex-wrap:wrap;gap:15px;font-size:12px;color:var(--muted)}.foot a{text-decoration:none;color:#dcc7eb}
 @media(max-width:600px){.wrap{padding:0 14px}.featured{grid-template-columns:repeat(2,minmax(0,1fr))}.tile{min-height:116px;padding:14px}.tools{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.intro{font-size:14px}.tool{min-height:96px;align-items:flex-start;gap:7px;flex-direction:column;padding:11px}.tool .ic{width:31px;height:31px}.tool strong{font-size:12px}.tool small{font-size:10.5px}.top{padding:14px 0}}
+.fw-toggle{display:flex;gap:6px;margin:-14px 0 20px}.fw-toggle button{min-height:38px;padding:6px 14px;border-radius:999px;border:1px solid #5a4868;background:transparent;color:var(--muted);font:600 13px inherit;cursor:pointer}.fw-toggle button[aria-pressed="true"]{background:#33263e;color:var(--ink);border-color:#b18ad4}
+.fw{display:none}body.fw-on .fw{display:block}body.fw-on #moreDirectory{display:none}
+.fw-list{height:min(62vh,560px);overflow-y:auto;scroll-snap-type:y mandatory;display:flex;flex-direction:column;gap:8px;padding:0 2px;border-radius:18px;scrollbar-width:none;-webkit-mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent)}
+.fw-list::-webkit-scrollbar{display:none}.fw-pad{flex:0 0 40%}
+.fw-item{flex:0 0 auto;scroll-snap-align:center;display:flex;align-items:center;gap:12px;min-height:64px;padding:12px 16px;border:1px solid #42364d;border-radius:14px;background:var(--panel);text-decoration:none;color:var(--ink);position:relative}
+.fw-item .ic{display:grid;place-items:center;flex:none;width:38px;height:38px;border-radius:10px;background:#33263e;font-size:18px}.fw-item strong{display:block;font-size:14px}.fw-item small{display:block;font-size:11.5px;color:var(--muted)}
+.fw-item em{position:absolute;right:14px;top:8px;font:700 9px system-ui;letter-spacing:.08em;text-transform:uppercase;color:#9d8bb0;font-style:normal;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fw-item[data-spot="on"]{border-color:#e8c58b;background:linear-gradient(135deg,#3a2950,#211a2e)}
+.fw-empty{display:none;color:var(--muted);font-size:13px}
 @media(prefers-reduced-motion:reduce){.tool,.tile{transition:none}html{scroll-behavior:auto}}
 </style></head>
 <body><div class="wrap">
@@ -108,6 +117,8 @@ h1{font-size:clamp(37px,7vw,55px);line-height:1.06;letter-spacing:-.05em;margin:
 <p class="note">Bookings, availability and final prices are verified with suppliers. RoamWise never treats an enquiry or an unverified payment as a confirmed reservation.</p>
 <footer class="foot"><a href="/">Ailon Tusk</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/refund-policy.html">Refunds</a><a href="/contact.html">Contact</a><span>RoamWise · Almora, Uttarakhand</span></footer>
 </div>
+<link rel="stylesheet" href="../design/rail-zap.css?v=20261126-2">
+<script src="../js/ui/rail-engine.js?v=20261126-3"></script>
 <script>
 (function(){
   // The Android APK bundles a deliberately small set of pages. For public
@@ -149,4 +160,5 @@ input.addEventListener('input',function(){
   directory.classList.toggle('no-results',!!q&&!total);
 });
 })();
-</script></body></html>
+</script><script src="focus-wheel.js?v=20261126-1"></script>
+</body></html>
