@@ -213,10 +213,15 @@ def mockup(print_png, kind):
     return out.convert('RGB')
 
 
+def _pixels(img):
+    f = getattr(img, 'get_flattened_data', None)  # Pillow >= 12.1; getdata() is deprecated there
+    return f() if f else img.getdata()
+
+
 def qc(print_png, art_raw):
     from PIL import ImageStat
     alpha = print_png.getchannel('A')
-    coverage = sum(1 for v in alpha.resize((180, 210)).get_flattened_data() if v > 40) / (180 * 210)
+    coverage = sum(1 for v in _pixels(alpha.resize((180, 210))) if v > 40) / (180 * 210)
     vis = print_png.convert('RGB').resize((180, 210))
     mask = alpha.resize((180, 210)).point(lambda v: 255 if v > 40 else 0)
     lum = ImageStat.Stat(vis.convert('L'), mask).mean[0] / 255 if coverage else 0
