@@ -13,7 +13,10 @@
   function sync(){
     if(!chip||!link)return;
     // Only one wallet control: signed-in balance chip OR icon linking to wallet.
-    var visible=chip.style.display!=='none'&&getComputedStyle(chip).display!=='none'&&!chip.hidden;
+    // Decide by sign-in state (the chip's own inline display), not by computed style:
+    // CSS hides the chip on some tabs, and switching tabs never re-ran this, so
+    // the Ailon tab showed both the chip and the wallet icon.
+    var visible=chip.style.display!=='none'&&!chip.hidden;
     link.toggleAttribute('hidden',visible);
     if(visible)chip.setAttribute('title','Open RoamWise wallet');
   }
