@@ -1,18 +1,1348 @@
 {
-  "schemaVersion": 1,
-  "note": "Design queue for tools/shop-engine/design.py. One theme is turned into one design per run, oldest unused first. Add themes freely (the trend autopilot appends trend themes). Rules: original art only; no franchise names, logos, characters or brand art styles; no deity imagery on apparel; Kumaoni text only after a native-speaker check.",
-  "themes": [
-    {"key": "paanch-sitaare", "title": "Paanch Sitaare", "tagline": "Five stars on my name. Don't look back.", "collection": "trend", "type": "oversized-tee", "text": "PAANCH SITAARE", "sub": "WANTED · 5 STARS", "art": "a retro 1980s neon emblem of a white vintage convertible car driving toward a huge sunset sun over the sea, palm trees, five bold stars in an arc above, synthwave pink and violet and orange"},
-    {"key": "rave-to-throne", "title": "Rave To Throne", "tagline": "From the Raveverse: the throne above the Himalaya.", "collection": "rave", "type": "oversized-tee", "text": "RAVE TO THRONE", "sub": "RAVEVERSE", "art": "an epic golden throne carved into a snowy Himalayan peak under a violet aurora, ornate gold linework, dramatic rays"},
-    {"key": "rave-to-shadow", "title": "Rave To Shadow", "tagline": "From the Raveverse: run with the rain.", "collection": "rave", "type": "hoodie", "text": "RAVE TO SHADOW", "sub": "RAVEVERSE", "art": "a lone hooded runner silhouette on wet rooftops under a full purple moon, rain streaks, glowing violet eyes, ink and neon"},
-    {"key": "myar-pahad", "title": "Myar Pahad", "tagline": "Home is a direction. A Kumaon AIverse design.", "collection": "kumaon", "type": "oversized-tee", "text": "MYAR PAHAD", "sub": "KUMAON AIVERSE", "art": "layered Himalayan mountain ridges at dawn with a small slate-roofed village, terraced fields and deodar trees, warm gold and deep blue, vintage travel poster style"},
-    {"key": "ghughuti-basuti", "title": "Ghughuti Basuti", "tagline": "Aama's lullaby, carried everywhere.", "collection": "kumaon", "type": "tote", "text": "घुघुती बासूती", "sub": "GHUGHUTI BASUTI", "art": "a gentle dove perched on a buransh rhododendron branch with red flowers, folk art linework, cream and red"},
-    {"key": "buransh-blooms", "title": "Buransh Blooms", "tagline": "Rhododendrons in the rain, Kumaon in spring.", "collection": "kumaon", "type": "oversized-tee", "text": "BURANSH", "sub": "UTTARAKHAND · SPRING", "art": "a bold bouquet of red rhododendron flowers with dark green leaves and raindrops, botanical screen print style"},
-    {"key": "rave-to-hell", "title": "Rave To Hell", "tagline": "From the Raveverse: fire and resolve.", "collection": "rave", "type": "hoodie", "text": "RAVE TO HELL", "sub": "RAVEVERSE", "art": "a blazing geometric gateway of crimson fire between storm clouds, crows circling, red black and white"},
-    {"key": "pahadi-at-heart", "title": "Pahadi At Heart", "tagline": "For everyone who keeps the hills inside.", "collection": "travel", "type": "oversized-tee", "text": "PAHADI AT HEART", "sub": "ALMORA · NAINITAL · MUNSIYARI", "art": "a heart shape formed by snowy mountain peaks and pine trees with a winding road, minimalist two-colour line art"},
-    {"key": "rave-to-dream", "title": "Rave To Dream", "tagline": "From the Raveverse: echoes across the nebula.", "collection": "rave", "type": "oversized-tee", "text": "RAVE TO DREAM", "sub": "RAVEVERSE", "art": "a dreamy nebula over moonlit mountain ridges with luminous blue and violet waves, a crescent moon"},
-    {"key": "chai-and-clouds", "title": "Chai & Clouds", "tagline": "Mountain mornings, one cup at a time.", "collection": "travel", "type": "tote", "text": "CHAI & CLOUDS", "sub": "ROAMWISE", "art": "a steaming clay kulhad cup of chai with clouds rising like steam over tiny mountains, cute retro illustration, warm brown and cream"},
-    {"key": "rave-to-realm", "title": "Rave To Realm", "tagline": "From the Raveverse: the mountain portal.", "collection": "rave", "type": "oversized-tee", "text": "RAVE TO REALM", "sub": "RAVEVERSE", "art": "a glowing circular portal in a misty forest of deodar trees, gold star map lines, emerald and gold"},
-    {"key": "panchachuli-sunrise", "title": "Panchachuli Sunrise", "tagline": "Five peaks, one horizon.", "collection": "kumaon", "type": "hoodie", "text": "PANCHACHULI", "sub": "FIVE PEAKS · ONE HOME", "art": "five sharp snow peaks lit pink and gold at sunrise, a lone hiker silhouette on a ridge, bold vintage poster style"}
-  ]
+ "schemaVersion": 1,
+ "note": "Design queue for tools/shop-engine/design.py. One theme is turned into one design per run, oldest unused first. Add themes freely (the trend autopilot appends trend themes). Rules: original art only; no franchise names, logos, characters or brand art styles; no deity imagery on apparel; Kumaoni text only after a native-speaker check. Themes with art=null are typographic (no AI quota): 'ornament' is aipan | peaks | stars and 'palette' is [text, accent, sub].",
+ "themes": [
+  {
+   "key": "paanch-sitaare",
+   "title": "Paanch Sitaare",
+   "tagline": "Five stars on my name. Don't look back.",
+   "collection": "trend",
+   "type": "oversized-tee",
+   "text": "PAANCH SITAARE",
+   "sub": "WANTED · 5 STARS",
+   "art": "a retro 1980s neon emblem of a white vintage convertible car driving toward a huge sunset sun over the sea, palm trees, five bold stars in an arc above, synthwave pink and violet and orange"
+  },
+  {
+   "key": "rave-to-throne",
+   "title": "Rave To Throne",
+   "tagline": "From the Raveverse: the throne above the Himalaya.",
+   "collection": "rave",
+   "type": "oversized-tee",
+   "text": "RAVE TO THRONE",
+   "sub": "RAVEVERSE",
+   "art": "an epic golden throne carved into a snowy Himalayan peak under a violet aurora, ornate gold linework, dramatic rays"
+  },
+  {
+   "key": "rave-to-shadow",
+   "title": "Rave To Shadow",
+   "tagline": "From the Raveverse: run with the rain.",
+   "collection": "rave",
+   "type": "hoodie",
+   "text": "RAVE TO SHADOW",
+   "sub": "RAVEVERSE",
+   "art": "a lone hooded runner silhouette on wet rooftops under a full purple moon, rain streaks, glowing violet eyes, ink and neon"
+  },
+  {
+   "key": "myar-pahad",
+   "title": "Myar Pahad",
+   "tagline": "Home is a direction. A Kumaon AIverse design.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "MYAR PAHAD",
+   "sub": "KUMAON AIVERSE",
+   "art": "layered Himalayan mountain ridges at dawn with a small slate-roofed village, terraced fields and deodar trees, warm gold and deep blue, vintage travel poster style"
+  },
+  {
+   "key": "ghughuti-basuti",
+   "title": "Ghughuti Basuti",
+   "tagline": "Aama's lullaby, carried everywhere.",
+   "collection": "kumaon",
+   "type": "tote",
+   "text": "घुघुती बासूती",
+   "sub": "GHUGHUTI BASUTI",
+   "art": "a gentle dove perched on a buransh rhododendron branch with red flowers, folk art linework, cream and red"
+  },
+  {
+   "key": "buransh-blooms",
+   "title": "Buransh Blooms",
+   "tagline": "Rhododendrons in the rain, Kumaon in spring.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "BURANSH",
+   "sub": "UTTARAKHAND · SPRING",
+   "art": "a bold bouquet of red rhododendron flowers with dark green leaves and raindrops, botanical screen print style"
+  },
+  {
+   "key": "rave-to-hell",
+   "title": "Rave To Hell",
+   "tagline": "From the Raveverse: fire and resolve.",
+   "collection": "rave",
+   "type": "hoodie",
+   "text": "RAVE TO HELL",
+   "sub": "RAVEVERSE",
+   "art": "a blazing geometric gateway of crimson fire between storm clouds, crows circling, red black and white"
+  },
+  {
+   "key": "pahadi-at-heart",
+   "title": "Pahadi At Heart",
+   "tagline": "For everyone who keeps the hills inside.",
+   "collection": "travel",
+   "type": "oversized-tee",
+   "text": "PAHADI AT HEART",
+   "sub": "ALMORA · NAINITAL · MUNSIYARI",
+   "art": "a heart shape formed by snowy mountain peaks and pine trees with a winding road, minimalist two-colour line art"
+  },
+  {
+   "key": "rave-to-dream",
+   "title": "Rave To Dream",
+   "tagline": "From the Raveverse: echoes across the nebula.",
+   "collection": "rave",
+   "type": "oversized-tee",
+   "text": "RAVE TO DREAM",
+   "sub": "RAVEVERSE",
+   "art": "a dreamy nebula over moonlit mountain ridges with luminous blue and violet waves, a crescent moon"
+  },
+  {
+   "key": "chai-and-clouds",
+   "title": "Chai & Clouds",
+   "tagline": "Mountain mornings, one cup at a time.",
+   "collection": "travel",
+   "type": "tote",
+   "text": "CHAI & CLOUDS",
+   "sub": "ROAMWISE",
+   "art": "a steaming clay kulhad cup of chai with clouds rising like steam over tiny mountains, cute retro illustration, warm brown and cream"
+  },
+  {
+   "key": "rave-to-realm",
+   "title": "Rave To Realm",
+   "tagline": "From the Raveverse: the mountain portal.",
+   "collection": "rave",
+   "type": "oversized-tee",
+   "text": "RAVE TO REALM",
+   "sub": "RAVEVERSE",
+   "art": "a glowing circular portal in a misty forest of deodar trees, gold star map lines, emerald and gold"
+  },
+  {
+   "key": "panchachuli-sunrise",
+   "title": "Panchachuli Sunrise",
+   "tagline": "Five peaks, one horizon.",
+   "collection": "kumaon",
+   "type": "hoodie",
+   "text": "PANCHACHULI",
+   "sub": "FIVE PEAKS · ONE HOME",
+   "art": "five sharp snow peaks lit pink and gold at sunrise, a lone hiker silhouette on a ridge, bold vintage poster style"
+  },
+  {
+   "key": "aipan-mandala",
+   "title": "Aipan Mandala",
+   "tagline": "Kumaon's living floor art, as an original geometric mandala.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "AIPAN MANDALA",
+   "sub": "KUMAON · AIPAN",
+   "art": "an intricate original geometric mandala in the style of Kumaoni Aipan floor art, white rice-paste lines on deep geru red, dots, lotus petals and swastika-free geometric borders, symmetrical"
+  },
+  {
+   "key": "kafal-pako",
+   "title": "Kafal Pako",
+   "tagline": "The little red berry of Kumaon's summer forests.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "KAFAL PAKO",
+   "sub": "KUMAON · SUMMER",
+   "art": "a branch of ripe red kafal (box myrtle) berries with dark green leaves, a small bird perched beside them, folk illustration, rich reds and greens"
+  },
+  {
+   "key": "bedu-pako",
+   "title": "Bedu Pako",
+   "tagline": "For the song every pahadi heart knows.",
+   "collection": "kumaon",
+   "type": "hoodie",
+   "text": "BEDU PAKO",
+   "sub": "BARO MASA",
+   "art": "ripe purple wild figs on a branch over terraced Himalayan fields, warm folk illustration style, bold outlines"
+  },
+  {
+   "key": "chholiya",
+   "title": "Chholiya",
+   "tagline": "The sword-and-shield wedding dance of Kumaon, in motion.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "CHHOLIYA",
+   "sub": "KUMAON FOLK DANCE",
+   "art": "two Kumaoni Chholiya dancers in white traditional costume with colourful turbans, swords and round shields mid-dance, dynamic silhouettes, warm sunset colours"
+  },
+  {
+   "key": "hurka-beat",
+   "title": "Hurka Beat",
+   "tagline": "The hourglass drum that keeps the hills singing.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "HURKA",
+   "sub": "THE PAHADI BEAT",
+   "art": "a traditional hourglass-shaped hurka drum with decorated strings, sound waves rippling into mountain ridges, bold vector illustration"
+  },
+  {
+   "key": "pichhoda",
+   "title": "Pichhoda Rang",
+   "tagline": "The yellow-and-red of a Kumaoni celebration.",
+   "collection": "kumaon",
+   "type": "tote",
+   "text": "PICHHODA",
+   "sub": "PINGLI · LAAL",
+   "art": "an elegant flowing textile pattern inspired by the Kumaoni pichhoda shawl, saffron yellow with red dot circles and border motifs, abstract and original"
+  },
+  {
+   "key": "almora-bal-mithai",
+   "title": "Bal Mithai",
+   "tagline": "Almora's brown sweet with white sugar pearls.",
+   "collection": "kumaon",
+   "type": "tote",
+   "text": "BAL MITHAI",
+   "sub": "ALMORA SPECIAL",
+   "art": "a cute illustration of Almora bal mithai, chocolate brown fudge squares coated in tiny white sugar balls, on a leaf plate, warm and playful"
+  },
+  {
+   "key": "singori",
+   "title": "Singori",
+   "tagline": "Khoya sweet wrapped in a maalu leaf.",
+   "collection": "kumaon",
+   "type": "tote",
+   "text": "SINGORI",
+   "sub": "ALMORA SWEETS",
+   "art": "cone-shaped singori sweets wrapped in green leaves on a brass plate, cosy illustration, warm tones"
+  },
+  {
+   "key": "bhatt-ki-churkani",
+   "title": "Bhatt Ki Churkani",
+   "tagline": "Black soybean comfort from a pahadi kitchen.",
+   "collection": "kumaon",
+   "type": "tote",
+   "text": "BHATT KI CHURKANI",
+   "sub": "PAHADI KITCHEN",
+   "art": "a steaming iron kadhai of dark bean curry with rice and a clay lamp, homely kitchen illustration, warm browns"
+  },
+  {
+   "key": "pisyu-loon",
+   "title": "Pisyu Loon",
+   "tagline": "Hand-ground pahadi salt with garlic and chilli.",
+   "collection": "kumaon",
+   "type": "tote",
+   "text": "PISYU LOON",
+   "sub": "SIL-BATTA MAGIC",
+   "art": "a stone grinding slab and roller with green chillies, garlic and coarse salt, bright folk illustration"
+  },
+  {
+   "key": "phool-dei",
+   "title": "Phool Dei",
+   "tagline": "Children's spring festival of flowers at every door.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "PHOOL DEI",
+   "sub": "SPRING · CHAIT",
+   "art": "baskets of fresh yellow and red spring flowers spilling onto a doorstep with Aipan patterns, joyful folk illustration"
+  },
+  {
+   "key": "harela",
+   "title": "Harela",
+   "tagline": "Sow green, grow green: Kumaon's monsoon festival.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "HARELA",
+   "sub": "PLANT A TREE",
+   "art": "young green barley sprouts in clay pots in front of a lush terraced hillside in monsoon, rain drops, fresh greens"
+  },
+  {
+   "key": "ghughutiya",
+   "title": "Ghughutiya",
+   "tagline": "Crows, garlands and Uttarayani mornings.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "GHUGHUTIYA",
+   "sub": "UTTARAYANI",
+   "art": "a playful black crow wearing a garland of small sweet ghughute shapes, morning sun over mountains, cheerful folk illustration"
+  },
+  {
+   "key": "nanda-peak",
+   "title": "Nanda Peak",
+   "tagline": "The twin summits that watch over Kumaon.",
+   "collection": "kumaon",
+   "type": "hoodie",
+   "text": "NANDA",
+   "sub": "7816 M",
+   "art": "the majestic twin snow summits of a Himalayan giant at dawn, pink and gold alpenglow, clouds below, epic vintage poster style"
+  },
+  {
+   "key": "jageshwar-deodar",
+   "title": "Deodar Forest",
+   "tagline": "Ancient cedars of the Jataganga valley.",
+   "collection": "kumaon",
+   "type": "hoodie",
+   "text": "DEODAR",
+   "sub": "JAGESHWAR VALLEY",
+   "art": "towering ancient deodar cedar trees in morning mist with a stream, sun rays through branches, deep green and gold"
+  },
+  {
+   "key": "kausani-sunrise",
+   "title": "Kausani Sunrise",
+   "tagline": "Three hundred kilometres of Himalaya, one sunrise.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "KAUSANI SUNRISE",
+   "sub": "KUMAON",
+   "art": "a panoramic chain of snowy peaks glowing at sunrise above a tea garden ridge, layered blue hills, vintage travel poster"
+  },
+  {
+   "key": "binsar-night",
+   "title": "Binsar Nights",
+   "tagline": "Stars over the oak and rhododendron forest.",
+   "collection": "kumaon",
+   "type": "hoodie",
+   "text": "BINSAR",
+   "sub": "DARK SKY · KUMAON",
+   "art": "a starry night sky with the milky way over silhouetted oak forest and a small wooden forest rest house with a warm window"
+  },
+  {
+   "key": "munsiyari",
+   "title": "Munsiyari",
+   "tagline": "Where Panchachuli fills the window.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "MUNSIYARI",
+   "sub": "PITHORAGARH",
+   "art": "a small mountain village with slate roofs facing five huge snow peaks, prayer-flag-free, crisp alpine light, vintage poster"
+  },
+  {
+   "key": "nainital-lake",
+   "title": "Nainital",
+   "tagline": "The lake town in the hills.",
+   "collection": "kumaon",
+   "type": "tote",
+   "text": "NAINITAL",
+   "sub": "LAKE · BOATS · MALL ROAD",
+   "art": "a pear-shaped mountain lake with colourful rowing boats and sailing yachts, hills with houses around, cheerful retro poster"
+  },
+  {
+   "key": "mukteshwar",
+   "title": "Mukteshwar",
+   "tagline": "Cliffs, orchards and a view of the snows.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "MUKTESHWAR",
+   "sub": "KUMAON",
+   "art": "a rocky cliff edge with an orchard of apple trees and distant snow peaks, a paraglider in the sky, bright vintage poster"
+  },
+  {
+   "key": "pahadi-cow",
+   "title": "Badri Gai",
+   "tagline": "The small, sturdy hill cow of Uttarakhand.",
+   "collection": "kumaon",
+   "type": "tote",
+   "text": "BADRI",
+   "sub": "HILL COW",
+   "art": "a cute small brown hill cow with bell standing on a grassy slope with mountains, charming folk illustration"
+  },
+  {
+   "key": "slate-roof-village",
+   "title": "Pathar Ki Chhat",
+   "tagline": "Slate roofs and carved wooden doors.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "MYAR GAUN",
+   "sub": "SLATE ROOFS · CARVED DOORS",
+   "art": "a traditional Kumaoni stone house with grey slate roof and intricately carved wooden doors and windows, marigold flowers, warm afternoon light"
+  },
+  {
+   "key": "ringal-craft",
+   "title": "Ringal",
+   "tagline": "Hand-woven mountain bamboo craft.",
+   "collection": "kumaon",
+   "type": "tote",
+   "text": "RINGAL",
+   "sub": "HANDMADE IN THE HILLS",
+   "art": "hand-woven bamboo baskets and a winnowing tray in a pattern, earthy natural tones, crafted illustration"
+  },
+  {
+   "key": "baithki-holi",
+   "title": "Baithki Holi",
+   "tagline": "Raag, harmonium and gulal in a Kumaoni winter room.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "BAITHKI",
+   "sub": "KUMAONI HOLI",
+   "art": "a harmonium and tabla on a colourful rug with clouds of pink and yellow gulal powder, festive illustration"
+  },
+  {
+   "key": "syalde-mela",
+   "title": "Syalde Bikhauti",
+   "tagline": "The spring fair of Dwarahat.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "SYALDE",
+   "sub": "DWARAHAT MELA",
+   "art": "a lively mountain village fair with colourful stalls, flags, drums and dancing crowd silhouettes, vibrant illustration"
+  },
+  {
+   "key": "pahadi-hoon",
+   "title": "Pahadi Hoon",
+   "tagline": "Simple. Proud. From the hills.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "PAHADI",
+   "sub": "AND PROUD",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#f6efe2",
+    "#c8443c",
+    "#f0b35a"
+   ]
+  },
+  {
+   "key": "almora-to-global",
+   "title": "Almora To Global",
+   "tagline": "Kumaon at heart. The world ahead.",
+   "collection": "kumaon",
+   "type": "hoodie",
+   "text": "ALMORA",
+   "sub": "TO GLOBAL",
+   "art": null,
+   "ornament": "aipan",
+   "palette": [
+    "#f6efe2",
+    "#c8443c",
+    "#f0b35a"
+   ]
+  },
+  {
+   "key": "kumaon-calling",
+   "title": "Kumaon Calling",
+   "tagline": "When the hills call, you go.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "KUMAON",
+   "sub": "IS CALLING",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  },
+  {
+   "key": "uttarakhand-ridges",
+   "title": "Uttarakhand Ridges",
+   "tagline": "For the land of a thousand ridges.",
+   "collection": "kumaon",
+   "type": "oversized-tee",
+   "text": "UTTARAKHAND",
+   "sub": "HIMALAYAN HOMELAND",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#eef7ec",
+    "#3e8e5a",
+    "#cfe8a9"
+   ]
+  },
+  {
+   "key": "chai-pakode-pahad",
+   "title": "Chai Pakode Pahad",
+   "tagline": "The holy trinity of a rainy hill afternoon.",
+   "collection": "kumaon",
+   "type": "tote",
+   "text": "CHAI · PAKODE · PAHAD",
+   "sub": "RAINY DAY RULES",
+   "art": null,
+   "ornament": "stars",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  },
+  {
+   "key": "buransh-aipan-typo",
+   "title": "Buransh Aipan",
+   "tagline": "Rhododendron red, Aipan white.",
+   "collection": "kumaon",
+   "type": "tote",
+   "text": "BURANSH",
+   "sub": "KUMAON SPRING",
+   "art": null,
+   "ornament": "aipan",
+   "palette": [
+    "#f6efe2",
+    "#c8443c",
+    "#f0b35a"
+   ]
+  },
+  {
+   "key": "pahadi-naam",
+   "title": "Pahadi By Heart",
+   "tagline": "Wherever you live, the hills live in you.",
+   "collection": "kumaon",
+   "type": "hoodie",
+   "text": "PAHADI",
+   "sub": "BY HEART",
+   "art": null,
+   "ornament": "aipan",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  },
+  {
+   "key": "book-ai-ki-pathshala",
+   "title": "AI Ki Pathshala",
+   "tagline": "Merch for readers of AI Ki Pathshala by Mohit Pandey.",
+   "collection": "books",
+   "type": "oversized-tee",
+   "text": "AI KI PATHSHALA",
+   "sub": "BY MOHIT PANDEY",
+   "art": "a friendly retro robot teacher in front of a green chalkboard covered in neural network doodles, students' desks, cheerful bold illustration"
+  },
+  {
+   "key": "book-gyanverse",
+   "title": "Gyanverse",
+   "tagline": "Merch for readers of GYANVERSE by Mohit Pandey.",
+   "collection": "books",
+   "type": "hoodie",
+   "text": "GYANVERSE",
+   "sub": "BY MOHIT PANDEY",
+   "art": "a glowing open book releasing a constellation of stars, planets and light into a cosmic sky, gold and deep blue"
+  },
+  {
+   "key": "book-yuga",
+   "title": "Yuga: The Silicon Age",
+   "tagline": "Merch for readers of Yuga: The Silicon Age by Mohit Pandey.",
+   "collection": "books",
+   "type": "hoodie",
+   "text": "YUGA",
+   "sub": "THE SILICON AGE",
+   "art": "a vast futuristic city built from glowing circuit-board patterns rising like mountains under a huge silicon sun, teal and gold"
+  },
+  {
+   "key": "book-volts",
+   "title": "Volts & Vengeance",
+   "tagline": "Merch for readers of Volts & Vengeance by Mohit Pandey.",
+   "collection": "books",
+   "type": "oversized-tee",
+   "text": "VOLTS & VENGEANCE",
+   "sub": "BY MOHIT PANDEY",
+   "art": "a dramatic lightning bolt splitting a stormy sky over a dark city, electric blue and violet energy, high contrast"
+  },
+  {
+   "key": "book-reader-typo",
+   "title": "Read The Hills",
+   "tagline": "For readers who travel and travellers who read.",
+   "collection": "books",
+   "type": "tote",
+   "text": "READ · ROAM · REPEAT",
+   "sub": "GYANVERSE BOOKS",
+   "art": null,
+   "ornament": "stars",
+   "palette": [
+    "#e8e6ff",
+    "#7d6bd6",
+    "#9fc4ff"
+   ]
+  },
+  {
+   "key": "book-yuga-typo",
+   "title": "Silicon Age",
+   "tagline": "Yuga: The Silicon Age, in type.",
+   "collection": "books",
+   "type": "oversized-tee",
+   "text": "SILICON AGE",
+   "sub": "YUGA · MOHIT PANDEY",
+   "art": null,
+   "ornament": "stars",
+   "palette": [
+    "#e8e6ff",
+    "#7d6bd6",
+    "#9fc4ff"
+   ]
+  },
+  {
+   "key": "book-pathshala-typo",
+   "title": "Seekho AI",
+   "tagline": "AI Ki Pathshala: learn it in your language.",
+   "collection": "books",
+   "type": "oversized-tee",
+   "text": "AI SEEKHO",
+   "sub": "AI KI PATHSHALA",
+   "art": null,
+   "ornament": "stars",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  },
+  {
+   "key": "rave-to-passion",
+   "title": "Rave To Passion",
+   "tagline": "From the Raveverse by Mohit Pandey.",
+   "collection": "rave",
+   "type": "oversized-tee",
+   "text": "RAVE TO PASSION",
+   "sub": "RAVEVERSE",
+   "art": "two silhouetted dancers under a crimson moon with flowing ribbons of red light, passionate energy"
+  },
+  {
+   "key": "rave-to-cave",
+   "title": "Rave To Cave",
+   "tagline": "From the Raveverse by Mohit Pandey.",
+   "collection": "rave",
+   "type": "oversized-tee",
+   "text": "RAVE TO CAVE",
+   "sub": "RAVEVERSE",
+   "art": "a glowing crystal cave with a lone figure in headphones, violet and teal crystals, echoing light rings"
+  },
+  {
+   "key": "rave-to-spell",
+   "title": "Rave To Spell",
+   "tagline": "From the Raveverse by Mohit Pandey.",
+   "collection": "rave",
+   "type": "oversized-tee",
+   "text": "RAVE TO SPELL",
+   "sub": "RAVEVERSE",
+   "art": "a glowing illusion eye inside an original circular sigil with intricate cosmic lines, violet and gold"
+  },
+  {
+   "key": "rave-to-heaven",
+   "title": "Rave To Heaven",
+   "tagline": "From the Raveverse by Mohit Pandey.",
+   "collection": "rave",
+   "type": "oversized-tee",
+   "text": "RAVE TO HEAVEN",
+   "sub": "RAVEVERSE",
+   "art": "cloud-lit mountain peaks with a gold horizon and a celestial music symbol made of light"
+  },
+  {
+   "key": "rave-to-rise",
+   "title": "Rave To Rise",
+   "tagline": "From the Raveverse by Mohit Pandey.",
+   "collection": "rave",
+   "type": "oversized-tee",
+   "text": "RAVE TO RISE",
+   "sub": "RAVEVERSE",
+   "art": "a huge rising sun behind scarlet mountain outlines with bold upward light beams"
+  },
+  {
+   "key": "raveverse-logo",
+   "title": "Raveverse",
+   "tagline": "Eight worlds, one night: the Raveverse.",
+   "collection": "rave",
+   "type": "hoodie",
+   "text": "RAVEVERSE",
+   "sub": "EK RAAT · AATH DUNIYA",
+   "art": null,
+   "ornament": "stars",
+   "palette": [
+    "#ffe8f7",
+    "#ff4fa3",
+    "#7af0ff"
+   ]
+  },
+  {
+   "key": "rave-series-typo",
+   "title": "Rave Series",
+   "tagline": "The Rave Series by @mohucool.",
+   "collection": "rave",
+   "type": "oversized-tee",
+   "text": "RAVE SERIES",
+   "sub": "BY MOHUCOOL",
+   "art": null,
+   "ornament": "stars",
+   "palette": [
+    "#ffe8f7",
+    "#ff4fa3",
+    "#7af0ff"
+   ]
+  },
+  {
+   "key": "rave-to-hell-typo",
+   "title": "Rave To Hell Typo",
+   "tagline": "The most-played Raveverse track, in fire type.",
+   "collection": "rave",
+   "type": "oversized-tee",
+   "text": "RAVE TO HELL",
+   "sub": "RAVEVERSE · 01",
+   "art": null,
+   "ornament": "stars",
+   "palette": [
+    "#ffe9dc",
+    "#e0402f",
+    "#ffb347"
+   ]
+  },
+  {
+   "key": "song-nyoli",
+   "title": "Nyoli",
+   "tagline": "A Kumaon AIverse song by Mohit Pandey.",
+   "collection": "songs",
+   "type": "oversized-tee",
+   "text": "NYOLI",
+   "sub": "KUMAON AIVERSE",
+   "art": "a lonely forest bird singing on an oak branch over an empty snowy hill village at dusk, melancholic blue tones"
+  },
+  {
+   "key": "song-kale-kauwa",
+   "title": "Kale Kauwa",
+   "tagline": "A Kumaon AIverse song by Mohit Pandey.",
+   "collection": "songs",
+   "type": "oversized-tee",
+   "text": "KALE KAUWA",
+   "sub": "KUMAON AIVERSE",
+   "art": "a joyful black crow flying over a sunrise mountain fair with colourful garlands, bright and festive"
+  },
+  {
+   "key": "song-myar-pahad-2",
+   "title": "Myar Pahad II",
+   "tagline": "A Kumaon AIverse song by Mohit Pandey.",
+   "collection": "songs",
+   "type": "oversized-tee",
+   "text": "MYAR PAHAD II",
+   "sub": "GHAR AA",
+   "art": "a winding mountain road leading home to a lit village window in falling snow, warm homecoming glow"
+  },
+  {
+   "key": "song-barat-aayi-pahad",
+   "title": "Barat Aayi Pahad",
+   "tagline": "A Kumaon AIverse song by Mohit Pandey.",
+   "collection": "songs",
+   "type": "oversized-tee",
+   "text": "BARAT AAYI PAHAD",
+   "sub": "KUMAON AIVERSE",
+   "art": "a joyful mountain wedding procession with drums, colourful umbrellas and flags winding up a hill path"
+  },
+  {
+   "key": "song-kohre-mein-tum",
+   "title": "Kohre Mein Tum",
+   "tagline": "A Kumaon AIverse song by Mohit Pandey.",
+   "collection": "songs",
+   "type": "oversized-tee",
+   "text": "KOHRE MEIN TUM",
+   "sub": "KUMAON AIVERSE",
+   "art": "two silhouettes on a misty mountain road with fog lamps glowing, romantic soft blue haze"
+  },
+  {
+   "key": "song-jaagar",
+   "title": "Jaagar",
+   "tagline": "A Kumaon AIverse song by Mohit Pandey.",
+   "collection": "songs",
+   "type": "oversized-tee",
+   "text": "JAAGAR",
+   "sub": "KUMAON AIVERSE",
+   "art": "an hourglass drum and a bonfire under a starry mountain night, sparks rising, deep orange and indigo, mysterious"
+  },
+  {
+   "key": "song-putla",
+   "title": "Putla",
+   "tagline": "A Kumaon AIverse song by Mohit Pandey.",
+   "collection": "songs",
+   "type": "oversized-tee",
+   "text": "PUTLA",
+   "sub": "ALMORA DUSSEHRA",
+   "art": "giant colourful festival effigy silhouettes paraded through a hill town street with lights and crowds, vibrant night"
+  },
+  {
+   "key": "song-hudkiya",
+   "title": "Hudkiya",
+   "tagline": "A Kumaon AIverse song by Mohit Pandey.",
+   "collection": "songs",
+   "type": "oversized-tee",
+   "text": "HUDKIYA",
+   "sub": "KUMAON AIVERSE",
+   "art": "farmers planting paddy in flooded green terraces in the rain, a drummer at the edge, rhythmic composition"
+  },
+  {
+   "key": "song-bhitauli",
+   "title": "Bhitauli",
+   "tagline": "A Kumaon AIverse song by Mohit Pandey.",
+   "collection": "songs",
+   "type": "oversized-tee",
+   "text": "BHITAULI",
+   "sub": "KUMAON AIVERSE",
+   "art": "a young woman waiting at a hilltop path with a basket of spring gifts, rhododendron blossoms, tender pastel tones"
+  },
+  {
+   "key": "song-myar-pahad-dreamcode",
+   "title": "Myar Pahad",
+   "tagline": "A Kumaon AIverse song by Mohit Pandey.",
+   "collection": "songs",
+   "type": "oversized-tee",
+   "text": "MYAR PAHAD",
+   "sub": "HIMALAYAN AI DREAMCODE",
+   "art": "a glowing digital mountain made of light code above a traditional hill village at night, Himalayan cyber folk"
+  },
+  {
+   "key": "kumaon-aiverse-logo",
+   "title": "Kumaon AIverse",
+   "tagline": "Twelve months of Kumaon in twelve songs.",
+   "collection": "songs",
+   "type": "hoodie",
+   "text": "KUMAON AIVERSE",
+   "sub": "BAARAH MAAS",
+   "art": null,
+   "ornament": "aipan",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  },
+  {
+   "key": "baarah-maas",
+   "title": "Baarah Maas",
+   "tagline": "One song for every month of the hills.",
+   "collection": "songs",
+   "type": "tote",
+   "text": "BAARAH MAAS",
+   "sub": "12 MONTHS · 12 SONGS",
+   "art": null,
+   "ornament": "aipan",
+   "palette": [
+    "#f6efe2",
+    "#c8443c",
+    "#f0b35a"
+   ]
+  },
+  {
+   "key": "mohucool",
+   "title": "Mohucool",
+   "tagline": "For the @mohucool family.",
+   "collection": "songs",
+   "type": "oversized-tee",
+   "text": "MOHUCOOL",
+   "sub": "MUSIC FROM THE HILLS",
+   "art": null,
+   "ornament": "stars",
+   "palette": [
+    "#ffe8f7",
+    "#ff4fa3",
+    "#7af0ff"
+   ]
+  },
+  {
+   "key": "roamwise-wordmark",
+   "title": "RoamWise",
+   "tagline": "The original RoamWise tee.",
+   "collection": "travel",
+   "type": "oversized-tee",
+   "text": "ROAMWISE",
+   "sub": "ALMORA TO GLOBAL",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  },
+  {
+   "key": "roamwise-go-slow",
+   "title": "Go Slow Stay Ready",
+   "tagline": "The RoamWise way to travel.",
+   "collection": "travel",
+   "type": "oversized-tee",
+   "text": "GO SLOW.",
+   "sub": "STAY READY.",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#eef7ec",
+    "#3e8e5a",
+    "#cfe8a9"
+   ]
+  },
+  {
+   "key": "roamwise-pack-light",
+   "title": "Pack Light",
+   "tagline": "Less luggage, more mountains.",
+   "collection": "travel",
+   "type": "tote",
+   "text": "PACK LIGHT",
+   "sub": "ROAMWISE",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  },
+  {
+   "key": "roamwise-ailon-tusk",
+   "title": "Ailon Tusk",
+   "tagline": "Your AI trip planner, on a tee.",
+   "collection": "travel",
+   "type": "oversized-tee",
+   "text": "ASK TUSK",
+   "sub": "AI TRIP PLANNER · ROAMWISE",
+   "art": "a friendly cute elephant robot with a backpack holding a glowing map, standing on a mountain trail, playful mascot illustration"
+  },
+  {
+   "key": "roamwise-workation",
+   "title": "Workation Mode",
+   "tagline": "Laptop open, window full of mountains.",
+   "collection": "travel",
+   "type": "oversized-tee",
+   "text": "WORKATION",
+   "sub": "MODE: ON",
+   "art": "a laptop on a wooden balcony desk facing snowy mountains with a cup of chai, cosy vector illustration"
+  },
+  {
+   "key": "roamwise-corbett",
+   "title": "Corbett",
+   "tagline": "Jungle mornings in Corbett.",
+   "collection": "travel",
+   "type": "oversized-tee",
+   "text": "CORBETT",
+   "sub": "JUNGLE · RIVER · STRIPES",
+   "art": "a majestic tiger walking through tall sal forest grass by a river at golden hour, bold illustration"
+  },
+  {
+   "key": "roamwise-manali",
+   "title": "Manali",
+   "tagline": "Pines, rivers and snow.",
+   "collection": "travel",
+   "type": "hoodie",
+   "text": "MANALI",
+   "sub": "HIMACHAL",
+   "art": "snowy pine forest and a wooden Himachali house beside a rushing river with snow peaks, vintage travel poster"
+  },
+  {
+   "key": "roamwise-rishikesh",
+   "title": "Rishikesh",
+   "tagline": "Rafts, rapids and riverside sunsets.",
+   "collection": "travel",
+   "type": "oversized-tee",
+   "text": "RISHIKESH",
+   "sub": "GANGA · RAPIDS",
+   "art": "a white-water rafting boat crashing through rapids between green hills, a suspension bridge in the background, energetic poster"
+  },
+  {
+   "key": "roamwise-tirthan",
+   "title": "Tirthan",
+   "tagline": "Trout streams and quiet valleys.",
+   "collection": "travel",
+   "type": "oversized-tee",
+   "text": "TIRTHAN",
+   "sub": "HIMACHAL",
+   "art": "a crystal-clear mountain stream with a wooden footbridge and pine forest, a trout jumping, fresh greens and blues"
+  },
+  {
+   "key": "roamwise-gir",
+   "title": "Gir",
+   "tagline": "Home of the Asiatic lion.",
+   "collection": "travel",
+   "type": "oversized-tee",
+   "text": "GIR",
+   "sub": "GUJARAT",
+   "art": "a proud Asiatic lion resting on a rock in dry teak forest at sunset, warm golden illustration"
+  },
+  {
+   "key": "roamwise-lansdowne",
+   "title": "Lansdowne",
+   "tagline": "Pines, fog and quiet cantonment roads.",
+   "collection": "travel",
+   "type": "tote",
+   "text": "LANSDOWNE",
+   "sub": "GARHWAL",
+   "art": "a misty pine-lined road with an old stone church and a red post box, foggy hill station poster"
+  },
+  {
+   "key": "roamwise-himalaya-map",
+   "title": "Himalaya Lines",
+   "tagline": "Contour lines of the mountains we love.",
+   "collection": "travel",
+   "type": "hoodie",
+   "text": "HIMALAYA",
+   "sub": "ROAMWISE",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#e8e6ff",
+    "#7d6bd6",
+    "#9fc4ff"
+   ]
+  },
+  {
+   "key": "roamwise-wanderer",
+   "title": "Wander Wise",
+   "tagline": "Travel far, travel wise.",
+   "collection": "travel",
+   "type": "oversized-tee",
+   "text": "WANDER WISE",
+   "sub": "ROAMWISE",
+   "art": null,
+   "ornament": "stars",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  },
+  {
+   "key": "roamwise-trek",
+   "title": "Trek Mode",
+   "tagline": "Boots on, network off.",
+   "collection": "travel",
+   "type": "oversized-tee",
+   "text": "TREK MODE",
+   "sub": "NETWORK: OFF",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#eef7ec",
+    "#3e8e5a",
+    "#cfe8a9"
+   ]
+  },
+  {
+   "key": "main-character-mountains",
+   "title": "Main Character",
+   "tagline": "Main character energy, Himalayan edition.",
+   "collection": "trend",
+   "type": "oversized-tee",
+   "text": "MAIN CHARACTER",
+   "sub": "HIMALAYAN EDITION",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#ffe8f7",
+    "#ff4fa3",
+    "#7af0ff"
+   ]
+  },
+  {
+   "key": "touch-grass-himalaya",
+   "title": "Touch Grass",
+   "tagline": "Touch grass. Preferably at 3,000 metres.",
+   "collection": "trend",
+   "type": "oversized-tee",
+   "text": "TOUCH GRASS",
+   "sub": "AT 3000 M",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#eef7ec",
+    "#3e8e5a",
+    "#cfe8a9"
+   ]
+  },
+  {
+   "key": "out-of-office",
+   "title": "Out Of Office",
+   "tagline": "Out of office. In the hills.",
+   "collection": "trend",
+   "type": "oversized-tee",
+   "text": "OUT OF OFFICE",
+   "sub": "IN THE HILLS",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  },
+  {
+   "key": "chai-over-coffee",
+   "title": "Chai Over Coffee",
+   "tagline": "Settled once and for all.",
+   "collection": "trend",
+   "type": "tote",
+   "text": "CHAI > COFFEE",
+   "sub": "SORRY NOT SORRY",
+   "art": null,
+   "ornament": "stars",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  },
+  {
+   "key": "wanted-level",
+   "title": "Wanted Level 5",
+   "tagline": "Five stars on my name.",
+   "collection": "trend",
+   "type": "oversized-tee",
+   "text": "WANTED",
+   "sub": "5 STARS",
+   "art": null,
+   "ornament": "stars",
+   "palette": [
+    "#ffe8f7",
+    "#ff4fa3",
+    "#7af0ff"
+   ]
+  },
+  {
+   "key": "retro-8bit-mountains",
+   "title": "8-Bit Himalaya",
+   "tagline": "Pixel peaks for gamers who trek.",
+   "collection": "trend",
+   "type": "oversized-tee",
+   "text": "PRESS START",
+   "sub": "HIMALAYA",
+   "art": "retro 8-bit pixel art of snowy mountains, a tiny pixel hiker and a sunset sky, arcade colours"
+  },
+  {
+   "key": "desi-synthwave",
+   "title": "Desi Synthwave",
+   "tagline": "Neon sunsets with a desi heart.",
+   "collection": "trend",
+   "type": "hoodie",
+   "text": "DESI SYNTHWAVE",
+   "sub": "RETRO · NEON · DIL",
+   "art": "a retro synthwave sunset with neon grid road, a vintage auto rickshaw silhouette and palm trees, pink purple cyan"
+  },
+  {
+   "key": "phonk-drift",
+   "title": "Phonk Drift",
+   "tagline": "Night drives and heavy bass.",
+   "collection": "trend",
+   "type": "oversized-tee",
+   "text": "PHONK DRIFT",
+   "sub": "NIGHT MODE",
+   "art": "a stylised drifting car on a mountain hairpin road at night with long red tail-light trails, smoke and neon purple sky"
+  },
+  {
+   "key": "ai-made-human-felt",
+   "title": "Made With AI",
+   "tagline": "Made with AI. Felt by humans.",
+   "collection": "trend",
+   "type": "oversized-tee",
+   "text": "MADE WITH AI",
+   "sub": "FELT BY HUMANS",
+   "art": null,
+   "ornament": "stars",
+   "palette": [
+    "#e8e6ff",
+    "#7d6bd6",
+    "#9fc4ff"
+   ]
+  },
+  {
+   "key": "monsoon-mood",
+   "title": "Monsoon Mood",
+   "tagline": "Rain on a tin roof is a love song.",
+   "collection": "trend",
+   "type": "oversized-tee",
+   "text": "MONSOON MOOD",
+   "sub": "BARISH · CHAI · PAHAD",
+   "art": "heavy rain over lush green mountains with a small tin-roof tea stall and a glowing lamp, cosy moody illustration"
+  },
+  {
+   "key": "winter-arc",
+   "title": "Winter Arc",
+   "tagline": "Your winter arc starts in the hills.",
+   "collection": "trend",
+   "type": "hoodie",
+   "text": "WINTER ARC",
+   "sub": "IN THE HIMALAYA",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#e8e6ff",
+    "#7d6bd6",
+    "#9fc4ff"
+   ]
+  },
+  {
+   "key": "solo-traveller",
+   "title": "Solo Not Lonely",
+   "tagline": "Solo trips, full heart.",
+   "collection": "trend",
+   "type": "oversized-tee",
+   "text": "SOLO",
+   "sub": "NOT LONELY",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  },
+  {
+   "key": "no-network",
+   "title": "No Network",
+   "tagline": "The best views have no signal.",
+   "collection": "trend",
+   "type": "oversized-tee",
+   "text": "NO NETWORK",
+   "sub": "FULL PEACE",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#eef7ec",
+    "#3e8e5a",
+    "#cfe8a9"
+   ]
+  },
+  {
+   "key": "weekend-pahad",
+   "title": "Weekend Pahad",
+   "tagline": "Friday night bus. Saturday morning mountains.",
+   "collection": "trend",
+   "type": "tote",
+   "text": "WEEKEND = PAHAD",
+   "sub": "SEE YOU AT THE TOP",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  },
+  {
+   "key": "cricket-gully",
+   "title": "Gully Cricket",
+   "tagline": "Every ridge is a stadium.",
+   "collection": "trend",
+   "type": "oversized-tee",
+   "text": "GULLY CRICKET",
+   "sub": "HILL EDITION",
+   "art": "kids playing street cricket on a narrow hill village lane with mountains behind, a wooden bat and tennis ball, joyful illustration"
+  },
+  {
+   "key": "stay-grounded",
+   "title": "Stay Grounded",
+   "tagline": "Altitude high, ego low.",
+   "collection": "trend",
+   "type": "oversized-tee",
+   "text": "STAY GROUNDED",
+   "sub": "ALTITUDE HIGH · EGO LOW",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#e8e6ff",
+    "#7d6bd6",
+    "#9fc4ff"
+   ]
+  },
+  {
+   "key": "hustle-hills",
+   "title": "Hustle In The Hills",
+   "tagline": "Build big from small towns.",
+   "collection": "trend",
+   "type": "hoodie",
+   "text": "SMALL TOWN",
+   "sub": "BIG DREAMS",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  },
+  {
+   "key": "dark-academia-hills",
+   "title": "Dark Academia Hills",
+   "tagline": "Old books, cold mornings, deodar shade.",
+   "collection": "trend",
+   "type": "tote",
+   "text": "READ IN THE HILLS",
+   "sub": "DARK ACADEMIA",
+   "art": null,
+   "ornament": "stars",
+   "palette": [
+    "#efe6d6",
+    "#5b4636",
+    "#b08a5a"
+   ]
+  },
+  {
+   "key": "paanch-sitaare-hoodie",
+   "title": "Paanch Sitaare",
+   "tagline": "Five stars on my name. Don't look back.",
+   "collection": "trend",
+   "type": "hoodie",
+   "text": "PAANCH SITAARE",
+   "sub": "WANTED · 5 STARS",
+   "art": "a retro 1980s neon emblem of a white vintage convertible car driving toward a huge sunset sun over the sea, palm trees, five bold stars in an arc above, synthwave pink and violet and orange"
+  },
+  {
+   "key": "myar-pahad-hoodie",
+   "title": "Myar Pahad",
+   "tagline": "Home is a direction. A Kumaon AIverse design.",
+   "collection": "kumaon",
+   "type": "hoodie",
+   "text": "MYAR PAHAD",
+   "sub": "KUMAON AIVERSE",
+   "art": "layered Himalayan mountain ridges at dawn with a small slate-roofed village, terraced fields and deodar trees, warm gold and deep blue, vintage travel poster style"
+  },
+  {
+   "key": "rave-to-throne-hoodie",
+   "title": "Rave To Throne",
+   "tagline": "From the Raveverse: the throne above the Himalaya.",
+   "collection": "rave",
+   "type": "hoodie",
+   "text": "RAVE TO THRONE",
+   "sub": "RAVEVERSE",
+   "art": "an epic golden throne carved into a snowy Himalayan peak under a violet aurora, ornate gold linework, dramatic rays"
+  },
+  {
+   "key": "pahadi-at-heart-hoodie",
+   "title": "Pahadi At Heart",
+   "tagline": "For everyone who keeps the hills inside.",
+   "collection": "travel",
+   "type": "hoodie",
+   "text": "PAHADI AT HEART",
+   "sub": "ALMORA · NAINITAL · MUNSIYARI",
+   "art": "a heart shape formed by snowy mountain peaks and pine trees with a winding road, minimalist two-colour line art"
+  },
+  {
+   "key": "buransh-blooms-hoodie",
+   "title": "Buransh Blooms",
+   "tagline": "Rhododendrons in the rain, Kumaon in spring.",
+   "collection": "kumaon",
+   "type": "hoodie",
+   "text": "BURANSH",
+   "sub": "UTTARAKHAND · SPRING",
+   "art": "a bold bouquet of red rhododendron flowers with dark green leaves and raindrops, botanical screen print style"
+  },
+  {
+   "key": "song-nyoli-hoodie",
+   "title": "Nyoli",
+   "tagline": "A Kumaon AIverse song by Mohit Pandey.",
+   "collection": "songs",
+   "type": "hoodie",
+   "text": "NYOLI",
+   "sub": "KUMAON AIVERSE",
+   "art": "a lonely forest bird singing on an oak branch over an empty snowy hill village at dusk, melancholic blue tones"
+  },
+  {
+   "key": "roamwise-wordmark-hoodie",
+   "title": "RoamWise",
+   "tagline": "The original RoamWise tee.",
+   "collection": "travel",
+   "type": "hoodie",
+   "text": "ROAMWISE",
+   "sub": "ALMORA TO GLOBAL",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  },
+  {
+   "key": "kumaon-calling-hoodie",
+   "title": "Kumaon Calling",
+   "tagline": "When the hills call, you go.",
+   "collection": "kumaon",
+   "type": "hoodie",
+   "text": "KUMAON",
+   "sub": "IS CALLING",
+   "art": null,
+   "ornament": "peaks",
+   "palette": [
+    "#fff4dc",
+    "#e0a43a",
+    "#f7d38a"
+   ]
+  }
+ ]
 }

@@ -21,6 +21,7 @@ def run(*a):
 
 def main(root):
     n = 0
+    inserts = []
     for d in sorted(pathlib.Path(root).glob('auto-*')):
         row = json.loads((d / 'design.json').read_text())
         if json.loads(row['qc_json']).get('passed') is not True:
@@ -28,11 +29,13 @@ def main(root):
         for name, ctype in (('print.png', 'image/png'), ('mockup.jpg', 'image/jpeg')):
             run('wrangler', 'r2', 'object', 'put', f"{BUCKET}/shop/designs/{row['id']}/{name}", '--remote',
                 '--file', str(d / name), '--content-type', ctype, '--cache-control', 'public, max-age=31536000, immutable')
-        sql = d / 'insert.sql'
-        sql.write_text('INSERT OR IGNORE INTO shop_designs (' + ', '.join(COLS) + ') VALUES (' + ', '.join(q(row[c]) for c in COLS) + ');\n')
-        run('wrangler', 'd1', 'execute', DB, '--remote', '--file', str(sql), '-y')
-        print('registered', row['id'], row['status'])
+        inserts.append('INSERT OR IGNORE INTO shop_designs (' + ', '.join(COLS) + ') VALUES (' + ', '.join(q(row[c]) for c in COLS) + ');')
+        print('uploaded', row['id'], row['status'])
         n += 1
+    if inserts:  # one D1 call for the whole batch
+        sql = pathlib.Path(root) / 'insert.sql'
+        sql.write_text('\n'.join(inserts) + '\n')
+        run('wrangler', 'd1', 'execute', DB, '--remote', '--file', str(sql), '-y')
     print('designs published:', n)
 
 

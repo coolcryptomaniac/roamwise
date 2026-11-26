@@ -183,7 +183,103 @@ def compose(art, theme, fdir):
         sf = fit_text(d, sub, fdir / 'Anton-Regular.ttf', PRINT_W - 900, 170, 60)
         sy = d.textbbox(((PRINT_W - tw) / 2, y), text, font=font)[3] + 90
         d.text(((PRINT_W - d.textlength(sub, font=sf)) / 2, sy), sub, font=sf, fill=(245, 178, 92, 255))
-    return canvas
+    return fill_print(canvas)
+
+
+def _hex(c, a=255):
+    c = c.lstrip('#')
+    return (int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16), a)
+
+
+def ornament(d, kind, pal, top, h):
+    """Original geometric ornaments drawn in code (no AI quota): Aipan-style dots and petals, mountain lines, stars."""
+    import math
+    cx, cy = PRINT_W // 2, top + h // 2
+    txt, acc, sub = (_hex(c) for c in pal)
+    if kind == 'aipan':
+        r0 = h // 2 - 40
+        for k, r in enumerate((r0, r0 - 150, r0 - 300)):
+            n = 48 - k * 12
+            for i in range(n):
+                a = 2 * math.pi * i / n
+                x, y = cx + r * math.cos(a), cy + r * math.sin(a)
+                rr = 26 if i % 2 else 14
+                d.ellipse((x - rr, y - rr, x + rr, y + rr), fill=(txt if k != 1 else sub))
+        for i in range(8):
+            a = 2 * math.pi * i / 8
+            for t in range(6):
+                rr = 60 + t * 38
+                x, y = cx + rr * math.cos(a), cy + rr * math.sin(a)
+                w = 46 - t * 5
+                d.ellipse((x - w, y - w, x + w, y + w), fill=acc)
+        d.ellipse((cx - 70, cy - 70, cx + 70, cy + 70), fill=txt)
+    elif kind == 'stars':
+        for i in range(5):
+            a = math.pi * (1.15 + 0.175 * i)
+            x, y = cx + 1000 * math.cos(a), cy + 300 + 650 * math.sin(a)
+            R, r = (230 if i == 2 else 170), (95 if i == 2 else 70)
+            pts = [(x + (R if j % 2 == 0 else r) * math.cos(-math.pi / 2 + j * math.pi / 5),
+                    y + (R if j % 2 == 0 else r) * math.sin(-math.pi / 2 + j * math.pi / 5)) for j in range(10)]
+            d.polygon(pts, fill=(acc if i % 2 else sub))
+        for i in range(26):
+            x = 300 + (i * 977) % (PRINT_W - 600); y = top + 60 + (i * 613) % (h - 200)
+            d.ellipse((x - 10, y - 10, x + 10, y + 10), fill=txt)
+    else:  # peaks
+        d.ellipse((cx - 420, top + 120, cx + 420, top + 960), fill=sub)
+        for k, (col, off, amp) in enumerate(((acc, 260, 620), (txt, 520, 420))):
+            base = top + h - 80 - k * 40
+            pts = [(140, base)]
+            xs = [140, 700, 1100, 1500, 1800, 2150, 2600, 3000, 3460]
+            for j, x in enumerate(xs):
+                y = base - (amp if j % 2 else amp // 3) - (off if j in (3, 5) else 0) // (k + 1)
+                pts.append((x, max(top + 40, y)))
+            pts.append((3460, base))
+            d.line(pts, fill=col, width=70 - k * 18, joint='curve')
+        d.line((240, top + h - 20, PRINT_W - 240, top + h - 20), fill=txt, width=18)
+
+
+def fill_print(canvas, margin=140):
+    """Scale the drawn content up to fill the print area (top-aligned, centred): designs print big, not tiny."""
+    from PIL import Image
+    box = canvas.getchannel('A').point(lambda v: 255 if v > 20 else 0).getbbox()
+    if not box:
+        return canvas
+    art = canvas.crop(box)
+    k = min((PRINT_W - 2 * margin) / art.width, (PRINT_H - 2 * margin) / art.height)
+    art = art.resize((max(1, int(art.width * k)), max(1, int(art.height * k))), Image.LANCZOS)
+    out = Image.new('RGBA', (PRINT_W, PRINT_H), (0, 0, 0, 0))
+    out.alpha_composite(art, ((PRINT_W - art.width) // 2, margin))
+    return out
+
+
+def compose_typo(theme, fdir):
+    """Typographic design: ornament on top, the words stacked large below."""
+    from PIL import Image, ImageDraw
+    pal = theme.get('palette') or ['#f6efe2', '#d9534f', '#f0b35a']
+    canvas = Image.new('RGBA', (PRINT_W, PRINT_H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(canvas)
+    ornament(d, theme.get('ornament', 'peaks'), pal, 140, 1700)
+    words = (theme.get('text') or theme['title'].upper()).split()
+    lines, cur = [], ''
+    for w in words:  # greedy wrap to ~11 characters per line, at most 3 lines
+        if cur and len(cur) + 1 + len(w) > 11 and len(lines) < 2:
+            lines.append(cur); cur = w
+        else:
+            cur = (cur + ' ' + w).strip()
+    lines.append(cur)
+    lines = [ln.strip(' ·') for ln in lines if ln.strip(' ·')]
+    y = 2000
+    for ln in lines:
+        f = fit_text(d, ln, fdir / 'Anton-Regular.ttf', PRINT_W - 360, 760 if len(lines) == 1 else 620)
+        b = d.textbbox((0, 0), ln, font=f)
+        d.text(((PRINT_W - (b[2] - b[0])) / 2 - b[0], y - b[1]), ln, font=f, fill=_hex(pal[0]))
+        y += (b[3] - b[1]) + 90
+    sub = theme.get('sub') or ''
+    if sub:
+        sf = fit_text(d, sub, fdir / 'Anton-Regular.ttf', PRINT_W - 900, 200, 60)
+        b = d.textbbox((0, 0), sub, font=sf)
+        d.text(((PRINT_W - (b[2] - b[0])) / 2 - b[0], y + 40 - b[1]), sub, font=sf, fill=_hex(pal[2]))
+    return fill_print(canvas)
 
 
 def mockup(print_png, kind):
@@ -195,14 +291,15 @@ def mockup(print_png, kind):
     if kind == 'tote':
         d.rounded_rectangle((330, 420, 1270, 1600), 30, fill=255)
         d.arc((560, 120, 1040, 640), 180, 360, fill=255, width=46)
-        box = (420, 560, 1180, 1460); colour = (24, 24, 26)
+        box = (400, 520, 1200, 1500); colour = (24, 24, 26)
     else:
         body = [(470, 260), (640, 200), (960, 200), (1130, 260), (1500, 560), (1360, 760), (1210, 660), (1210, 1640), (390, 1640), (390, 660), (240, 760), (100, 560)]
         d.polygon(body, fill=255)
-        d.ellipse((650, 150, 950, 330), fill=0)
+        if kind != 'hoodie':
+            d.ellipse((650, 150, 950, 330), fill=0)
         if kind == 'hoodie':
-            d.ellipse((600, 90, 1000, 420), outline=255, width=40)
-        box = (520, 470, 1080, 1120); colour = (18, 18, 20)
+            d.ellipse((600, 70, 1000, 360), fill=255)  # hood behind the neck
+        box = (470, 400, 1130, 1170); colour = (18, 18, 20)
     shade = Image.new('RGB', (W, H), colour)
     shadow = g.filter(ImageFilter.GaussianBlur(28))
     bg.paste((200, 196, 190), mask=shadow)
@@ -220,13 +317,14 @@ def _pixels(img):
 
 
 def qc(print_png, art_raw):
+    """art_raw None = typographic design (its words are intended, so no OCR check)."""
     from PIL import ImageStat
     alpha = print_png.getchannel('A')
     coverage = sum(1 for v in _pixels(alpha.resize((180, 210))) if v > 40) / (180 * 210)
     vis = print_png.convert('RGB').resize((180, 210))
     mask = alpha.resize((180, 210)).point(lambda v: 255 if v > 40 else 0)
     lum = ImageStat.Stat(vis.convert('L'), mask).mean[0] / 255 if coverage else 0
-    words = ocr_words(art_raw)
+    words = ocr_words(art_raw) if art_raw is not None else []
     checks = {
         'size': print_png.size == (PRINT_W, PRINT_H),
         'coverage': 0.10 <= coverage <= 0.80,
@@ -237,52 +335,97 @@ def qc(print_png, art_raw):
             'ocr_words': (words or [])[:8]}
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--out', default='build/shop-engine')
-    ap.add_argument('--theme')
-    ap.add_argument('--date', default=ist_today())
-    ap.add_argument('--media-base', default=os.environ.get('MEDIA_BASE', 'https://roamwise-api.founder-f53.workers.dev/media/r2'))
-    ap.add_argument('--tries', type=int, default=3)
-    ap.add_argument('--art', help='use this image instead of generating (tests)')
-    a = ap.parse_args()
+def make_one(theme, a, fdir, ai_left):
+    """Returns (made, ai_calls_used)."""
     from PIL import Image
-    theme = pick_theme(a.theme)
     check_rights(theme)
     design_id = 'auto-' + a.date.replace('-', '') + '-' + theme['key'][:40]
     out = pathlib.Path(a.out) / design_id; out.mkdir(parents=True, exist_ok=True)
-    fdir = fonts()
-    prompt = ('Isolated centred emblem illustration for a premium streetwear t-shirt print: ' + theme['art'] +
-              '. Bold clean shapes, rich saturated colours, crisp edges, high contrast, on a PURE SOLID BLACK background, '
-              'nothing touching the edges, absolutely no text, no letters, no words, no logos, no watermark, no frame.')
-    best = None
-    for i in range(a.tries):
-        src = open(a.art, 'rb').read() if a.art else cf_generate(prompt, seed=int(a.date.replace('-', '')) % 100000 + i * 7919)
-        raw = Image.open(io.BytesIO(src)).convert('RGB')
-        big, method = upscale(raw)
-        art = key_black(big)
-        pr = compose(art, theme, fdir)
-        report = qc(pr, raw)
-        print(design_id, 'try', i + 1, json.dumps(report))
-        best = (pr, raw, report, method)
-        if report['passed']:
-            break
-    pr, raw, report, method = best
+    used_ai = 0
+    if not theme.get('art'):
+        pr = compose_typo(theme, fdir); raw = None; method = 'typographic'
+        report = qc(pr, None)
+        print(design_id, 'typographic', json.dumps(report))
+    else:
+        prompt = ('Isolated centred emblem illustration for a premium streetwear t-shirt print: ' + theme['art'] +
+                  '. Bold clean shapes, rich saturated colours, crisp edges, high contrast, on a PURE SOLID BLACK background, '
+                  'nothing touching the edges, absolutely no text, no letters, no words, no logos, no watermark, no frame.')
+        best = None
+        for i in range(a.tries):
+            if not a.art and used_ai >= ai_left:
+                break
+            src = open(a.art, 'rb').read() if a.art else cf_generate(prompt, seed=int(a.date.replace('-', '')) % 100000 + i * 7919)
+            used_ai += 0 if a.art else 1
+            raw = Image.open(io.BytesIO(src)).convert('RGB')
+            big, method = upscale(raw)
+            pr = compose(key_black(big), theme, fdir)
+            report = qc(pr, raw)
+            print(design_id, 'try', i + 1, json.dumps(report))
+            best = (pr, raw, report, method)
+            if report['passed']:
+                break
+        if not best:
+            return False, used_ai
+        pr, raw, report, method = best
+        raw.save(out / 'art.png')
+        method = MODEL + ' + ' + method
     pr.save(out / 'print.png', dpi=(300, 300), optimize=True)
-    raw.save(out / 'art.png')
     mockup(pr, theme['type']).save(out / 'mockup.jpg', quality=90)
     base = a.media_base.rstrip('/') + '/shop/designs/' + design_id
     row = {
         'id': design_id, 'product_type': theme['type'], 'title': theme['title'], 'tagline': theme['tagline'],
         'collection': theme.get('collection', 'drops'), 'print_url': base + '/print.png', 'mockup_url': base + '/mockup.jpg',
         'placement': theme.get('placement', 'back'), 'print_w_in': 12, 'print_h_in': 14, 'status': 'review',
-        'source': MODEL + ' + ' + method + ' + engine typography', 'qc_json': json.dumps(report),
+        'source': method + ' + engine typography', 'qc_json': json.dumps(report),
     }
     (out / 'design.json').write_text(json.dumps(row, indent=1))
     used = json.loads(USED.read_text()) if USED.exists() else {}
     used[theme['key']] = a.date
     USED.write_text(json.dumps(used, indent=1, sort_keys=True) + '\n')
     print('DESIGN', design_id, 'QC', 'PASS' if report['passed'] else 'FAIL')
+    return True, used_ai
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--out', default='build/shop-engine')
+    ap.add_argument('--theme', help='one theme key (ignores --count)')
+    ap.add_argument('--count', type=int, default=1, help='designs to make this run')
+    ap.add_argument('--ai-max', type=int, default=6, help='most AI image calls this run (protects the shared free quota)')
+    ap.add_argument('--date', default=ist_today())
+    ap.add_argument('--media-base', default=os.environ.get('MEDIA_BASE', 'https://roamwise-api.founder-f53.workers.dev/media/r2'))
+    ap.add_argument('--tries', type=int, default=2)
+    ap.add_argument('--art', help='use this image instead of generating (tests)')
+    a = ap.parse_args()
+    fdir = fonts()
+    themes = json.loads(THEMES.read_text())['themes']
+    if a.theme:
+        queue = [t for t in themes if t['key'] == a.theme] or [pick_theme(a.theme)]
+    else:
+        used = json.loads(USED.read_text()) if USED.exists() else {}
+        queue = [t for t in themes if t['key'] not in used]
+    made, ai_used = 0, 0
+    for t in queue:
+        if made >= (1 if a.theme else a.count):
+            break
+        if t.get('art') and not a.art and ai_used >= a.ai_max:
+            continue  # AI budget spent: keep going with typographic themes only
+        try:
+            ok, n = make_one(t, a, fdir, a.ai_max - ai_used)
+        except SystemExit as e:
+            if e.code == 3:
+                print('AI unavailable; continuing with typographic themes', file=sys.stderr)
+                ai_used = a.ai_max
+                continue
+            if isinstance(e.code, str):
+                print('skipped', t['key'], '-', e.code, file=sys.stderr)
+                continue
+            raise
+        ai_used += n
+        made += 1 if ok else 0
+    print('made', made, 'designs;', ai_used, 'AI calls')
+    if made == 0 and any(t.get('art') for t in queue[:1]) and ai_used == 0:
+        return 3
     return 0
 
 

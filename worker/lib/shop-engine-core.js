@@ -17,8 +17,8 @@ export const PRODUCT_TYPES = Object.freeze({
 });
 
 export const LIMITS = Object.freeze({
-  maxLive: 24,            // auto designs on sale at once
-  maxNewPerDay: 3,        // designs the cron may promote from review to live per day (autopublish mode)
+  maxLive: 150,           // auto designs on sale at once (founder: 100+ catalogue, 27 Nov 2026)
+  maxNewPerDay: 40,       // designs the cron may promote from review to live per day (autopublish mode)
   retireUnsoldDays: 45,   // live this long with zero sales -> retired (kept for fulfilment of old orders)
   retireColdDays: 90,     // had sales but none in this many days -> retired
   popular: 4,             // products featured in "Popular now" on the shop page

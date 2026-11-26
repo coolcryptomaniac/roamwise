@@ -1,4 +1,4 @@
-name: Shop engine — one AI design per day
+name: Shop engine — daily designs
 # Generates the next theme in shop/engine/themes.json (AI emblem + typography + QC), uploads the print file
 # and mockup to R2 and registers the design in D1. Nothing becomes buyable here: the Worker's daily cron
 # makes QC-passed designs live only when SHOP_ENGINE_ENABLED and SHOP_ENGINE_AUTOPUBLISH are 'true'.
@@ -11,6 +11,14 @@ on:
       theme:
         description: 'Theme key from shop/engine/themes.json (blank = next in queue)'
         required: false
+      count:
+        description: 'How many designs to make (typographic ones need no AI quota)'
+        required: false
+        default: '10'
+      ai_max:
+        description: 'Most AI image calls (shared free Workers AI quota; Ailon Tusk uses it too)'
+        required: false
+        default: '6'
 
 permissions:
   contents: write
@@ -23,7 +31,7 @@ jobs:
   design:
     if: github.event_name == 'workflow_dispatch' || vars.SHOP_ENGINE_DESIGN != 'off'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -42,7 +50,7 @@ jobs:
           MEDIA_BASE: ${{ vars.SHOP_MEDIA_BASE || 'https://roamwise-api.founder-f53.workers.dev/media/r2' }}
         run: |
           set +e
-          python tools/shop-engine/design.py --out build/shop-engine ${{ inputs.theme && format('--theme {0}', inputs.theme) || '' }}
+          python tools/shop-engine/design.py --out build/shop-engine --count "${{ inputs.count || '10' }}" --ai-max "${{ inputs.ai_max || '6' }}" ${{ inputs.theme && format('--theme {0}', inputs.theme) || '' }}
           code=$?
           if [ $code -eq 3 ]; then echo "::warning::Workers AI unavailable (REST token and Worker bridge both refused). No design made."; exit 0; fi
           exit $code

@@ -54,9 +54,29 @@
       ps.hidden = false;
     }
     const drops = all.filter((p) => p.auto === true && AUTO.test(p.id) && !usedOnPage.has(p.id))
-      .sort((a, b) => pos(a.id) - pos(b.id)).slice(0, 24);
+      .sort((a, b) => pos(a.id) - pos(b.id)).slice(0, 200);
     const ds = document.getElementById('new-drops'); const dg = document.getElementById('new-drops-grid');
-    if (ds && dg && drops.length) { drops.forEach((p) => dg.append(card(p, ''))); ds.hidden = false; }
+    if (ds && dg && drops.length) {
+      const LABEL = { kumaon: 'Kumaon', songs: 'Songs', rave: 'Raveverse', books: 'Books', travel: 'RoamWise', trend: 'Trending' };
+      const cols = Object.keys(LABEL).filter((c) => drops.some((p) => p.collection === c));
+      const PAGE = 24; let filter = 'all'; let shown = PAGE;
+      const bar = document.createElement('div'); bar.className = 'drop-filters'; bar.setAttribute('role', 'group'); bar.setAttribute('aria-label', 'Filter new drops');
+      const more = document.createElement('button'); more.type = 'button'; more.className = 'button'; more.textContent = 'Show more';
+      const draw = () => {
+        dg.replaceChildren();
+        const list = drops.filter((p) => filter === 'all' || p.collection === filter);
+        list.slice(0, shown).forEach((p) => dg.append(card(p, '')));
+        more.hidden = list.length <= shown;
+      };
+      ['all', ...cols].forEach((c) => {
+        const b = document.createElement('button'); b.type = 'button'; b.textContent = c === 'all' ? 'All' : LABEL[c];
+        b.setAttribute('aria-pressed', String(c === 'all'));
+        b.addEventListener('click', () => { filter = c; shown = PAGE; bar.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); draw(); });
+        bar.append(b);
+      });
+      more.addEventListener('click', () => { shown += PAGE; draw(); });
+      dg.before(bar); dg.after(more); draw(); ds.hidden = false;
+    }
     const want = new URLSearchParams(location.search).get('buy');
     if (want && ID.test(want)) {
       const btn = document.querySelector('#popular-now-grid [data-buy="' + want + '"], #new-drops-grid [data-buy="' + want + '"]');
