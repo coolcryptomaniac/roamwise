@@ -37,3 +37,8 @@ html[data-rw-design] body.shell[data-view="home"] #rwStayBrowser{display:block!i
 .rw-booking-help-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:13px}
 .rw-booking-help-actions a{display:flex;align-items:center;justify-content:center;text-decoration:none;text-align:center}
 @media(max-width:480px){.rw-stay-browser-head{align-items:flex-start}.rw-stay-browser-arrows{padding-top:20px}.rw-stay-browser h2{font-size:26px}.rw-booking-help-actions{grid-template-columns:1fr}}
+/* Quick icons: two rows that scroll sideways, so spiritual, trek and memory shortcuts sit beside TrailMesh without hiding behind a long single row. */
+html[data-rw-design] body.shell[data-view="home"] #rwQuick .rwq-row{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-auto-columns:84px;justify-content:start;gap:10px 8px}
+html[data-rw-design] body.shell[data-view="home"] #rwQuick .rwq-item{min-width:0}
+html[data-rw-design] body.shell[data-view="home"] #rwQuick .rwq-lb{display:block;font-size:12px;line-height:1.25}
+@media (min-width:900px){html[data-rw-design] body.shell[data-view="home"] #rwQuick .rwq-row{justify-content:center}}
