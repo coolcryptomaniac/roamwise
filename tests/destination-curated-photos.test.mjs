@@ -39,3 +39,10 @@ test('the AI model menu is moved out of the clipped writing box when opened', ()
   assert.ok(js.includes('document.body.appendChild(e.menu)'));
   assert.match(css, /\.rw-model-menu\{position:fixed;z-index:100003/);
 });
+
+test('the voice reply is a short natural summary, not the first 650 characters', () => {
+  const js = fs.readFileSync(new URL('../js/voice/tusk-studio.js', import.meta.url), 'utf8');
+  assert.ok(js.includes('spokenSummary(div,usable,raw)'));
+  assert.ok(!js.includes('usable.slice(0,650)'));
+  assert.ok(js.includes('<details class="rw-orb-more"><summary>⚙ Voice options</summary>'));
+});
