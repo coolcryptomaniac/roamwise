@@ -14,7 +14,7 @@ async function designs(env, nowMs, all) {
   const hit = cache[key];
   if (hit && nowMs - hit.at < CACHE_MS) return hit.rows;
   const sql = all
-    ? "SELECT * FROM shop_designs WHERE status IN ('live','retired') ORDER BY live_at DESC LIMIT 500"
+    ? "SELECT * FROM shop_designs WHERE status IN ('live','retired') ORDER BY live_at DESC LIMIT 1000"
     : "SELECT * FROM shop_designs WHERE status = 'live' ORDER BY live_at DESC LIMIT " + LIMITS.maxLive;
   const r = await env.DB.prepare(sql).all();
   const rows = (r && r.results) || [];
