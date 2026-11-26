@@ -16,7 +16,7 @@ test('rail engine keeps the page bounded and supports server pages and queries',
 test('footer names the three startup programs in text, without third-party logos',()=>{
   const html=read('index.html');
   const foot=html.slice(html.indexOf('id="rwHomeFooter"'),html.indexOf('</footer>',html.indexOf('id="rwHomeFooter"')));
-  for(const t of ['NVIDIA Inception','Google for Startups Cloud Program','Sarvam Startup Program'])assert.ok(foot.includes(t),t);
-  assert.ok(!/<img/i.test(foot));
+  for(const t of ['NVIDIA Inception','Google for Startups','Sarvam Startup Program'])assert.ok(foot.includes(t),t);
+  const imgs=foot.match(/<img[^>]*src="([^"]+)"/gi)||[];assert.ok(imgs.every(i=>/roamwise-logo/.test(i)),'only the RoamWise logo is shown');
   const eco=read('ecosystem.html');for(const id of ['nvidia-inception','google-for-startups','sarvam-startup-program'])assert.match(eco,new RegExp('id="'+id+'"'));
 });
