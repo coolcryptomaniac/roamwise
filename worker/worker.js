@@ -73,6 +73,7 @@ import { creditPacks, createCreditOrder, creditOrderStatus, handleCreditWebhook,
 import { createTripOrder, redeemVoucher } from './handlers/trip-wallet.js';
 import { runPartnerPayouts, handlePayoutMark, handlePayoutAdmin, handlePayeeSubmit } from './handlers/stay-finance.js';
 import { handleBooksDownload, runMonthlyBooks } from './handlers/stay-books.js';
+import { runKvBackup, handleMediaGet } from './lib/records.js';
 import { requireAdmin } from './handlers/push.js';
 import { parseServiceAccount } from './lib/service-account.js';
 import { handleShopDecide, runShopRefundCron } from './handlers/shop-order.js';
@@ -248,6 +249,7 @@ export default {
     if(path === 'payouts/mark' && request.method === 'GET') return handlePayoutMark(request, env);
     if(path === 'payees/submit') return handlePayeeSubmit(request, env);
     if(path === 'books/download' && request.method === 'GET') return handleBooksDownload(request, env);
+    if(path.startsWith('media/r2/') && request.method === 'GET') return handleMediaGet(request, env, '/' + path);
     if(path === 'admin/payees' || path === 'admin/payouts' || path === 'admin/stays/net') return handlePayoutAdmin(request, env, path,
       async (req, e) => { try { const r = await requireAdmin(req, e, parseServiceAccount(e).project_id); return !r.error; } catch (_) { return false; } });
     if(path === 'credit/checkout' && request.method === 'POST') return createCreditOrder(request, env);
@@ -327,6 +329,7 @@ export default {
       try{ await runWalletReleases(env); }catch(e){ /* retried next hour */ }
       /* Partner net-rate payouts after acceptance, and invoice records waiting for Firestore. */
       try{ await runPartnerPayouts(env); }catch(e){ /* retried next hour */ }
+      try{ await runKvBackup(env); }catch(e){ /* resumes next hour */ }
       /* Group "pay your share": pots past their deadline refund every paid member to their own wallet. */
       try{ await runGroupPots(env); }catch(e){ /* retried next hour */ }
       /* People Hub engine: perfect matches any daytime hour, routine once a day within the cap, money matters as drafts. */
