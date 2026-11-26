@@ -42,7 +42,7 @@ test('More has a real page, searchable tools and Android-friendly navigation',()
   assert.match(more,/href="\/memories\/"/);
   assert.match(more,/href="\/\?rw_open=bookings"/);
   assert.match(quick,/href: '\/more\/'/);
-  assert.match(adaptive,/var RW_TABS_DEFAULT = \['home','copilot','plan','more'\]/);
+  assert.match(adaptive,/var RW_TABS_DEFAULT = \['home','copilot','discover','plan','nomad','more'\]/); // Nov 2026: Discover + Nomad on the bar
   assert.doesNotMatch(read('index.html'),/id="tb-trips"/);
   assert.match(more,/href="\/partner\/join\/"/);
   assert.match(more,/href="\/corporate\/\#hr"/);

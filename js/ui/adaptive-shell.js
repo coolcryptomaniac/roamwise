@@ -166,6 +166,10 @@ var RW_ICON_PATHS = {
   pro:'<path d="M4 8l3.5 3L12 5.5 16.5 11 20 8l-1.5 9h-13L4 8Z"/>',
   /* settings: gear (simplified, clean) */
   settings:'<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M3 12h2.5M18.5 12H21M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/>',
+  /* discover: two overlapping swipe cards with a heart (artists, creators, stays) */
+  discover:'<rect x="3.5" y="5.5" width="11" height="14" rx="2" transform="rotate(-8 9 12.5)"/><rect x="9.5" y="4" width="11" height="14" rx="2"/><path d="M15 13.2s-2.4-1.5-2.4-3a1.3 1.3 0 0 1 2.4-.7 1.3 1.3 0 0 1 2.4.7c0 1.5-2.4 3-2.4 3Z"/>',
+  /* nomad: laptop under a mountain sun (work stays) */
+  nomad:'<rect x="5" y="9" width="14" height="8.5" rx="1.2"/><path d="M3 19.5h18"/><path d="m8 15.5 2.5-3 2 2 1.5-1.5 2 2.5"/><circle cx="17" cy="5" r="1.6"/>',
   /* more: three-line menu with rounded ends */
   more:'<path d="M4 7h16M4 12h16M4 17h16"/>',
   /* near: location pin with pulse */
@@ -256,9 +260,12 @@ var RW_TABS = {
   chat:     {icon:'\ud83d\udcac',      label:'Chat',    run:function(){ openGroupChat(); }},
   pro:      {icon:'\ud83d\udc51',      label:'Pro',      run:function(){ openPay(); }},
   settings: {icon:'\u2699\ufe0f',      label:'Settings', run:function(){ openSettings(); }},
+  discover: {icon:'\ud83c\udfa8',      label:'Discover', run:function(){ if(typeof window.rwOpenDiscover==='function') window.rwOpenDiscover('artists'); else location.href='/creators/artists.html'; }},
+  nomad:    {icon:'\ud83d\udcbb',      label:'Nomad',    run:function(){ try { var nativeApp=window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform(); location.href=nativeApp?'https://www.roamwise.co.in/nomads/':'/nomads/'; } catch(e){ location.href='/nomads/'; } }},
   more:     {icon:'\u2630',            label:'More',     run:function(){ try { var nativeApp=window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform(); location.href=nativeApp?'/more/index.html':'/more/'; } catch(e){ location.href='/more/'; } }}
 };
-var RW_TABS_DEFAULT = ['home','copilot','plan','more'];
+// Nov 2026: Discover (swipe artists, creators & stays) and Nomad Match join the bar.
+var RW_TABS_DEFAULT = ['home','copilot','discover','plan','nomad','more'];
 function rwTabIds(){
   // Trips lives under More and on the journey desk, never as a bottom tab.
   // Preserve personal choices while migrating any earlier five-tab defaults.
@@ -266,9 +273,10 @@ function rwTabIds(){
     var v=JSON.parse(lsGet('rw_tabs')||'null');
     if(Array.isArray(v)){
       var oldDefault=JSON.stringify(v)==='["home","copilot","plan","trips","more"]' ||
-        JSON.stringify(v)==='["home","plan","copilot","store","more"]';
+        JSON.stringify(v)==='["home","plan","copilot","store","more"]' ||
+        JSON.stringify(v)==='["home","copilot","plan","more"]';
       if(oldDefault){ lsSet('rw_tabs',JSON.stringify(RW_TABS_DEFAULT)); return RW_TABS_DEFAULT; }
-      var clean=v.filter(function(k,i){return k!=='trips'&&!!RW_TABS[k]&&v.indexOf(k)===i;}).slice(0,5);
+      var clean=v.filter(function(k,i){return k!=='trips'&&!!RW_TABS[k]&&v.indexOf(k)===i;}).slice(0,6);
       if(clean.length>=3){
         if(clean.length!==v.length)lsSet('rw_tabs',JSON.stringify(clean));
         return clean;
@@ -317,7 +325,7 @@ function rwTabMark(k){
 }
 function rwTabPickerHTML(){
   var cur=rwTabIds();
-  return '<div class="key-box"><div class="key-box-name">\ud83d\udcf1 Bottom bar \u2014 pick up to 5</div>'
+  return '<div class="key-box"><div class="key-box-name">\ud83d\udcf1 Bottom bar \u2014 pick up to 6</div>'
     +'<div class="key-box-hint">Tap to add or remove. These are the shortcuts you reach with one thumb.</div>'
     +'<div id="tabPick" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:9px">'
     + Object.keys(RW_TABS).filter(function(k){return k!=='trips';}).map(function(k){
@@ -333,7 +341,7 @@ function rwTabToggle(k){
   var cur=rwTabIds().slice();
   var i=cur.indexOf(k);
   if(i>-1){ if(cur.length<=3){ showToast('Keep at least 3'); return; } cur.splice(i,1); }
-  else { if(cur.length>=5){ showToast('Five is the max \u2014 remove one first'); return; } cur.push(k); }
+  else { if(cur.length>=6){ showToast('Six is the max \u2014 remove one first'); return; } cur.push(k); }
   lsSet('rw_tabs', JSON.stringify(cur));
   renderTabbar();
   var host=el('tabPickWrap'); if(host) host.innerHTML=rwTabPickerHTML();
