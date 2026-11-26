@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "updatedAt": "2026-11-25",
+  "updatedAt": "2026-11-26",
   "policy": "review-only; never part of checkout or Qikink paid catalogue without explicit approval",
   "products": [
     {
@@ -106,6 +106,32 @@
         "#fce1a8"
       ],
       "theme": "Rave to Hell"
+    },
+    {
+      "id": "daily-2026-11-26",
+      "name": "Almora After Dark · Oversized hoodie",
+      "type": "Oversized hoodie",
+      "description": "Himalayan night contours. Original RoamWise motif, concept only; print placement, garment fabric, sizes, price and Qikink production SKU require approval.",
+      "image": "/shop/img/daily-2026-11-26.svg",
+      "category": "wear",
+      "visual": "hoodie",
+      "status": "design-review",
+      "live": false,
+      "sizes": true,
+      "price": null,
+      "qikinkSku": null,
+      "inventory": null,
+      "fulfilment": "unapproved",
+      "creativeSource": "Original procedural vector illustration, curated theme rotation, not a supplier SKU",
+      "trendEvidence": "Qualitative design themes; no search volume or sales rank claim",
+      "createdOnIST": "2026-11-26",
+      "rightsStatus": "original_concept_requires_final_review",
+      "palette": [
+        "#484b93",
+        "#b2aed7",
+        "#f2d5ae"
+      ],
+      "theme": "Almora After Dark"
     }
   ]
 }
