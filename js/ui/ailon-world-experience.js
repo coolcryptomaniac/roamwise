@@ -178,13 +178,15 @@
       {id:'rwSalesPackages',cat:'stays',label:'Travel packages',fallback:'🧭'},
       {id:'rwSalesShop',cat:'shop',label:'RoamWise shop',fallback:'🛍️'}
     ];
+    const usedImages=new Set(); // tracker #7: Weddings and Packages both picked the same generic photo
     items.forEach((item,i)=>{
       const button=make('button','rw-category-item');
       button.type='button';button.setAttribute('aria-label','Explore '+item.label);
       const art=make('span','rw-category-art',item.fallback);
       art.style.background='linear-gradient(130deg,'+gradient[i%gradient.length]+',#131323)';
       const imgSource=sales.querySelector('#'+item.id+' .rw-sales-card img');
-      if(imgSource && imgSource.getAttribute('src')){
+      if(imgSource && imgSource.getAttribute('src') && !usedImages.has(imgSource.getAttribute('src'))){
+        usedImages.add(imgSource.getAttribute('src'));
         const img=document.createElement('img');
         img.src=imgSource.getAttribute('src');img.alt='';
         img.loading='lazy';img.decoding='async';
