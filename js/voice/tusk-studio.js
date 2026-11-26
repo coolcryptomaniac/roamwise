@@ -11,10 +11,11 @@
     panel=document.createElement('section');
     panel.className='rw-orb-shell';panel.id='rwTuskStudio';panel.hidden=true;
     panel.setAttribute('role','dialog');panel.setAttribute('aria-label','Ailon Tusk voice conversation');
-    panel.innerHTML='<div class="rw-orb-layout"><header class="rw-orb-head"><strong>☁️ ✦ Ailon Tusk</strong><span>RoamWise · Shinobi voice</span><button type="button" class="rw-orb-close" aria-label="Close voice conversation">✕</button></header><div class="rw-orb-stage" data-phase="idle"><div class="rw-orb-glow"><div class="rw-orb-stars" aria-hidden="true"></div><div class="rw-orb-route" aria-hidden="true"></div><div class="rw-orb-core" aria-hidden="true"><span class="rw-orb-emblem" aria-hidden="true">☁</span><span class="rw-orb-brand">RW</span><span class="rw-orb-mountain" aria-hidden="true">⌁ ⛰ ⌁</span></div><div class="rw-orb-ring" aria-hidden="true"></div><div class="rw-orb-nodes" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div><p class="rw-orb-phase" role="status" aria-live="polite">Ready to listen</p></div><p class="rw-orb-transcript"></p><section class="rw-orb-conversation" aria-label="Voice conversation" role="log" aria-live="polite" aria-relevant="additions"></section><div class="rw-orb-reply" aria-label="Tusk answer"></div><details class="rw-orb-full-answer"><summary>📖 Full travel answer · tap to collapse</summary><div class="rw-orb-full-content"></div></details><section class="rw-orb-cards" aria-label="Travel results"></section><div class="rw-orb-controls"><button type="button" data-action="listen">🎙️ Speak</button><button type="button" data-action="realtime" hidden>⚡ Realtime beta</button><button type="button" data-action="interrupt">⏹ Stop</button><button type="button" data-action="read">🔊 Read again</button><button type="button" data-action="language">🌐 Voice language</button><button type="button" data-action="style">🎭 Friendly voice</button><button type="button" data-action="actor" aria-label="Select installed Indian voice actor">🎧 Voice actor</button><button type="button" data-action="provider">⚙️ Voice provider</button></div><section class="rw-orb-picker" hidden aria-label="Voice preferences"><header><strong class="rw-orb-picker-title">Voice options</strong><button type="button" data-action="dismiss-picker" aria-label="Close voice options">✕</button></header><p class="rw-orb-picker-note"></p><div class="rw-orb-picker-options" role="group" aria-label="Available choices"></div></section><p class="rw-orb-hint">Talk in Hindi, English or Hinglish. Responses depend on available device voices. Stop at any time. No always-on microphone.</p></div>';
+    panel.innerHTML='<div class="rw-orb-layout"><header class="rw-orb-head"><strong>☁️ ✦ Ailon Tusk</strong><span>RoamWise · Shinobi voice</span><button type="button" class="rw-orb-close" aria-label="Close voice conversation">✕</button></header><div class="rw-orb-stage" data-phase="idle"><div class="rw-orb-glow"><div class="rw-orb-stars" aria-hidden="true"></div><div class="rw-orb-route" aria-hidden="true"></div><div class="rw-orb-core" aria-hidden="true"><span class="rw-orb-emblem" aria-hidden="true">☁</span><span class="rw-orb-brand">RW</span><span class="rw-orb-mountain" aria-hidden="true">⌁ ⛰ ⌁</span></div><div class="rw-orb-ring" aria-hidden="true"></div><div class="rw-orb-nodes" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div><p class="rw-orb-phase" role="status" aria-live="polite">Ready to listen</p></div><p class="rw-orb-transcript"></p><section class="rw-orb-conversation" aria-label="Voice conversation" role="log" aria-live="polite" aria-relevant="additions"></section><div class="rw-orb-reply" aria-label="Tusk answer"></div><details class="rw-orb-full-answer"><summary>📖 Full travel answer · tap to collapse</summary><div class="rw-orb-full-content"></div></details><section class="rw-orb-cards" aria-label="Travel results"></section><div class="rw-orb-controls"><button type="button" data-action="listen">🎙️ Speak</button><button type="button" data-action="realtime" hidden>⚡ Realtime beta</button><button type="button" data-action="interrupt">⏹ Stop</button><button type="button" data-action="read">🔊 Read again</button><button type="button" data-action="language">🌐 Voice language</button><button type="button" data-action="style">🎭 Friendly voice</button><button type="button" data-action="actor" aria-label="Select installed Indian voice actor">🎧 Voice actor</button><button type="button" data-action="provider">⚙️ Voice provider</button><button type="button" data-action="to-chat">💬 Continue in chat</button></div><section class="rw-orb-picker" hidden aria-label="Voice preferences"><header><strong class="rw-orb-picker-title">Voice options</strong><button type="button" data-action="dismiss-picker" aria-label="Close voice options">✕</button></header><p class="rw-orb-picker-note"></p><div class="rw-orb-picker-options" role="group" aria-label="Available choices"></div></section><p class="rw-orb-hint">Talk in Hindi, English or Hinglish. Responses depend on available device voices. Stop at any time. No always-on microphone.</p></div>';
     document.body.appendChild(panel);
     stage=panel.querySelector('.rw-orb-stage');body=panel.querySelector('.rw-orb-transcript');subtitle=panel.querySelector('.rw-orb-phase');reply=panel.querySelector('.rw-orb-reply');details=panel.querySelector('.rw-orb-full-content');cards=panel.querySelector('.rw-orb-cards');conversation=panel.querySelector('.rw-orb-conversation');
-    panel.querySelector('.rw-orb-close').onclick=stop;
+    panel.querySelector('.rw-orb-close').onclick=function(){stop(false);};
+    var toChat=panel.querySelector('[data-action="to-chat"]');if(toChat)toChat.onclick=function(){stop(true);};
     var realtimeButton=panel.querySelector('[data-action="realtime"]');
     if(realtimeButton){realtimeButton.hidden=!realtimeAvailable();realtimeButton.onclick=function(){
       if(state.realtime){realtimeStop();setPhase('ready','Realtime stopped · tap Speak for standard voice');return;}
@@ -164,15 +165,22 @@
     closeVoicePicker();refreshVoiceControlLabels();listen(true);panel.querySelector('[data-action="interrupt"]').focus();
     return true;
   }
-  function stop(){
+  /* Voice is its own conversation. Its turns are tagged in heroLog (js/copilot/core.js cpBubble) and, on
+     close, removed again — unless the user chose "Continue in chat", which keeps them for text follow-up. */
+  function isActive(){return !!state.active;}
+  function stop(keepInChat){
     if(root.RWVoiceStayBooking)root.RWVoiceStayBooking.reset();
     closeVoicePicker();state.active=false;state.answerPending=false;state.session++;
     realtimeStop();
     if(typeof rwVoiceStop==='function')rwVoiceStop();
     if(typeof tuskStopSpeech==='function')tuskStopSpeech();
     if(panel)panel.hidden=true;
-    // The canonical conversation is already in heroLog; never re-submit a transcript.
-    var log=typeof document.getElementById==='function'?document.getElementById('heroLog'):null;if(log&&log.children.length){log.style.display='block';log.scrollTop=log.scrollHeight;}
+    // Never re-submit a transcript. Keep the voice turns in the text chat only when asked to.
+    var log=typeof document.getElementById==='function'?document.getElementById('heroLog'):null;
+    if(log&&typeof log.querySelectorAll==='function'){
+      if(keepInChat===true){log.querySelectorAll('[data-voice]').forEach(function(n){n.removeAttribute('data-voice');});if(log.children.length){log.style.display='block';log.scrollTop=log.scrollHeight;}}
+      else{log.querySelectorAll('[data-voice]').forEach(function(n){n.remove();});if(!log.children.length)log.style.display='none';}
+    }
     state.phase='idle';
   }
   function partialTranscript(t){
@@ -275,6 +283,34 @@
     if(educational)return (hindi?'चलो, एक नई बात सीखते हैं। ':'A little travel wisdom, coming right up! ')+say;
     return (hindi?'अरे वाह, चलिए जानते हैं। ':'Nice! Here is what I found. ')+say;
   }
+  /* Keep the answer's own structure (headings, lists, tables, links) instead of flattening it to one block
+     of text. Only safe tags survive; attributes are dropped except https/relative links. */
+  var SAFE_TAGS={H1:'h3',H2:'h3',H3:'h4',H4:'h4',P:'p',UL:'ul',OL:'ol',LI:'li',STRONG:'strong',B:'strong',EM:'em',I:'em',BR:'br',TABLE:'table',THEAD:'thead',TBODY:'tbody',TR:'tr',TD:'td',TH:'th',A:'a',BLOCKQUOTE:'blockquote',SMALL:'small'};
+  function cleanInto(src,dest){
+    Array.prototype.forEach.call(src.childNodes,function(n){
+      if(n.nodeType===3){if(n.textContent)dest.appendChild(document.createTextNode(n.textContent));return;}
+      if(n.nodeType!==1)return;
+      var tag=SAFE_TAGS[n.tagName];
+      if(!tag){cleanInto(n,dest);return;}
+      var out=document.createElement(tag);
+      if(tag==='a'){var h=n.getAttribute('href')||'';if(/^(https:\/\/|\/|#)/.test(h)){out.setAttribute('href',h);if(/^https:/.test(h)){out.target='_blank';out.rel='noopener noreferrer';}}}
+      cleanInto(n,out);
+      if(tag==='br'||out.textContent.trim())dest.appendChild(out);
+    });
+  }
+  function formatted(div){
+    try{return formattedInto(div);}catch(e){return false;} /* plain-text fallback below */
+  }
+  function formattedInto(div){
+    if(!details||!div||!div.childNodes||typeof div.querySelector!=='function'||!div.querySelector('p,ul,ol,li,h1,h2,h3,h4,table,br,strong'))return false;
+    details.replaceChildren();
+    var art=document.createElement('article');art.className='rw-orb-answer-tile rw-orb-rich';
+    cleanInto(div,art);
+    if(!art.textContent.trim())return false;
+    details.appendChild(art);
+    var full=details.closest&&details.closest('details');if(full)full.open=true;
+    return true;
+  }
   function answer(html,raw,intents){
     if(!state.active || !state.answerPending)return false;
     state.answerPending=false;
@@ -289,7 +325,8 @@
     var usable=diagnostic?complete.split(/⚡ AI engines unreachable right now/i)[0].trim():complete;
     var speech=intents&&intents._voiceStay?String(intents._voiceStaySpeech||usable):usable.slice(0,650);
     if(!complete){setPhase('ready','Answer is on screen · tap Speak to continue');return false;}
-    if(details){
+    if(details && formatted(div)){ /* structured answer rendered below; skip the plain-text tiles */ }
+    else if(details){
       details.replaceChildren();
       // Prefer readable topic paragraphs over one tile per sentence. The old
       // algorithm generated "Detail 22" and split budgets mid-number on mobile.
@@ -424,7 +461,7 @@
     },180);
   }
   function speechFailure(){if(state.active)setPhase('ready','Voice unavailable. Read above, then tap Speak.');}
-  var api={start:start,stop:stop,realtimeAvailable:realtimeAvailable,realtimeStart:realtimeStart,realtimeStop:realtimeStop,listen:listen,transcript:transcript,partialTranscript:partialTranscript,answer:answer,resultModel:resultModel,renderProviderFallback:renderProviderFallback,spokenStyle:spokenStyle,openVoicePicker:openVoicePicker,renderVoicePicker:renderVoicePicker,speechStarted:speechStarted,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
+  var api={start:start,stop:stop,isActive:isActive,realtimeAvailable:realtimeAvailable,realtimeStart:realtimeStart,realtimeStop:realtimeStop,listen:listen,transcript:transcript,partialTranscript:partialTranscript,answer:answer,resultModel:resultModel,renderProviderFallback:renderProviderFallback,spokenStyle:spokenStyle,openVoicePicker:openVoicePicker,renderVoicePicker:renderVoicePicker,speechStarted:speechStarted,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   if(root)root.RWTuskVoiceStudio=api;
 })(typeof window!=='undefined'?window:null);

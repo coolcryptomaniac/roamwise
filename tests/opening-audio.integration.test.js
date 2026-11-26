@@ -97,7 +97,7 @@ test('mobile composer and search controls cannot overlap or widen the page', () 
   const html = read('index.html');
   const css = read('mobile-stability.css');
   assert.match(html, /class="copilot-compose"/);
-  assert.match(html, /class="copilot-actions"/);
+  assert.match(html, /class="rw-tusk-bar"/); /* toolbar row below the text (design/tusk-composer.css) replaced the overlaid .copilot-actions */
   assert.match(css, /grid-template-areas:/);
   assert.match(css, /"models actions"/);
   assert.match(css, /#ssInput[\s\S]*min-width: 0/);

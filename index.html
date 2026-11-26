@@ -515,6 +515,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <link rel="stylesheet" href="design/rail-zap.css?v=20261126-2">
 <link rel="stylesheet" href="design/destination-rows.css?v=20261126-1">
 <link rel="stylesheet" href="/design/design-engine.css?v=20261125-1">
+<link rel="stylesheet" href="design/tusk-composer.css?v=20261126-1">
 </head>
 <body class="rw-akatsuki-theme shell" data-view="home">
 <div id="rwVeil" role="status" aria-live="polite"><img src="/assets/img/roamwise-logo-176.webp" alt="" width="72" height="72" fetchpriority="high"><span>Roam<b>Wise</b></span><i></i><small>Getting things ready…</small></div>
@@ -578,20 +579,29 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <!-- ============ COPILOT HERO — the front door, Claude-style ============ -->
 <section class="v v-home v-copilot" id="copilotHero" style="margin:16px 14px 8px">
   <div class="tusk-title"><span>✦</span><b>Ailon Tusk</b><em>· one place for your whole journey</em><button class="rw-tusk-ai-settings" type="button" onclick="openSettings()" aria-label="AI settings: provider, BYOK, privacy and voice options" title="Configure Ailon Tusk">⚙ AI settings</button></div>
-  <div class="rw-tusk-hero-tools"><button type="button" class="rw-tusk-voice-entry" onclick="RWTuskVoiceStudio.start()" aria-label="Start Ailon Tusk voice conversation">🎙️ Voice Mode</button><label for="rwHomeVoiceLang" style="font-size:12px">Language <select id="rwHomeVoiceLang" aria-label="Voice language" style="background:#211832;color:#f7e9ff;border:1px solid #866caa;border-radius:9px;padding:5px;font-size:12px"><option value="en-IN">English</option><option value="hi-IN">हिन्दी</option><option value="kn-IN">ಕನ್ನಡ</option><option value="ta-IN">தமிழ்</option><option value="te-IN">తెలుగు</option><option value="bn-IN">বাংলা</option><option value="mr-IN">मराठी</option><option value="ml-IN">മലയാളം</option></select></label><span style="font-size:10px">Device support varies</span></div>
   <div id="heroLog" style="display:none;margin-bottom:10px;max-height:52vh;overflow-y:auto"></div>
   <div class="copilot-compose" style="position:relative;background:linear-gradient(180deg,var(--bg2,#12121C),rgba(18,18,28,.55));border:1.5px solid rgba(232,186,108,.35);border-radius:22px;padding:14px;box-shadow:0 8px 30px rgba(0,0,0,.35)">
     <textarea id="heroInput" rows="4" placeholder="Where would you like to go? Tell Ailon your dates, travellers and budget…"
       style="display:block;width:100%;box-sizing:border-box;background:transparent;border:none;padding:8px 8px 44px;color:inherit;font:inherit;font-size:16.5px;resize:vertical;outline:none;min-height:103px;line-height:1.6"></textarea>
-    <div class="copilot-actions" style="position:absolute;right:12px;bottom:12px;display:flex;gap:8px;align-items:center">
-      <button onclick="scanImageOpen()" aria-label="Scan a screenshot" title="Scan a screenshot or reel"
-        style="width:36px;height:36px;border-radius:50%;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#128247;</button>
-      <button onclick="copilotVoiceHero()" aria-label="Voice"
-        style="width:36px;height:36px;border-radius:50%;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#127908;</button>
-      <button id="heroSend" type="button" onclick="copilotSend(true)" aria-label="Send travel request"
-        style="width:36px;height:36px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center">&#10148;</button>
+    <div class="rw-tusk-bar" role="toolbar" aria-label="Ailon Tusk tools">
+      <div class="rw-tusk-bar-left">
+        <button type="button" class="rw-tb-btn rw-tb-voice" onclick="RWTuskVoiceStudio.start()" aria-label="Talk to Ailon Tusk voice agent" title="Voice agent: talk it through">〰️<span>Voice</span></button>
+        <button type="button" class="rw-tb-btn rw-tb-scan" onclick="scanImageOpen()" aria-label="Scan a screenshot" title="Scan a screenshot or reel">&#128247;</button>
+      </div>
+      <div class="rw-tusk-bar-right">
+        <div class="rw-model-pick">
+          <button type="button" id="rwModelPill" class="rw-tb-pill" aria-haspopup="true" aria-expanded="false" aria-controls="rwModelMenu" title="Choose AI model">⚡ Auto <i aria-hidden="true">▾</i></button>
+          <div class="rw-model-menu" id="rwModelMenu" hidden>
+            <p class="rw-mm-h">AI model</p>
+            <div id="heroModels" role="menu" aria-label="AI model"></div>
+            <label class="rw-mm-h" for="rwHomeVoiceLang">Language</label>
+            <select id="rwHomeVoiceLang" class="rw-tb-lang" title="Language for voice and replies" aria-label="Voice language"><option value="en-IN">English</option><option value="hi-IN">हिन्दी</option><option value="kn-IN">ಕನ್ನಡ</option><option value="ta-IN">தமிழ்</option><option value="te-IN">తెలుగు</option><option value="bn-IN">বাংলা</option><option value="mr-IN">मराठी</option><option value="ml-IN">മലയാളം</option></select>
+          </div>
+        </div>
+        <button type="button" class="rw-tb-btn rw-tb-mic" onclick="copilotVoiceHero()" aria-label="Dictate your message" title="Dictate">&#127908;</button>
+        <button id="heroSend" type="button" class="rw-tb-send" onclick="copilotSend(true)" aria-label="Send travel request">&#10148;</button>
+      </div>
     </div>
-    <div id="heroModels" style="position:absolute;left:14px;bottom:16px;display:flex;gap:6px;flex-wrap:wrap;max-width:58%"></div>
   </div>
   <div class="rw-tusk-prompts" id="rwTuskPrompts" role="group" aria-label="Start with Ailon Tusk">
     <button type="button" data-rw-tusk="itinerary">🧭 Plan a trip</button>
@@ -2124,7 +2134,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <script src="data/ailon-atlas-snapshot.js?v=20261124-874" defer></script>
 <script src="js/copilot/atlas-cards.js?v=20261124-874" defer></script>
 <script src="js/copilot/atlas-grounding.js?v=20261124-atlas1" defer></script>
-<script src="js/copilot/core.js?v=20261126-1" defer></script>
+<script src="js/copilot/core.js?v=20261126-2" defer></script>
 <script src="js/copilot/connected-discovery.js" defer></script>
 <script src="js/copilot/rich-reply.js?v=20261124-guided" defer></script>
 <script src="js/copilot/tusk-persona.js" defer></script>
@@ -2172,6 +2182,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <script src="js/ui/page-router.js" defer></script>
 <script src="js/ui/layout-modes.js" defer></script>
 <script src="js/ui/settings-modal.js?v=20261126-1" defer></script>
+<script src="js/ui/tusk-composer.js?v=20261126-1" defer></script>
 <script src="js/ui/key-wizard.js" defer></script>
 <script src="js/ui/themes.js?v=rw-aurora-1" defer></script>
 <script src="js/ui/adaptive-shell.js" defer></script>

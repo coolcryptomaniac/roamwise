@@ -69,6 +69,7 @@ function cpBubble(html, who){
     ? 'margin:6px 0 6px 40px;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border-radius:14px 14px 4px 14px;padding:10px 12px;font-size:12.5px;white-space:pre-line'
     : 'margin:6px 40px 6px 0;background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px 14px 14px 4px;padding:10px 12px;font-size:12.5px;line-height:1.55;white-space:pre-line';
   b.innerHTML=html;
+  try{ if(window.RWTuskVoiceStudio && RWTuskVoiceStudio.isActive && RWTuskVoiceStudio.isActive() && log.id==='heroLog') b.setAttribute('data-voice','1'); }catch(e){ /* voice studio optional */ }
   /* Hero log sits ABOVE the input, so newest goes at the BOTTOM of that log —
      i.e. directly above the box where the eye and thumb already are. */
   log.appendChild(b);
