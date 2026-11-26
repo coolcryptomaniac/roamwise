@@ -78,7 +78,7 @@ def cf_generate(prompt, seed, w=1024, h=1024):
         print('could not write bridge nonce:', e, file=sys.stderr)
         raise SystemExit(3)
     req = urllib.request.Request(api + '/shop/engine/art', data=json.dumps({'nonce': nonce, 'prompt': prompt, 'seed': seed}).encode(),
-                                 headers={'Content-Type': 'application/json'})
+                                 headers={'Content-Type': 'application/json', 'User-Agent': 'RoamWise-ShopEngine/1.0 (+https://roamwise.co.in)'})
     try:
         with urllib.request.urlopen(req, timeout=180) as r:
             d = json.loads(r.read())
