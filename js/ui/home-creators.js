@@ -50,7 +50,7 @@
     if (c.instagram) { var f = node('a', 'rwc-btn ig', 'Follow ' + igHandle(c.instagram)); f.href = c.instagram; f.target = '_blank'; f.rel = 'noopener noreferrer'; row.appendChild(f); }
     var done = interests().indexOf(c.id) >= 0;
     var b = node('a', 'rwc-btn collab', done ? 'Collab requested ✓' : 'Collab');
-    b.href = '/creators/match.html?role=property&creator=' + encodeURIComponent(c.id);
+    b.href = '/creators/matches.html?to=' + encodeURIComponent('creator-' + c.id);
     b.addEventListener('click', function () { markInterest(c.id); });
     row.appendChild(b);
     return row;

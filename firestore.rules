@@ -1907,5 +1907,59 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // ── Creator ↔ property number exchange ─────────────────────────────
+    // Listing keys look like "creator-<id>" or "property-<id>". An admin links a
+    // verified account to exactly one listing (listingOwners/{key} + ownerListings/{uid}).
+    // Each side records "I want to collab" as matchInterest/{fromKey}__{toKey}.
+    // A contact card is readable only by its owner, an admin, or the owner of the
+    // other listing when BOTH interest docs exist. Nothing reveals a number one-sided.
+    function listingKeyOk(k) {
+      return k is string && k.matches('^(creator|property)-[A-Za-z0-9_-]{1,90}$');
+    }
+    function myListing() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/ownerListings/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/ownerListings/$(request.auth.uid)).data.key : '';
+    }
+    function mutualMatch(a, b) {
+      return a != '' && a != b
+        && exists(/databases/$(database)/documents/matchInterest/$(a + '__' + b))
+        && exists(/databases/$(database)/documents/matchInterest/$(b + '__' + a));
+    }
+    match /listingOwners/{key} {
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow write: if isAdmin();
+    }
+    match /ownerListings/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow write: if isAdmin();
+    }
+    match /matchInterest/{pairId} {
+      allow read: if isAdmin() || (request.auth != null && myListing() != ''
+        && (resource.data.from == myListing() || resource.data.to == myListing()));
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['from','to','createdAt'])
+        && listingKeyOk(request.resource.data.to)
+        && request.resource.data.from == myListing()
+        && request.resource.data.from != request.resource.data.to
+        && request.resource.data.from.split('-')[0] != request.resource.data.to.split('-')[0]
+        && pairId == request.resource.data.from + '__' + request.resource.data.to
+        && request.resource.data.createdAt == request.time;
+      allow update: if false;
+      allow delete: if isAdmin() || (request.auth != null && resource.data.from == myListing());
+    }
+    match /contactCards/{key} {
+      allow read: if isAdmin()
+        || (request.auth != null && myListing() == key)
+        || (request.auth != null && mutualMatch(myListing(), key));
+      allow create, update: if request.auth != null && myListing() == key
+        && request.resource.data.keys().hasOnly(['phone','whatsapp','email','updatedAt'])
+        && (!('phone' in request.resource.data) || (request.resource.data.phone is string && request.resource.data.phone.matches('^[+0-9 ()-]{6,20}$')))
+        && (!('whatsapp' in request.resource.data) || (request.resource.data.whatsapp is string && request.resource.data.whatsapp.matches('^[+0-9 ()-]{6,20}$')))
+        && (!('email' in request.resource.data) || (request.resource.data.email is string && request.resource.data.email.size() <= 120 && request.resource.data.email.matches('^[^@ ]+@[^@ ]+$')))
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isAdmin() || (request.auth != null && myListing() == key);
+    }
+
   }
 }
