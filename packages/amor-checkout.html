@@ -49,6 +49,8 @@ async function preview(){if(mode==='balance')return;const my=++seq,b=body();$('t
   $('total').textContent='Total '+inr(q.total)+' · Pay now: '+inr(q.amount);
   const lines=[];if(q.legs)q.legs.forEach(l=>lines.push('<b>'+esc(l.property)+'</b>: '+(l.rooms>1?l.rooms+' × ':'')+esc(l.room)+', '+esc(l.plan)+', '+l.checkin+' → '+l.checkout+' ('+l.nights+' night'+(l.nights>1?'s':'')+')'));
   if(q.extras&&q.extras.length)lines.push('Also included: '+q.extras.map(esc).join('; '));
+  if(q.tax&&q.tax.model==='principal'&&q.tax.lines)lines.push('Sold and invoiced by RoamWise · includes GST '+inr(q.tax.gst)+' ('+q.tax.lines.filter(l=>l.ratePct).map(l=>l.ratePct+'%').filter((v,i,a)=>a.indexOf(v)===i).join(' + ')+'). Your GST invoice comes by email.');
+  else if(q.tax&&q.tax.model==='agent')lines.push('Booked by RoamWise for the property; the property invoices the stay. Trip Wallet money cannot be used for this one (Coins can).');
   if(q.fullOnly)lines.push('These dates are inside the property\'s final-payment window, so the full amount is due now.');
   if(q.balance)lines.push('Balance '+inr(q.balance)+' due by '+q.balanceDueBy+'. We email you the payment link once the booking is confirmed.');
   if(q.peakNights)lines.push(q.peakNights+' peak / festive night'+(q.peakNights>1?'s':'')+' priced at the property\'s peak rate.');

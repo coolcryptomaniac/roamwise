@@ -8,12 +8,16 @@ import { sendMail } from '../lib/mailer.js';
 import { walletKeyFromRequest, spendWallet, loadWallet } from './wallet.js';
 import { coinsUsable } from '../lib/wallet-core.js';
 /* What Cashfree charges: the booking minus any RoamWise Coins discount; nothing for a booking paid fully from wallet credit. */
+/* What the Trip Wallet may pay for: RoamWise-sold stays and packages; agent-model bookings only take Coins. */
+export const walletProduct=(q)=>q.seller==='partner'?'agent_stay':q.kind==='package'?'package':'stay';
 export const cashDue=(r)=>r.paidWith==='wallet'?0:(Number.isFinite(r.cashAmount)?r.cashAmount:r.amount);
 import { priceStay, pricePackage, publicAmor } from '../lib/amor-pricing.js';
 import { PACKAGES, publicPackages } from '../lib/amor-packages.js';
 import { inSeason } from '../lib/amor-policy.js';
 import { ensureAmorRates, publicKeyJwk } from '../lib/amor-rates-store.js';
 import { amorRatesLoaded } from '../lib/amor-rates.js';
+import { inclusiveTax, withPos, stateCode, PROPERTY_STATE } from '../lib/principal-tax.js';
+import { recordStayInvoice, queuePayout } from './stay-finance.js';
 /* Every RoamWise stay is bookable and payable online (founder decision, 8 Nov 2026: take the money, refund
    if the stay cannot be confirmed). Kinds, all priced here, never by the browser:
    - amor:    Amor Hospitality net rate sheets, any room and meal plan, season and peak nights, plus
@@ -75,10 +79,12 @@ function priceOther(body,p,now){
  if(!Number.isInteger(n)||n<1||n>90||a<now-86400000)throw Error('Choose check-in and check-out dates (up to 90 nights).');
  if(p.kind==='plans'&&p.plans[n]){
   const full=p.plans[n],percent=body.paymentType==='advance'?25:100;
-  return {stay:body.stay,property:p.name,kind:'plan',checkin:start,checkout:end,nights:n,guests:2,total:full,portion:percent,amount:Math.ceil(full*percent/100),balance:full-Math.ceil(full*percent/100),currency:'INR',supplier:p.supplier};
+  return {stay:body.stay,property:p.name,kind:'plan',checkin:start,checkout:end,nights:n,guests:2,total:full,portion:percent,amount:Math.ceil(full*percent/100),balance:full-Math.ceil(full*percent/100),currency:'INR',supplier:p.supplier,
+   seller:'RoamWise',tax:inclusiveTax(full,{rate:full/n<=7875?0.05:0.18,pos:PROPERTY_STATE[body.stay]})};
  }
  /* Rate confirmed by RoamWise for the dates: take a refundable advance now, adjusted in the final bill. */
- return {stay:body.stay,property:p.name,kind:'advance',checkin:start,checkout:end,nights:n,guests:2,total:null,portion:null,amount:STAY_ADVANCE,currency:'INR',supplier:p.supplier};
+ return {stay:body.stay,property:p.name,kind:'advance',checkin:start,checkout:end,nights:n,guests:2,total:null,portion:null,amount:STAY_ADVANCE,currency:'INR',supplier:p.supplier,
+  seller:'RoamWise',tax:inclusiveTax(STAY_ADVANCE,{rate:0.05,pos:PROPERTY_STATE[body.stay],note:'Advance for hotel accommodation; adjusted in the final invoice for the stay.'})};
 }
 export async function stayRates(request,env){ await ensureAmorRates(env); return json({advance:STAY_ADVANCE,stays:publicRates(),packages:publicPackageList()}); }
 /* GET /stays/rates-key: the PUBLIC half of the rate-book key, for tools/amor-rates-seal.mjs. Never the rates. */
@@ -100,7 +106,8 @@ export async function createStayOrder(request,env){
  const phone=String(b.phone||'').replace(/[\s()-]/g,''),email=String(b.email||'').trim();
  if(!/^\+?\d{10,15}$/.test(phone)||!/^\S+@\S+\.\S+$/.test(email))return json({error:'contact_required'},422);
  const id='rwstay_'+crypto.randomUUID().replace(/-/g,'');
- const record={...quote,id,email,phone,shareWithSupplier:b.shareWithSupplier===true,status:'payment_pending',confirmed:false,createdAt:new Date().toISOString(),...(supplierNet?{supplierNet}:{})};
+ const gs=stateCode(b.state);if(gs&&quote.tax)quote.tax=withPos(quote.tax,gs);
+ const record={...quote,id,email,phone,guestState:gs||'',shareWithSupplier:b.shareWithSupplier===true,status:'payment_pending',confirmed:false,createdAt:new Date().toISOString(),...(supplierNet?{supplierNet}:{})};
  /* RoamWise Coins as a discount: at most COIN_CAP_PCT of the booking, the rest by card or UPI. The coins are spent only
     when the payment is confirmed (stay-lifecycle.js onStayPaid), so an abandoned checkout costs the guest nothing. */
  if(b.useCoins===true&&b.payWith!=='wallet'){const ck=await walletKeyFromRequest(request,env,String(b.wallet||''));if(ck){const cw=await loadWallet(env,ck);const c=cw?coinsUsable(cw,quote.amount,Date.now()):0;if(c>0&&c<quote.amount){record.coinsApplied=c;record.coinKey=ck;record.cashAmount=quote.amount-c}}}
@@ -108,7 +115,7 @@ export async function createStayOrder(request,env){
  if(b.payWith==='wallet'){
   const key=await walletKeyFromRequest(request,env,String(b.wallet||''));
   if(!key)return json({error:'wallet_sign_in',message:'Open your wallet link again to pay with credit.'},401);
-  try{record.paidFromLots=await spendWallet(env,key,quote.amount,id)}catch(e){return json({error:'wallet_low',message:'Your wallet cannot cover this stay. Coins cover up to 10% of a stay; pay the rest by card or UPI with "Use my Coins" ticked.'},409)}
+  try{record.paidFromLots=await spendWallet(env,key,quote.amount,id,Date.now(),walletProduct(quote))}catch(e){return json({error:'wallet_low',message:'Your wallet cannot cover this stay. Coins cover up to 10% of a stay; pay the rest by card or UPI with "Use my Coins" ticked.'},409)}
   record.paidWith='wallet';
   await onStayPaid(env,record);
   return json({paid:true,orderId:id,quote});
@@ -161,7 +168,9 @@ async function onBalancePaid(env,record){
  await kv(env).put('stayorder:'+record.id,JSON.stringify(record),{expirationTtl:60*60*24*180});
  const parent=await kv(env).get('stayorder:'+record.parentId,'json');
  if(parent&&!parent.balancePaidAt){parent.balancePaidAt=record.paidAt;parent.balancePaidOrder=record.id;parent.balance=0;
-  await kv(env).put('stayorder:'+parent.id,JSON.stringify(parent),{expirationTtl:60*60*24*180});}
+  await kv(env).put('stayorder:'+parent.id,JSON.stringify(parent),{expirationTtl:60*60*24*180});
+  try{await recordStayInvoice(env,parent,'balance',record.amount)}catch(_){}
+  try{await queuePayout(env,parent)}catch(_){}}
  const rs='Rs '+Number(record.amount).toLocaleString('en-IN');
  try{await sendMail(env,{to:'founder@roamwise.co.in',subject:'Balance paid '+record.parentId.slice(-6)+': '+record.property,text:rs+' balance received for '+record.parentId+' ('+record.property+', '+record.checkin+'). Pay the supplier balance before their deadline.'});
   await sendMail(env,{to:record.email,subject:'Balance received: '+record.property,text:'Namaste! We have received the balance of '+rs+' for '+record.property+', '+record.checkin+' to '+record.checkout+'. Your booking ('+record.parentId+') is now fully paid.\n\n— RoamWise'});}catch(_){}

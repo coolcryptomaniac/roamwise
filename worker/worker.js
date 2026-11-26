@@ -71,6 +71,9 @@ import { handleReferral, runReferralRewards } from './handlers/referrals.js';
 import { handleEarnings } from './handlers/earnings.js';
 import { creditPacks, createCreditOrder, creditOrderStatus, handleCreditWebhook, runCreditExpiry } from './handlers/credit-packs.js';
 import { createTripOrder, redeemVoucher } from './handlers/trip-wallet.js';
+import { runPartnerPayouts, handlePayoutMark, handlePayoutAdmin } from './handlers/stay-finance.js';
+import { requireAdmin } from './handlers/push.js';
+import { parseServiceAccount } from './lib/service-account.js';
 import { handleShopDecide, runShopRefundCron } from './handlers/shop-order.js';
 import { handleAgentMail } from './handlers/agentmail-outreach.js';
 import {handleCreatorAutopilot,runCreatorAutopilot} from './handlers/creator-autopilot.js';
@@ -241,6 +244,9 @@ export default {
     if(path === 'wallet/topup' && request.method === 'POST') return createTripOrder(request, env, 'topup');
     if(path === 'vouchers/buy' && request.method === 'POST') return createTripOrder(request, env, 'voucher');
     if(path === 'vouchers/redeem') return redeemVoucher(request, env);
+    if(path === 'payouts/mark' && request.method === 'GET') return handlePayoutMark(request, env);
+    if(path === 'admin/payees' || path === 'admin/payouts' || path === 'admin/stays/net') return handlePayoutAdmin(request, env, path,
+      async (req, e) => { try { const r = await requireAdmin(req, e, parseServiceAccount(e).project_id); return !r.error; } catch (_) { return false; } });
     if(path === 'credit/checkout' && request.method === 'POST') return createCreditOrder(request, env);
     if(path.startsWith('credit/order/') && request.method === 'GET') return creditOrderStatus(request, env, path.slice(13));
     if(path === 'stays/quote' && request.method === 'POST') return stayQuote(request, env);
@@ -316,6 +322,8 @@ export default {
       try{ await runStayDeadlines(env); }catch(e){ /* retried next hour */ }
       try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runShopRefundCron(env); }catch(e){ /* retried next hour */ }
       try{ await runWalletReleases(env); }catch(e){ /* retried next hour */ }
+      /* Partner net-rate payouts after acceptance, and invoice records waiting for Firestore. */
+      try{ await runPartnerPayouts(env); }catch(e){ /* retried next hour */ }
       /* Group "pay your share": pots past their deadline refund every paid member to their own wallet. */
       try{ await runGroupPots(env); }catch(e){ /* retried next hour */ }
       /* People Hub engine: perfect matches any daytime hour, routine once a day within the cap, money matters as drafts. */

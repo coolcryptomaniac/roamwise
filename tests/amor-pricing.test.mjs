@@ -43,21 +43,23 @@ test('season tables and supplements follow each sheet', () => {
   assert.throws(() => nightCost('aramness', 'kothi', 'AP', '2027-03-02'), /bookable online/);
 });
 
-test('every stay and package earns at least 20% unless a public price caps it; never below the floor or above 3x', () => {
+test('as principal, every stay and package earns at least 20% unless a public price caps it; never below the 7% floor or above 3x', () => {
   for (const id of Object.keys(PACKAGES)) {
     const k = PACKAGES[id];
     for (const d of [(k.window && k.window.from) || '2027-02-08', (k.window && k.window.from) || '2027-02-12']) {
       const r = pricePackage({ package: id, checkin: d, paymentType: 'full' }, NOW, false);
-      assert.ok(r.quote.total >= r.cost * MARKUP - 1, id + ' below floor');
+      assert.ok(r.margin >= 0.0699, id + ' below the 7% floor');
       assert.ok(r.quote.total <= r.cost * 3, id + ' above 200% markup');
-      if (!r.quote.saving) assert.ok(marginOf(r.quote.total, r.cost).margin >= 0.199, id);
+      if (!r.quote.saving) assert.ok(r.margin >= 0.199, id + ' ' + r.margin);
+      assert.equal(r.quote.tax.service, r.model === 'principal' ? 'tour_operator' : undefined);
+      if (r.model === 'principal') assert.ok(r.quote.tax.lines.some((l) => l.sac === '998555' && l.ratePct === 5), id);
     }
   }
   const n = priceStay({ stay: 'nanau', room: 'studio', plan: 'CP', checkin: '2027-02-08', checkout: '2027-02-10', paymentType: 'full' }, NOW).quote;
-  assert.equal(n.total, ceil10(2 * sellFor(P.nanau.rooms.studio.rates.CP, 0.20)));
+  const s = P.nanau.rooms.studio.rates.CP / 0.8; assert.equal(n.total, ceil10(2 * s * (s <= 7500 ? 1.05 : 1.18)));
 });
 
-test('Aramness is never dearer than the lodge\'s published rate; fee passes through at cost', () => {
+test('Aramness is never dearer than the lodge\'s published rate (agent fallback where principal GST would make it dearer); fee passes through at cost', () => {
   const k = P.aramness.rooms.kothi, fee = P.aramness.perStayFee.amount;
   assert.ok(publicRates().aramness.rooms.kothi.perNight.AP < k.rack);
   const q = price({ stay: 'aramness', room: 'kothi', plan: 'AP', checkin: '2027-02-08', checkout: '2027-02-10', paymentType: 'full' }, NOW);

@@ -5,7 +5,8 @@
  * in `supplierNet`, which goes to KV and to Amor's own booking email, never to the browser. */
 import { AMOR, GIR_EXTRAS, PLAN_LABEL, COMMISSION, COMMISSION_GST, roomGstRate, advanceShare, balanceLeadDays } from './amor-rates.js';
 import { PACKAGES } from './amor-packages.js';
-import { POLICY, marginFor, sellFor, floorFor } from './amor-policy.js';
+import { POLICY, marginFor, sellFor, floorFor, marginOf } from './amor-policy.js';
+import { principalQuote, placeOfSupply, PROPERTY_STATE, taxSummary } from './principal-tax.js';
 
 export const MARKUP = 1 + COMMISSION * (1 + COMMISSION_GST); // the 7% floor, 1.0826
 const DAY = 864e5;
@@ -27,12 +28,14 @@ export function nightCost(stayId, roomId, plan, date, extraBeds = 0) {
   if (peak && p.peakSupplement) tariff += p.peakSupplement;
   tariff += extraBeds * ((peak && p.extraBedPeak) ? p.extraBedPeak[plan] : (p.extraBed ? p.extraBed[plan] : 0));
   const cost = p.taxIncluded ? tariff : tariff * (1 + roomGstRate(tariff));
-  return { cost, peak };
+  /* The partner's own GST inside that cost (for RoamWise's input credit where the law allows it). */
+  const pre = p.taxIncluded ? (tariff / 1.18 > 7500 ? tariff / 1.18 : tariff / 1.05) : tariff, inputRate = roomGstRate(pre);
+  return { cost, peak, inputGst: cost - pre, inputRate };
 }
 
 /* extraBeds: for a whole-villa booking, beds added to that one unit; otherwise rooms that get one extra bed.
  * Returns cost (to RoamWise), target sell (policy margin per night) and the public price when one is known. */
-function legCost(leg, checkin, rooms, extraBeds, ctx) {
+function legCost(leg, checkin, rooms, extraBeds, ctx, items) {
   const p = AMOR[leg.stay], r = p.rooms[leg.room]; let cost = 0, sell = 0, pub = 0, peakNights = 0;
   if (r.exclusive && rooms > 1) fail('The whole villa is one booking');
   if (r.keys && rooms > r.keys) fail('Only ' + r.keys + ' of these rooms exist; choose fewer or another room.');
@@ -40,12 +43,15 @@ function legCost(leg, checkin, rooms, extraBeds, ctx) {
   for (let i = 0; i < leg.nights; i++) {
     const d = iso(at(checkin) + i * DAY);
     let c, peak;
-    if (r.exclusive) { const n = nightCost(leg.stay, leg.room, leg.plan, d, extraBeds); c = n.cost; peak = n.peak; }
-    else { const n = nightCost(leg.stay, leg.room, leg.plan, d, 0); peak = n.peak; c = n.cost * (rooms - withBed) + (withBed ? nightCost(leg.stay, leg.room, leg.plan, d, 1).cost * withBed : 0); }
-    cost += c; sell += sellFor(c, marginFor(d, { ...ctx, peak })); if (peak) peakNights++;
+    let ig = 0, ir = 0;
+    if (r.exclusive) { const n = nightCost(leg.stay, leg.room, leg.plan, d, extraBeds); c = n.cost; peak = n.peak; ig = n.inputGst; ir = n.inputRate; }
+    else { const n = nightCost(leg.stay, leg.room, leg.plan, d, 0); peak = n.peak; ir = n.inputRate; const b = withBed ? nightCost(leg.stay, leg.room, leg.plan, d, 1) : null; c = n.cost * (rooms - withBed) + (b ? b.cost * withBed : 0); ig = n.inputGst * (rooms - withBed) + (b ? b.inputGst * withBed : 0); if (b && b.inputRate !== ir) ir = 0; }
+    const m = marginFor(d, { ...ctx, peak });
+    cost += c; sell += sellFor(c, m); if (peak) peakNights++;
+    items.push({ cost: c, units: r.exclusive ? 1 : rooms, margin: m, inputGst: ig, inputRate: ir });
     const ref = r.rack || (r.market && r.market[leg.plan]); pub += ref ? ref * rooms : Infinity; // hotel's published rate or a checked OTA price, tax included
   }
-  if (p.perStayFee) { const f = p.perStayFee.amount * rooms; cost += f; sell += f; pub += f; } // fees pass through at cost
+  if (p.perStayFee) { const f = p.perStayFee.amount * rooms; cost += f; sell += f; pub += f; items.push({ cost: f, units: 0, margin: 0, pureAgent: true }); } // fees pass through at cost, as pure agent
   return { cost, sell, pub, peakNights, nonRefundable: !!(p.peakNonRefundable && peakNights) };
 }
 
@@ -54,10 +60,10 @@ function build({ name, legs, extras = [], checkin, rooms = 1, extraBeds = 0, pay
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(checkin || ''))) fail('Choose a check-in date');
   if (at(checkin) < now - DAY) fail('Choose a check-in date from today onwards');
   let t = at(checkin), cost = 0, target = 0, pub = 0, upfrontCost = 0, peakNights = 0, nonRefundable = false;
-  const outLegs = [], supplierNet = [], ctx = { kind, group };
+  const outLegs = [], supplierNet = [], ctx = { kind, group }, items = [];
   for (const leg of legs) {
     t += (leg.gapBefore || 0) * DAY;
-    const start = iso(t), c = legCost(leg, start, rooms, extraBeds, ctx);
+    const start = iso(t), c = legCost(leg, start, rooms, extraBeds, ctx, items);
     const daysOut = Math.floor((t - now) / DAY);
     const p = AMOR[leg.stay];
     cost += c.cost; target += c.sell; pub += c.pub; peakNights += c.peakNights; nonRefundable = nonRefundable || c.nonRefundable;
@@ -72,13 +78,21 @@ function build({ name, legs, extras = [], checkin, rooms = 1, extraBeds = 0, pay
     const n = x.cost * (x.per === 'room' ? rooms : 1);
     cost += n; upfrontCost += x.prepay ? n : n * 0.25;
     target += sellFor(n, x.budget ? POLICY.weddingBudgetMargin : POLICY.extrasMargin);
+    items.push({ cost: n, units: 0, margin: x.budget ? POLICY.weddingBudgetMargin : POLICY.extrasMargin });
     pub += x.public != null ? x.public * (x.per === 'room' ? rooms : 1) : Infinity;
     supplierNet.push({ extra: x.label, cost: n, prepay: !!x.prepay });
   }
   /* Never above a known public price (1% under it), never below the 7% floor or above the 200% markup cap. */
-  const floor = ceil10(floorFor(cost)), cap = Math.min(cost * (1 + POLICY.maxMarkup), Number.isFinite(pub) ? pub * (1 - POLICY.undercut) : Infinity);
-  let total = ceil10(target);
-  if (total > cap) total = Math.max(floor, floor10(cap));
+  /* RoamWise sells as principal: GST on the full value (lib/principal-tax.js), margin measured on its own pre-GST price. */
+  const cap = Math.min(cost * (1 + POLICY.maxMarkup), Number.isFinite(pub) ? pub * (1 - POLICY.undercut) : Infinity);
+  const tour = kind === 'package';
+  const ps = PROPERTY_STATE[legs[0].stay];
+  const pq = principalQuote({ items, tour, floor: POLICY.floorCommission, cap, pos: placeOfSupply({ tour, propertyState: ps }), propertyState: tour ? '' : ps });
+  /* Fallback: where principal pricing cannot beat the public price at the 7% floor, RoamWise books as the partner's
+     agent (commission + 18% GST on it, the pre-26 Nov model). Such bookings cannot use Trip Wallet money. */
+  const agent = pq.aboveCap;
+  let total = pq.total;
+  if (agent) { const floorA = ceil10(floorFor(cost)); total = ceil10(target); if (total > cap) total = Math.max(floorA, floor10(cap)); }
   /* Inside the final-payment window (balance would already be due), the whole amount is due now:
    * no advance option and never a balance date in the past. */
   const dueAt = at(checkin) - Math.max(...legs.map((l) => balanceLeadDays(AMOR[l.stay].deposit))) * DAY;
@@ -92,10 +106,11 @@ function build({ name, legs, extras = [], checkin, rooms = 1, extraBeds = 0, pay
     checkin, checkout: outLegs[outLegs.length - 1].checkout, nights, rooms, guests, legs: outLegs,
     extras: extras.map((x) => x.label || (GIR_EXTRAS[x.ref] || {}).label), total, portion: full ? 100 : Math.round(advance / total * 100), amount: full ? total : advance,
     advanceAmount: advance, fullOnly: fullOnly || undefined, balance: full ? 0 : total - advance, balanceDueBy: full ? null : balanceDue(legs, checkin),
-    peakNights, nonRefundable, currency: 'INR', supplier: 'amor', provisional: legs.some((l) => AMOR[l.stay].provisional) || undefined,
+    peakNights, nonRefundable, currency: 'INR', supplier: 'amor', seller: agent ? 'partner' : 'RoamWise',
+    tax: agent ? { model: 'agent', inclusive: true, note: 'Booked by RoamWise as agent for the property: the property invoices the stay; RoamWise invoices its service fee with 18% GST.' } : taxSummary(pq, tour), provisional: legs.some((l) => AMOR[l.stay].provisional) || undefined,
     ...(Number.isFinite(pub) && pub > total ? { publicPrice: Math.round(pub), saving: Math.round(pub - total) } : {}),
   };
-  return { quote: q, supplierNet, cost };
+  return { quote: q, supplierNet, cost, margin: agent ? marginOf(total, cost).margin : pq.margin, model: agent ? 'agent' : 'principal' };
 }
 function balanceDue(legs, checkin) {
   const lead = Math.max(...legs.map((l) => balanceLeadDays(AMOR[l.stay].deposit)));

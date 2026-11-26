@@ -10,6 +10,7 @@
 import { sendMail } from '../lib/mailer.js';
 import { signLink, verifyLink, spendCoins } from '../lib/wallet-core.js';
 import { creditWallet, walletLinkFor, loadWallet, saveWallet } from './wallet.js';
+import { recordStayInvoice, queuePayout, onStayRefunded } from './stay-finance.js';
 
 export const DECIDE_FIRST_MS = 24 * 3600 * 1000;
 export const DECIDE_MAX_MS = 72 * 3600 * 1000;
@@ -47,6 +48,8 @@ export async function onStayPaid(env, record, nowMs = Date.now(), deps = {}) {
   record.decisionDue = new Date(nowMs + DECIDE_FIRST_MS).toISOString();
   await putOrder(env, record);
   await env.RW_KV.put('staydue:' + record.id, record.decisionDue, TTL);
+  /* RoamWise's GST invoice for this payment (issued by the daily invoice sweep). */
+  try { await recordStayInvoice(env, record, 'first', record.amount, nowMs, deps); } catch (_) { /* queued for retry inside */ }
   if (env.WALLET_LINK_SECRET) {
     const L = {};
     for (const a of Object.keys(ACTIONS)) L[a] = await link(env, record.id, a, nowMs);
@@ -76,6 +79,7 @@ export async function onStayPaid(env, record, nowMs = Date.now(), deps = {}) {
 /* Full amount back to the guest's wallet. origins keep the money tied to the Cashfree payments it came from. */
 export async function refundStayToWallet(env, record, reason, nowMs = Date.now(), deps = {}) {
   if (record.status === 'refunded_to_wallet') return { ok: true, duplicate: true };
+  try { await onStayRefunded(env, record, nowMs, deps); } catch (_) { /* founder alert is best-effort */ }
   /* Group stays (handlers/group-pot.js): each member gets their own share back in their own wallet. */
   if (Array.isArray(record.groupMembers) && record.groupMembers.length) return refundGroupStay(env, record, reason, nowMs, deps);
   /* Wallet or coin parts go back to their lots; the card/UPI part goes back to this order's payment. */
@@ -124,6 +128,8 @@ async function confirmStay(env, record, by, nowMs, deps = {}) {
   if (record.status !== 'paid_pending_confirmation') return false;
   record.status = 'confirmed'; record.confirmedAt = new Date(nowMs).toISOString(); record.confirmedBy = by;
   await putOrder(env, record);
+  /* The partner accepted: queue its net rate for what the guest has paid (stay-finance.js; same day by default). */
+  try { await queuePayout(env, record, nowMs, deps); } catch (_) { /* founder sees it in /admin/payouts */ }
   await env.RW_KV.delete('staydue:' + record.id);
   await (deps.sendMail || sendMail)(env, { to: record.email, subject: 'Confirmed: ' + record.property, text: [
     'Your stay at ' + record.property + ' is confirmed: ' + record.checkin + ' to ' + record.checkout + '.',

@@ -64,7 +64,7 @@
     if (p.status && String(p.status).toLowerCase() !== 'paid') return null;
     return { key: 'pay_' + id, source: 'payments', provider: String(p.provider || 'unknown'), providerRef: String(p.providerRef || id), amountPaise: amount, paidAt: at,
       customer: { uid: String(p.uid || ''), email: String(p.email || ''), name: String(p.customerName || ''), state: String(p.customerState || '') },
-      planId: String(p.planId || ''), description: String(p.planLabel || p.label || ''), manual: false };
+      planId: String(p.planId || ''), description: String(p.planLabel || p.label || ''), manual: false, tax: p.tax && p.tax.lines ? p.tax : null };
   }
   function fromLedgerRevenue(e, id) {
     var amount = paise(e && (e.amountINR != null ? e.amountINR : e.amount)), at = isoDate(e && (e.at || e.date || e.postedAt));
@@ -91,6 +91,22 @@
     return out;
   }
 
+  /* Per-line GST computed by the seller's pricing engine (RoamWise as principal: rooms 5%/18%, tour packages 5%,
+     agent fees 18%; worker/lib/principal-tax.js). Charged only when the seller is GST-registered. */
+  function taxFromLines(norm, seller) {
+    var reg = seller && seller.gstRegistered === true ? gstState(seller.gstin) : null, t = norm.tax, total = norm.amountPaise;
+    if (!reg) return { mode: 'none', ratePct: 0, taxablePaise: total, cgstPaise: 0, sgstPaise: 0, igstPaise: 0, taxPaise: 0, pos: '', flags: ['gst_not_registered_no_gst_charged'],
+      lines: [{ description: norm.description, sac: '', taxablePaise: total, ratePct: 0 }] };
+    var lines = t.lines.map(function (l) { var g = paise(l.gross) || 0, r = Number(l.ratePct) || 0; return { description: String(l.label || norm.description), sac: String(l.sac === 'PA' ? '' : l.sac || ''), grossPaise: g, ratePct: r, taxablePaise: Math.round(g * 100 / (100 + r)) }; });
+    var gross = lines.reduce(function (a, l) { return a + l.grossPaise; }, 0);
+    if (gross !== total && lines.length) { lines[0].grossPaise += total - gross; lines[0].taxablePaise = Math.round(lines[0].grossPaise * 100 / (100 + lines[0].ratePct)); }
+    var taxable = lines.reduce(function (a, l) { return a + l.taxablePaise; }, 0), tax = total - taxable, pos = /^\d{2}$/.test(String(t.pos || '')) ? t.pos : reg.code;
+    var out = { mode: pos === reg.code ? 'cgst_sgst' : 'igst', ratePct: lines.length === 1 ? lines[0].ratePct : null, taxablePaise: taxable, cgstPaise: 0, sgstPaise: 0, igstPaise: 0, taxPaise: tax, pos: pos, flags: [],
+      lines: lines.map(function (l) { return { description: l.description, sac: l.sac, taxablePaise: l.taxablePaise, ratePct: l.ratePct }; }) };
+    if (out.mode === 'cgst_sgst') { out.cgstPaise = Math.floor(tax / 2); out.sgstPaise = tax - out.cgstPaise; } else out.igstPaise = tax;
+    return out;
+  }
+
   function sellerSnapshot(seller) {
     seller = seller || {};
     var g = gstState(seller.gstin), flags = [];
@@ -101,7 +117,7 @@
 
   /* seq is chosen by the caller (atomically, in the Worker). prevHash links this invoice to the one before it. */
   function build(norm, seller, seq, prevHash, now) {
-    var day = istDay(norm.paidAt), fy = fyLabel(day), s = sellerSnapshot(seller), t = taxFor(norm.amountPaise, seller, norm.customer.state);
+    var day = istDay(norm.paidAt), fy = fyLabel(day), s = sellerSnapshot(seller), t = norm.tax ? taxFromLines(norm, seller) : taxFor(norm.amountPaise, seller, norm.customer.state);
     var desc = norm.description || (norm.planId ? 'RoamWise plan: ' + norm.planId : 'RoamWise service');
     var flags = s.flags.concat(t.flags);
     if (norm.manual) flags.push('manual_entry_no_payment_reference');
@@ -109,9 +125,9 @@
       number: numberOf(seller, fy, seq), seq: seq, fy: fy, date: day, issuedAt: now || new Date().toISOString(),
       docType: t.mode === 'none' ? 'invoice' : 'tax_invoice', status: 'issued', currency: 'INR',
       seller: s.snap, customer: { uid: norm.customer.uid, email: norm.customer.email, name: norm.customer.name, state: norm.customer.state },
-      lines: [{ description: desc, sac: s.snap.sac, taxablePaise: t.taxablePaise, ratePct: t.ratePct }],
+      lines: t.lines || [{ description: desc, sac: s.snap.sac, taxablePaise: t.taxablePaise, ratePct: t.ratePct }],
       taxMode: t.mode, taxablePaise: t.taxablePaise, cgstPaise: t.cgstPaise, sgstPaise: t.sgstPaise, igstPaise: t.igstPaise, taxPaise: t.taxPaise, totalPaise: norm.amountPaise,
-      totalInWords: amountInWords(norm.amountPaise), placeOfSupply: t.pos || '', gstNote: t.mode === 'none' ? 'GST not charged: the seller has no GST registration recorded.' : 'Amount shown is inclusive of GST.',
+      totalInWords: amountInWords(norm.amountPaise), placeOfSupply: t.pos || '', gstNote: t.mode === 'none' ? 'GST not charged: the seller has no GST registration recorded.' : (norm.tax && norm.tax.note ? norm.tax.note + ' ' : '') + 'Amount shown is inclusive of GST.',
       payment: { source: norm.source, provider: norm.provider, ref: norm.providerRef, paidAt: norm.paidAt }, sourceKey: norm.key, flags: flags, prevHash: prevHash || '', hash: ''
     };
   }
@@ -152,5 +168,5 @@
   }
 
   return { STATES: STATES, paise: paise, istDay: istDay, fyLabel: fyLabel, fyStart: fyStart, numberOf: numberOf, amountInWords: amountInWords, gstState: gstState,
-    fromPayment: fromPayment, fromLedgerRevenue: fromLedgerRevenue, taxFor: taxFor, build: build, canonical: canonical, sha256Hex: sha256Hex, seal: seal, verifyChain: verifyChain };
+    fromPayment: fromPayment, fromLedgerRevenue: fromLedgerRevenue, taxFor: taxFor, taxFromLines: taxFromLines, build: build, canonical: canonical, sha256Hex: sha256Hex, seal: seal, verifyChain: verifyChain };
 });

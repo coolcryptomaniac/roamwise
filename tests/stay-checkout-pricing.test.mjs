@@ -1,25 +1,27 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { price, publicRates, RATE, STAY_ADVANCE } from '../worker/handlers/stay-cashfree.js';
-import { sellFor } from '../worker/lib/amor-policy.js';
 import { setAmorRates } from '../worker/lib/amor-rates.js';
 import fs from 'node:fs';
 const BOOK = JSON.parse(fs.readFileSync(new URL('./fixtures/amor-rates.sample.json', import.meta.url), 'utf8')); // made-up numbers
 setAmorRates(BOOK);
 const STUDIO = BOOK.properties.nanau.rooms.studio.rates.CP, SUP = BOOK.properties.nanau.peakSupplement;
+/* RoamWise sells as principal: pre-GST price = cost / (1 - margin), GST 5% up to Rs 7,500 a room-night (lib/principal-tax.js). */
+const sell = (c, m) => { const s = c / (1 - m); return s * (s <= 7500 ? 1.05 : 1.18); };
 
 const NOW = Date.parse('2026-11-08T00:00:00Z');
 const q = (stay, checkin, checkout, paymentType = 'full') => price({ stay, checkin, checkout, paymentType }, NOW);
 
-test('Amor stays: 20% base margin (commission + 18% GST on it), peak nights priced, not refused', () => {
+test('Amor stays: 20% base margin as principal (GST on the full price), peak nights priced, not refused', () => {
   const n = q('nanau', '2026-11-27', '2026-11-29'); // Fri + Sat nights: weekend uplift
-  assert.equal(n.total, Math.ceil(2 * sellFor(STUDIO, 0.23) / 10) * 10);
+  assert.equal(n.total, Math.ceil(2 * sell(STUDIO, 0.23) / 10) * 10);
+  assert.equal(n.seller, 'RoamWise'); assert.equal(n.tax.lines[0].sac, '996311'); assert.equal(n.tax.pos, '05');
   assert.equal(q('nanau', '2026-11-27', '2026-11-29', 'advance').portion, 50); // 19 days out: Corbett needs 50%
   const far = q('nanau', '2027-02-08', '2027-02-10', 'advance'); // Mon + Tue nights
-  assert.equal(far.total, Math.ceil(2 * sellFor(STUDIO, 0.20) / 10) * 10);
+  assert.equal(far.total, Math.ceil(2 * sell(STUDIO, 0.20) / 10) * 10);
   assert.equal(far.portion, 30); assert.equal(far.balance, far.total - far.amount); assert.equal(far.balanceDueBy, '2027-01-31');
   const peak = q('nanau', '2026-12-30', '2027-01-01');
-  assert.equal(peak.peakNights, 2); assert.equal(peak.total, Math.ceil(2 * sellFor(STUDIO + SUP, 0.25) / 10) * 10);
+  assert.equal(peak.peakNights, 2); assert.equal(peak.total, Math.ceil(2 * sell(STUDIO + SUP, 0.25) / 10) * 10);
   assert.throws(() => q('nanau', '2026-11-20', '2026-12-10'), /up to 14 nights/);
 });
 
@@ -43,7 +45,7 @@ test('every other stay is reservable online with the fixed advance', () => {
 test('public rates never expose supplier nets', () => {
   const pub = JSON.stringify(publicRates());
   assert.ok(!pub.includes('"rates"') && !pub.includes('"cost"'));
-  assert.equal(publicRates().nanau.rooms.studio.perNight.CP, Math.ceil(sellFor(STUDIO, 0.20) / 10) * 10);
+  assert.equal(publicRates().nanau.rooms.studio.perNight.CP, Math.ceil(sell(STUDIO, 0.20) / 10) * 10);
 });
 
 test('every stay the site offers for payment exists in the Worker price list', async () => {
