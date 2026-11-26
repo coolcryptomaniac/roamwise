@@ -98,3 +98,21 @@
 .rw-dsc-burst{position:fixed;pointer-events:none;z-index:99999;font-size:22px;animation:rwDscBurst .9s ease-out forwards}
 @keyframes rwDscBurst{0%{opacity:1;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.4) rotate(var(--r))}}
 @media (prefers-reduced-motion:reduce){.rw-amb::before{animation:none}.rw-dsc,.rw-dsc-card{animation:none;transition:none}.rw-dsc-burst{display:none}}
+/* Discover taste: buy/book bar after a love, and the "Picked for you" shelf (js/ui/discover-taste.js). */
+.rw-tst-offer{position:absolute;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:5;width:min(92vw,440px);box-sizing:border-box;padding:12px 14px;border-radius:18px;background:linear-gradient(135deg,#3a2350,#1b2140);border:1px solid rgba(232,197,139,.5);box-shadow:0 12px 34px rgba(0,0,0,.5);color:#fff;display:flex;flex-direction:column;gap:8px;animation:rwTstIn .35s ease-out}
+.rw-tst-offer b{font:800 14px Outfit,system-ui;color:#ffd38f}
+.rw-tst-acts{display:flex;flex-wrap:wrap;gap:8px}
+.rw-tst-buy{display:inline-flex;align-items:center;min-height:38px;padding:6px 14px;border-radius:999px;background:#e8c58b;color:#1b1424;font:800 13px system-ui;text-decoration:none;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rw-tst-acts .rw-tst-buy+.rw-tst-buy{background:transparent;color:#ffe1ad;border:1px solid #e8c58b}
+@keyframes rwTstIn{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
+.rw-tst-shelf{margin-top:18px;text-align:left}
+.rw-tst-list{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.rw-tst-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;background:#171a2d;border:1px solid #3b3354}
+.rw-tst-pic{flex:0 0 52px;height:52px;border-radius:12px;overflow:hidden;display:grid;place-items:center;background:#2b2440;font-size:24px}
+.rw-tst-pic img{width:100%;height:100%;object-fit:cover}
+.rw-tst-body{flex:1;min-width:0;display:flex;flex-direction:column}
+.rw-tst-body small{color:#9be7ff;font:800 9px system-ui;letter-spacing:.12em}
+.rw-tst-body b{color:#fff;font:700 14px Outfit,system-ui;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rw-tst-body em{font-style:normal;font-size:12px;opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rw-tst-item .rw-tst-buy{flex:0 0 auto;min-height:34px;padding:4px 12px;font-size:12px}
+.rw-tst-ask{width:100%;min-height:44px;border-radius:999px;border:1px solid #8f7bff;background:rgba(143,123,255,.14);color:#e6deff;font:700 14px system-ui;cursor:pointer}

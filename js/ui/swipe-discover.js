@@ -78,7 +78,8 @@
     if (includeSeen) return out;
     var seen = store().seen || {};
     var fresh = out.filter(function (c) { return !seen[c.key]; });
-    return fresh.length ? fresh : out; /* everything seen: start the deck again */
+    fresh = fresh.length ? fresh : out; /* everything seen: start the deck again */
+    return W.RWTaste ? W.RWTaste.rank(fresh) : fresh; /* learned taste orders the deck (js/ui/discover-taste.js) */
   }
 
   /* ---------- rendering ---------- */
@@ -134,6 +135,7 @@
         a.append(t); box.append(a);
       });
     }
+    if (W.RWTaste) box.append(W.RWTaste.shelf());
     var again = node('button', '', '↺ Start this deck again'); again.type = 'button';
     again.addEventListener('click', function () { var st = store(); st.seen = {}; save(st); setTab(state.tab); });
     box.append(again);
@@ -196,6 +198,7 @@
     card.style.transform = out; card.style.opacity = '0';
     var s = store(); s.seen = s.seen || {}; s.seen[c.key] = 1;
     if (kind === 'like') { s.liked = (s.liked || []).filter(function (k) { return k !== c.key; }).concat(c.key); burst(['💖', '✨', '🧡', '💫']); }
+    if (W.RWTaste && c) { W.RWTaste.learn((c.tags || []).concat(W.RWTaste.tagsOfText((c.chips || []).join(' ') + ' ' + c.title)), kind, { id: c.key }); if (kind === 'like') W.RWTaste.offer(c, state.root, openStay); }
     if (kind === 'save') { s.saved = (s.saved || []).filter(function (k) { return k !== c.key; }).concat(c.key); burst(['⭐', '✨']); }
     save(s); state.history.push({ key: c.key, kind: kind });
     try { if (navigator.vibrate) navigator.vibrate(kind === 'nope' ? 8 : 18); } catch (e) { /* no haptics */ }
@@ -229,6 +232,7 @@
     if (!state.root) return;
     if (e.key === 'Escape') close(); else if (e.key === 'ArrowRight') decide('like'); else if (e.key === 'ArrowLeft') decide('nope'); else if (e.key === 'ArrowUp') decide('save');
   }
+  W.rwCloseDiscover = function () { close(); };
   function close() { if (!state.root) return; state.root.remove(); state.root = null; document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; }
   function open(tab) {
     if (state.root) close();
