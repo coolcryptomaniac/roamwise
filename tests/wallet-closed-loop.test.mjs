@@ -8,7 +8,7 @@ test('wallet page, credit page and terms: coins are discounts, money is never he
   assert.match(w,/We never hold your money: refunds go straight back to the way you paid/);
   assert.match(w,/RoamWise Coins/);assert.match(w,/refundsOnTheWay/);assert.ok(!/href="\/credit\/"><div><b>Founding Traveller Credit/.test(w));
   assert.match(t,/id="credits"/);assert.match(t,/We do not hold your money/);assert.match(t,/cannot be transferred to another person/);assert.match(t,/never forfeited/);
-  assert.match(c,/New credit packs are paused/);
+  assert.match(c,/I bought a credit pack before/);
 });
 test('wallet core keeps money moving only back to the original payment',()=>{
   const core=read('worker/lib/wallet-core.js');

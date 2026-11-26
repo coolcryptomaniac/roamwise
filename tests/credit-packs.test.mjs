@@ -108,10 +108,12 @@ test('expiry: reminders at 30 and 7 days, then unused paid credit is really paid
   assert.equal(back.lots[0].state, 'bank');
 });
 
-test('new credit packs are paused (WALLET_POLICY.newPaidCredit): checkout refuses before any payment is created', async () => {
+test('stored-value packs are no longer sold (WALLET_POLICY.newPaidCredit): checkout now sells a membership instead', async () => {
   assert.equal(W.WALLET_POLICY.newPaidCredit, false);
-  const env = mkEnv();
-  let called = false; const fetch = async () => { called = true; return new Response('{}'); };
+  const env = mkEnv(); let body;
+  const fetch = async (u, o) => { body = JSON.parse(o.body); return new Response(JSON.stringify({ payment_session_id: 'ps', order_id: body.order_id, order_amount: body.order_amount }), { status: 200 }); };
   const r = await createCreditOrder(new Request('https://x/credit/checkout', { method: 'POST', body: JSON.stringify({ pack: 'explorer', email: 'a@b.in', phone: '9876543210', acceptTerms: true }) }), env, T0, { fetch });
-  assert.equal(r.status, 410); assert.equal((await r.json()).error, 'packs_paused'); assert.equal(called, false, 'no Cashfree order');
+  assert.equal(r.status, 200);
+  const rec = await env.RW_KV.get('creditorder:' + (await r.json()).orderId, 'json');
+  assert.equal(rec.mode, 'membership'); assert.equal(rec.credit, 0);
 });

@@ -45,3 +45,36 @@ export function publicPacks(counts = {}) {
     }),
   };
 }
+
+/* ---- Founding Traveller Membership (founder decision 26 Nov 2026, replaces prepaid credit) --------------------------
+   RoamWise no longer holds customer money as stored value (lib/wallet-core.js WALLET_POLICY). The same tiers are now
+   sold as a membership: the price pays for RoamWise's own service (the perks, including Pro), and members also get
+   free RoamWise Coins as a loyalty perk. Coins are a discount, not money: worth a share of the fee (never all of it),
+   usable for at most COIN_CAP_PCT of any booking, valid for a year, never cashable or transferable.
+   Prices include GST: a membership is a taxable supply of RoamWise's service, unlike the old prepaid credit. */
+export const MEMBER_COIN_PCT = Object.freeze({ explorer: 20, voyager: 22, trailblazer: 25, patron: 30 });
+export const MEMBER_FOUNDING_EXTRA_PCT = 2;
+export const MEMBERSHIP_DAYS = 365, MEMBER_COOLING_OFF_DAYS = 7;
+export function priceMembership(packId, counts = {}) {
+  const pack = CREDIT_PACKS[packId];
+  if (!pack) throw new Error('Choose a membership.');
+  const sold = (counts.sold || {})[packId] || 0;
+  if (pack.limit && sold >= pack.limit) throw new Error(pack.name + ' memberships are sold out.');
+  const founding = (counts.members || 0) < FOUNDING_SEATS;
+  const coinPct = MEMBER_COIN_PCT[packId] + (founding ? MEMBER_FOUNDING_EXTRA_PCT : 0);
+  const coins = Math.round(pack.pay * coinPct / 100);
+  return { mode: 'membership', packId, name: pack.name, pay: pack.pay, coinPct, coins, founding, perks: pack.perks, validDays: MEMBERSHIP_DAYS,
+    /* fields the old pack records carried, kept so pages and emails that read them still work */
+    bonusPct: 0, bonus: 0, credit: 0 };
+}
+export function publicMemberships(counts = {}) {
+  const foundingLeft = Math.max(0, FOUNDING_SEATS - (counts.members || 0));
+  return {
+    mode: 'membership', foundingLeft, validDays: MEMBERSHIP_DAYS, coinCapPct: 10, coolingOffDays: MEMBER_COOLING_OFF_DAYS,
+    packs: Object.values(CREDIT_PACKS).map((p) => {
+      const left = p.limit ? Math.max(0, p.limit - ((counts.sold || {})[p.id] || 0)) : null;
+      const q = left === 0 ? null : priceMembership(p.id, counts);
+      return { id: p.id, name: p.name, pay: p.pay, coinPct: q ? q.coinPct : MEMBER_COIN_PCT[p.id], coins: q ? q.coins : 0, left, soldOut: left === 0, perks: p.perks };
+    }),
+  };
+}

@@ -5,7 +5,10 @@ import { verifyCashfreeWorkerWebhook } from '../lib/cashfree-booking-webhook-ver
 import { cfBase as CF, cfHeaders as headers } from '../lib/cashfree-pg.js';
 import { onStayPaid } from './stay-lifecycle.js';
 import { sendMail } from '../lib/mailer.js';
-import { walletKeyFromRequest, spendWallet } from './wallet.js';
+import { walletKeyFromRequest, spendWallet, loadWallet } from './wallet.js';
+import { coinsUsable, lotOpen } from '../lib/wallet-core.js';
+/* What Cashfree charges: the booking minus any RoamWise Coins discount; nothing for a booking paid fully from wallet credit. */
+export const cashDue=(r)=>r.paidWith==='wallet'?0:(Number.isFinite(r.cashAmount)?r.cashAmount:r.amount);
 import { priceStay, pricePackage, publicAmor } from '../lib/amor-pricing.js';
 import { PACKAGES, publicPackages } from '../lib/amor-packages.js';
 import { inSeason } from '../lib/amor-policy.js';
@@ -98,26 +101,32 @@ export async function createStayOrder(request,env){
  if(!/^\+?\d{10,15}$/.test(phone)||!/^\S+@\S+\.\S+$/.test(email))return json({error:'contact_required'},422);
  const id='rwstay_'+crypto.randomUUID().replace(/-/g,'');
  const record={...quote,id,email,phone,shareWithSupplier:b.shareWithSupplier===true,status:'payment_pending',confirmed:false,createdAt:new Date().toISOString(),...(supplierNet?{supplierNet}:{})};
+ /* RoamWise Coins as a discount: at most COIN_CAP_PCT of the booking, the rest by card or UPI. The coins are spent only
+    when the payment is confirmed (stay-lifecycle.js onStayPaid), so an abandoned checkout costs the guest nothing. */
+ if(b.useCoins===true&&b.payWith!=='wallet'){const ck=await walletKeyFromRequest(request,env,String(b.wallet||''));if(ck){const cw=await loadWallet(env,ck);const c=cw?coinsUsable(cw,quote.amount,Date.now()):0;if(c>0&&c<quote.amount){record.coinsApplied=c;record.coinKey=ck;record.cashAmount=quote.amount-c}}}
  /* Pay with RoamWise wallet credit when the guest is signed in (wallet link or Google/phone sign-in) and has enough. */
  if(b.payWith==='wallet'){
   const key=await walletKeyFromRequest(request,env,String(b.wallet||''));
   if(!key)return json({error:'wallet_sign_in',message:'Open your wallet link again to pay with credit.'},401);
+  /* Paid pack money is spent first and Coins last, so Coins may only fill what COIN_CAP_PCT allows; beyond that the guest pays by card. */
+  {const ww=await loadWallet(env,key);const own=ww?(ww.lots||[]).filter(l=>lotOpen(l)&&l.source!=='bonus').reduce((t,l)=>t+l.remaining,0):0;
+   if(own+(ww?coinsUsable(ww,quote.amount,Date.now()):0)<quote.amount)return json({error:'wallet_low',message:'Coins can cover up to 10% of a stay. Pay the rest by card or UPI with "Use my Coins" ticked.'},409)}
   try{record.paidFromLots=await spendWallet(env,key,quote.amount,id)}catch(e){return json({error:'wallet_low',message:'Your wallet credit is not enough for this booking.'},409)}
   record.paidWith='wallet';
   await onStayPaid(env,record);
   return json({paid:true,orderId:id,quote});
  }
  await kv(env).put('stayorder:'+id,JSON.stringify(record),{expirationTtl:60*60*24*180});
- const body={order_id:id,order_amount:quote.amount,order_currency:'INR',customer_details:{customer_id:id,customer_phone:phone,customer_email:email},order_meta:{return_url:'https://roamwise.co.in/packages/amor-checkout.html?order_id='+id,notify_url:'https://roamwise-api.founder-f53.workers.dev/stays/cashfree/webhook'},order_note:(quote.property+' '+quote.checkin+' '+quote.checkout).slice(0,200)};
+ const body={order_id:id,order_amount:cashDue(record),order_currency:'INR',customer_details:{customer_id:id,customer_phone:phone,customer_email:email},order_meta:{return_url:'https://roamwise.co.in/packages/amor-checkout.html?order_id='+id,notify_url:'https://roamwise-api.founder-f53.workers.dev/stays/cashfree/webhook'},order_note:(quote.property+' '+quote.checkin+' '+quote.checkout).slice(0,200)};
  let r,data;try{r=await fetch(CF(env)+'/pg/orders',{method:'POST',headers:{...headers(env),'x-idempotency-key':id},body:JSON.stringify(body)});data=await r.json()}catch(_){return json({error:'cashfree_unreachable'},502)}
- if(!r.ok||!data.payment_session_id||data.order_id!==id||Number(data.order_amount)!==quote.amount)return json({error:'cashfree_order_failed'},502);
- return json({paymentSessionId:data.payment_session_id,orderId:id,environment:CF(env).includes('sandbox')?'sandbox':'production',quote});
+ if(!r.ok||!data.payment_session_id||data.order_id!==id||Number(data.order_amount)!==cashDue(record))return json({error:'cashfree_order_failed'},502);
+ return json({paymentSessionId:data.payment_session_id,orderId:id,environment:CF(env).includes('sandbox')?'sandbox':'production',quote,coinsApplied:record.coinsApplied||0,cashAmount:cashDue(record)});
 }
 export async function stayOrderStatus(request,env,id){
  if(!/^rwstay_[a-f0-9]{32}$/.test(id)||!kv(env))return json({error:'invalid_order'},404);
  const record=await kv(env).get('stayorder:'+id,'json');if(!record)return json({error:'not_found'},404);
  let r,data;try{r=await fetch(CF(env)+'/pg/orders/'+id,{headers:headers(env)});data=await r.json()}catch(_){return json({error:'cashfree_unreachable'},502)}
- if(!r.ok||data.order_id!==id||data.order_currency!=='INR'||Number(data.order_amount)!==record.amount)return json({error:'payment_verification_failed'},409);
+ if(!r.ok||data.order_id!==id||data.order_currency!=='INR'||Number(data.order_amount)!==cashDue(record))return json({error:'payment_verification_failed'},409);
  const paid=data.order_status==='PAID';
  if(paid&&record.status==='payment_pending'){if(record.kind==='balance')await onBalancePaid(env,record);else{await onStayPaid(env,record);if(isAmor(record))await alertSupplier(env,record)}}
  return json({orderId:id,status:paid?record.status:data.order_status,confirmed:record.status==='confirmed'});
@@ -202,7 +211,7 @@ export async function handleStayCashfreeWebhook(request,env){
  const r=await fetch(CF(env)+'/pg/orders/'+id,{headers:headers(env)});
  if(!r.ok)return json({error:'cashfree_lookup_failed'},503);
  const order=await r.json();
- if(order.order_status!=='PAID'||order.order_id!==id||order.order_currency!=='INR'||Number(order.order_amount)!==record.amount)return json({error:'payment_integrity_failed'},409);
+ if(order.order_status!=='PAID'||order.order_id!==id||order.order_currency!=='INR'||Number(order.order_amount)!==cashDue(record))return json({error:'payment_integrity_failed'},409);
  if(record.kind==='balance'){if(record.status==='payment_pending')await onBalancePaid(env,record);return json({ok:true,status:record.status})}
  if(record.status==='payment_pending')await onStayPaid(env,record);
  /* Amor's booking desk gets its own email with the guest details and the host links; RoamWise stays are handled from the founder email. */
