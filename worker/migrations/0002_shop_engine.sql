@@ -32,3 +32,11 @@ CREATE TABLE IF NOT EXISTS shop_sales_lines (
   PRIMARY KEY (order_id, product_id)
 );
 CREATE INDEX IF NOT EXISTS shop_sales_lines_product ON shop_sales_lines(product_id, day);
+
+-- Anonymous on-site interest: product card clicks / Buy-now opens per product per day. No personal data.
+CREATE TABLE IF NOT EXISTS shop_clicks (
+  product_id TEXT NOT NULL,
+  day TEXT NOT NULL,                -- YYYY-MM-DD, India time
+  clicks INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (product_id, day)
+);

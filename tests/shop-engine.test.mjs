@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { PRODUCT_TYPES, LIMITS, productFromDesign, mergeCatalogue, salesStats, lifecycle, rankProducts, adsPlan, promotionPlan } from '../worker/lib/shop-engine-core.js';
-import { catalogueFor, recordShippedOrder, runShopEngineCron, _test } from '../worker/lib/shop-engine.js';
+import { PRODUCT_TYPES, LIMITS, productFromDesign, mergeCatalogue, salesStats, lifecycle, popularity } from '../worker/lib/shop-engine-core.js';
+import { catalogueFor, recordShippedOrder, runShopEngineCron, handleShopClick, popularFor, _test } from '../worker/lib/shop-engine.js';
 import { buildQikinkOrder } from '../worker/lib/qikink-core.js';
 import { priceCart } from '../worker/lib/shop-core.js';
 import { SHOP_CATALOGUE } from '../worker/lib/shop-catalogue.js';
@@ -72,20 +72,16 @@ test('lifecycle retires unsold and cold designs and promotes QC-passed reviews o
   assert.deepEqual(lifecycle(designs, stats, NOW, { autopublish: true }).promote, ['auto-20261128-rev']);
 });
 
-test('ads follow sales and never exceed the cap; cap 0 means no paid ads', () => {
-  assert.deepEqual(adsPlan([{ id: 'a', recentUnits: 9 }], 0).boosts, []);
-  const plan = adsPlan([{ id: 'a', recentUnits: 5 }, { id: 'b', recentUnits: 2 }, { id: 'c', recentUnits: 1 }], 500);
-  assert.deepEqual(plan.boosts.map((b) => b.id), ['a', 'b']);
-  assert.ok(plan.boosts.reduce((s, b) => s + b.dailyInr, 0) <= 500);
+test('popularity: purchases outweigh clicks, recent beats old, zero scores are hidden', () => {
+  const clicks = [{ product_id: 'a', day: '2026-11-30', clicks: 30 }, { product_id: 'b', day: '2026-11-30', clicks: 5 }, { product_id: 'c', day: '2026-11-01', clicks: 10 }];
+  const stats = salesStats([{ product_id: 'b', units: 1, revenue_paise: 89900, day: '2026-11-29' }], NOW);
+  assert.deepEqual(popularity(clicks, stats, NOW), ['b', 'a', 'c']);
+  assert.deepEqual(popularity([], {}, NOW), []);
 });
 
-test('promotion plan publishes ranks and links, never counts or revenue', () => {
-  const cat = mergeCatalogue(SHOP_CATALOGUE, [row()], BLANKS);
-  const stats = salesStats([{ product_id: 'almora-after-dark-hoodie', units: 3, revenue_paise: 599700, day: '2026-11-30' }], NOW);
-  const ranked = rankProducts(cat.products, stats, { [row().id]: row() }, NOW);
-  const plan = promotionPlan(cat, ranked, NOW, 0);
-  assert.equal(plan.featured[0].id, 'almora-after-dark-hoodie');
-  assert.ok(!JSON.stringify(plan).match(/revenue|units|599700/));
+test('lifecycle never makes a design live whose type has no blanks', () => {
+  const d = [row({ id: 'auto-20261128-rev', status: 'review', live_at: null, product_type: 'hoodie' })];
+  assert.deepEqual(lifecycle(d, {}, NOW, { autopublish: true, blanks: BLANKS }).promote, []);
 });
 
 function fakeDb(designs, lines = []) {
@@ -95,6 +91,7 @@ function fakeDb(designs, lines = []) {
     bind(...a) { this.args = a; return this; },
     async all() {
       if (/FROM shop_sales_lines/.test(sql)) return { results: lines };
+      if (/FROM shop_clicks/.test(sql)) return { results: [{ product_id: 'almora-after-dark-hoodie', day: '2026-11-30', clicks: 4 }] };
       if (/status = 'live'/.test(sql)) return { results: designs.filter((d) => d.status === 'live') };
       if (/IN \('live','retired'\)/.test(sql)) return { results: designs.filter((d) => d.status === 'live' || d.status === 'retired') };
       return { results: designs };
@@ -110,13 +107,27 @@ test('storage glue is inert until SHOP_ENGINE_ENABLED is true', async () => {
   assert.deepEqual(await runShopEngineCron(env, SHOP_CATALOGUE), { skipped: 'engine_off' });
 });
 
-test('cron retires, writes the plan to MEDIA; shipped orders are recorded once per line', async () => {
+test('cron retires unsold designs; shipped orders and clicks are recorded', async () => {
   _test.reset();
-  const puts = {};
-  const env = { SHOP_ENGINE_ENABLED: 'true', DB: fakeDb([row({ id: 'auto-20261001-old', live_at: '2026-10-01 00:00:00' })]), MEDIA: { put: async (k, v) => { puts[k] = v; } } };
-  const r = await runShopEngineCron(env, SHOP_CATALOGUE, NOW);
+  const env = { SHOP_ENGINE_ENABLED: 'true', DB: fakeDb([row({ id: 'auto-20261001-old', live_at: '2026-10-01 00:00:00' })]) };
+  const r = await runShopEngineCron(env, SHOP_CATALOGUE, NOW, BLANKS);
   assert.equal(r.retired, 1);
-  assert.ok(JSON.parse(puts['shop/engine/promo.json']).featured.length >= 1);
   assert.ok(await recordShippedOrder(env, { orderId: 'RWS-X', lines: [{ id: 'a', qty: 1, linePaise: 100 }] }, NOW));
   assert.match(env.DB.runs.at(-1)[0], /INSERT OR IGNORE INTO shop_sales_lines/);
+  assert.deepEqual(await popularFor(env, NOW), ['almora-after-dark-hoodie']);
+});
+
+test('click counter: only real product ids, speed bump respected, always 204', async () => {
+  _test.reset();
+  const writes = [];
+  const db = fakeDb([]);
+  db.prepare = ((orig) => (sql) => { const st = orig(sql); st.run = async () => { writes.push([sql, st.args]); }; return st; })(db.prepare);
+  const env = { SHOP_ENGINE_ENABLED: 'true', DB: db };
+  const req = (id) => new Request('https://x.test/shop/click', { method: 'POST', body: JSON.stringify({ id }) });
+  const deps = { overLimit: async () => false, hash: async (s) => s, now: () => NOW };
+  assert.equal((await handleShopClick(req('almora-after-dark-hoodie'), env, SHOP_CATALOGUE, deps)).status, 204);
+  assert.equal((await handleShopClick(req('not-a-product'), env, SHOP_CATALOGUE, deps)).status, 204);
+  assert.equal((await handleShopClick(req('almora-after-dark-hoodie'), env, SHOP_CATALOGUE, { ...deps, overLimit: async () => true })).status, 204);
+  assert.equal(writes.length, 1);
+  assert.deepEqual(writes[0][1], ['almora-after-dark-hoodie', '2026-12-01']);
 });

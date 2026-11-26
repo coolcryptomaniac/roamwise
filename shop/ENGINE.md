@@ -1,6 +1,6 @@
 # Shop engine: auto design → auto catalogue → sales-led promotion
 
-Mohit's brief (27 Nov 2026): an AI shop that designs, lists and promotes print-on-demand products by itself, so he rarely has to check it. This builds on the existing shop: server-priced checkout (Cashfree/UPI), Qikink fulfilment and the D1/R2 storage added in #916.
+Mohit's brief (27 Nov 2026): an AI shop that designs, lists and promotes print-on-demand products by itself, so he rarely has to check it. Promotion decision (same day): **no paid ads; promote in-house on the site**, featuring the products that get the most clicks or purchases. This builds on the existing shop: server-priced checkout (Cashfree/UPI), Qikink fulfilment and the D1/R2 storage added in #916.
 
 ## How a design becomes a sale
 | Step | Where | What happens |
@@ -14,14 +14,14 @@ Mohit's brief (27 Nov 2026): an AI shop that designs, lists and promotes print-o
 | 7. Fulfil | `worker/lib/shop-fulfil.js` | A paid order goes to Qikink as a blank SKU plus `design_link` (`search_from_my_products: 0`). Retired designs stay resolvable for old orders. |
 | 8. Learn | D1 `shop_sales_lines` | Every order accepted by Qikink is recorded once per line. |
 | 9. Retire | Worker cron | A design that sells nothing in 45 days, or nothing for 90 days after its last sale, is retired. |
-| 10. Promote | R2 `shop/engine/promo.json` | Each day the cron ranks products by sales in the last 14 days, then lifetime sales, then a 7-day launch boost for new designs. It publishes today's featured products and the ads plan; the file holds ranks and links only, no counts or revenue. The "Shop promoter" scheduled task posts the featured products on Instagram (Metricool) and, only if a cap is set, splits that cap across products with 2+ sales in 14 days. |
+| 10. Promote in-site | `POST /shop/click`, `/shop/catalogue` → `popular` | Product-card and Buy-now clicks are counted anonymously, one per visitor per product per hour, with no personal data stored. Purchases weigh 40× (last 14 days) and clicks 1×. The top 4 products, static or engine-made, appear in "Popular now" at the top of the shop. New drops are ordered by the same score. |
 
-## Switches (all OFF by default; the existing shop is unchanged until they are set)
+## Switches
+`SHOP_ENGINE_ENABLED` and `SHOP_ENGINE_AUTOPUBLISH` are on in `wrangler.toml` (27 Nov 2026). They are safe before setup: no design can go live or be bought until its product type has blank SKUs. Until then, "Popular now" ranks the existing live products by clicks.
 | Switch | Where | Effect |
 |---|---|---|
 | `SHOP_ENGINE_ENABLED=true` | Worker variable | Engine products can be listed and bought; the daily cron runs. |
 | `SHOP_ENGINE_AUTOPUBLISH=true` | Worker variable | QC-passed designs go live without a human look. |
-| `SHOP_ADS_DAILY_CAP_INR=<n>` | Worker variable | Total daily paid-ads budget the promoter may use. 0 or unset turns paid ads off. |
 | `SHOP_ENGINE_DESIGN=on` | Repository variable | Turns on the daily design workflow. It can always be run by hand. |
 | `CF_AI_TOKEN` | Repository secret (optional) | A Cloudflare token with Workers AI permission, if the deploy token lacks it. |
 
@@ -30,12 +30,13 @@ Mohit's brief (27 Nov 2026): an AI shop that designs, lists and promotes print-o
 2. **Sandbox order.** Place one order per product type in Qikink **sandbox** to confirm the design-line fields: `design_code`, `width_inches`, `height_inches`, `placement_sku` (`fr`/`bk`), `design_link`, `mockup_link`. These follow Qikink's create-order API but have not yet been run against it.
 3. **Prices.** Check the prices in `PRODUCT_TYPES`: tee ₹899, hoodie ₹1,999, tote ₹599. They must cover blank + print + shipping + gateway fees.
 4. **Deploy.** Run "Deploy Worker (manual)". Migration `0002_shop_engine.sql` is applied automatically.
+5. **Design workflow.** Set the repository variable `SHOP_ENGINE_DESIGN=on`.
 
 ## Guardrails
 - Original art only. Themes may not name a franchise, brand or game; the blocklist in `design.py` enforces this. No deity imagery on apparel. Kumaoni text only after a native-speaker check.
 - The browser never sends a price. Design rows cannot set a price.
 - Engine failures never break the static shop: every D1 error falls back to the static catalogue.
-- Paid ads never exceed the founder's cap. A boost pauses after 3 days with return on ad spend under 1.0.
+- No paid advertising. Promotion is on roamwise.co.in only.
 
 ## Not in v1
 - Dropshipping of non-printed goods. These stay on the affiliate route in `PROVIDERS-AND-CURATION.md` until a product passes its scoring gates.

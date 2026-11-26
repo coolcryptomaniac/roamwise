@@ -4,11 +4,11 @@
  * A row is sellable only when it is `live`, the engine is enabled and its product type has Qikink blank
  * SKUs configured. Prices come ONLY from PRODUCT_TYPES below (server side), never from the design row or
  * the browser. The daily cron scores products on real shipped sales, retires designs that never sold and
- * writes a promotion plan that the social/ads autopilot follows.
+ * promotes products ON THE SITE ONLY: the shop page features what gets the most clicks and purchases.
  *
  * Founder decisions encoded here (change in a reviewed PR): retail prices per type, how many auto
- * designs may be live at once, when an unsold design retires, and the rule that ads never spend more than
- * the daily cap set in the Worker variable SHOP_ADS_DAILY_CAP_INR (default 0 = no paid ads). */
+ * designs may be live at once, when an unsold design retires, and (27 Nov 2026) no paid ads: promotion
+ * is in-house on roamwise.co.in, ranked by on-site clicks and purchases. */
 
 export const PRODUCT_TYPES = Object.freeze({
   'oversized-tee': Object.freeze({ label: 'Oversized graphic tee', pricePaise: 89900, maxQty: 5, printW: 12, printH: 14 }),
@@ -21,7 +21,7 @@ export const LIMITS = Object.freeze({
   maxNewPerDay: 3,        // designs the cron may promote from review to live per day (autopublish mode)
   retireUnsoldDays: 45,   // live this long with zero sales -> retired (kept for fulfilment of old orders)
   retireColdDays: 90,     // had sales but none in this many days -> retired
-  promoPosts: 2,          // products featured per day in organic posts
+  popular: 4,             // products featured in "Popular now" on the shop page
 });
 
 export const DESIGN_ID = /^auto-\d{8}-[a-z0-9-]{2,40}$/;
@@ -103,7 +103,8 @@ const ageDays = (iso, nowMs) => (iso ? (nowMs - Date.parse(String(iso).replace('
 
 /* Daily lifecycle decisions. Returns { promote: [ids], retire: [{id, reason}] }. */
 export function lifecycle(designs, stats, nowMs, opts = {}) {
-  const live = designs.filter((d) => d.status === 'live');
+  const sellableType = (t) => !opts.blanks || (Array.isArray(opts.blanks[t]) && opts.blanks[t].length > 0);
+  const live = designs.filter((d) => d.status === 'live' && sellableType(d.product_type));
   const retire = [];
   for (const d of live) {
     const s = stats[d.id];
@@ -114,7 +115,7 @@ export function lifecycle(designs, stats, nowMs, opts = {}) {
   const promote = [];
   if (opts.autopublish) {
     let room = LIMITS.maxLive - (live.length - retire.length);
-    const queue = designs.filter((d) => d.status === 'review' && qcPassed(d)).sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
+    const queue = designs.filter((d) => d.status === 'review' && qcPassed(d) && sellableType(d.product_type)).sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
     for (const d of queue) {
       if (room <= 0 || promote.length >= LIMITS.maxNewPerDay) break;
       promote.push(d.id); room -= 1;
@@ -127,46 +128,17 @@ export function qcPassed(d) {
   try { const q = JSON.parse(d.qc_json || '{}'); return q && q.passed === true; } catch (_) { return false; }
 }
 
-/* Score = recent revenue first, then lifetime, then freshness (new drops get a launch window). */
-export function rankProducts(products, stats, designsById, nowMs) {
-  return products.map((p) => {
-    const s = stats[p.id] || { units: 0, revenuePaise: 0, recentUnits: 0, recentRevenuePaise: 0 };
-    const d = designsById[p.id];
-    const fresh = d ? Math.max(0, 7 - ageDays(d.live_at || d.created_at, nowMs)) : 0;
-    const score = s.recentRevenuePaise / 100 + s.revenuePaise / 1000 + fresh * 150;
-    return { id: p.id, score: Math.round(score), recentUnits: s.recentUnits, units: s.units, isNew: fresh > 0 };
-  }).sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
-}
-
-/* Paid ads follow sales: only products that already sell get budget, never more than the daily cap. */
-export function adsPlan(ranked, capInr) {
-  const cap = Math.max(0, Math.floor(Number(capInr) || 0));
-  if (!cap) return { dailyCapInr: 0, boosts: [], note: 'Paid ads are off (SHOP_ADS_DAILY_CAP_INR is 0).' };
-  const sellers = ranked.filter((r) => r.recentUnits >= 2).slice(0, 3);
-  if (!sellers.length) return { dailyCapInr: cap, boosts: [], note: 'No product has 2+ sales in 14 days yet; organic posts only.' };
-  const weights = sellers.map((s, i) => [0.5, 0.3, 0.2][i]);
-  const total = weights.reduce((a, b) => a + b, 0);
-  return {
-    dailyCapInr: cap,
-    boosts: sellers.map((s, i) => ({ id: s.id, dailyInr: Math.floor((cap * weights[i]) / total) })),
-    rules: 'Pause a boost after 3 days with return on ad spend under 1.0; never raise the total above the cap.',
-  };
-}
-
-/* The public promotion plan (no counts or revenue: ranks and links only). */
-export function promotionPlan(catalogue, ranked, nowMs, capInr, siteBase = 'https://roamwise.co.in') {
-  const byId = Object.fromEntries(catalogue.products.map((p) => [p.id, p]));
-  const card = (r) => {
-    const p = byId[r.id];
-    return p && { id: p.id, name: p.name, image: p.image, url: siteBase + '/shop/?buy=' + encodeURIComponent(p.id), priceInr: Math.round(p.pricePaise / 100), isNew: r.isNew, collection: p.collection || null };
-  };
-  const featured = ranked.slice(0, LIMITS.promoPosts).map(card).filter(Boolean);
-  const ads = adsPlan(ranked, capInr);
-  return {
-    schemaVersion: 1,
-    day: istDay(nowMs),
-    featured,
-    newDrops: ranked.filter((r) => r.isNew).map(card).filter(Boolean).slice(0, 6),
-    ads: { ...ads, boosts: ads.boosts.map((b) => ({ ...b, product: card(ranked.find((r) => r.id === b.id)) })) },
-  };
+/* On-site popularity: purchases count far more than clicks; recent activity (14 days) leads.
+ * clicks: [{product_id, day, clicks}] (30 days), stats: salesStats(). Returns ids with score > 0, best first. */
+export function popularity(clicks, stats, nowMs, limit = LIMITS.popular) {
+  const since14 = istDay(nowMs - 14 * DAY);
+  const score = {};
+  for (const c of clicks || []) {
+    const n = Number(c.clicks) || 0;
+    score[c.product_id] = (score[c.product_id] || 0) + (c.day >= since14 ? n : n / 2);
+  }
+  for (const [id, s] of Object.entries(stats || {})) score[id] = (score[id] || 0) + s.recentUnits * 40 + s.units * 10;
+  return Object.entries(score).filter(([, v]) => v > 0)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit).map(([id]) => id);
 }

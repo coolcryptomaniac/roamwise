@@ -20,7 +20,7 @@ import { createShopWallet } from './shop-wallet.js';
 import { walletKeyFromRequest, spendWallet } from './wallet.js';
 import { verifyCashfreeWorkerWebhook } from '../lib/cashfree-booking-webhook-verify.js';
 import { SHOP_CATALOGUE, publicCatalogue } from '../lib/shop-catalogue.js';
-import { catalogueFor as engineCatalogue, recordShippedOrder } from '../lib/shop-engine.js';
+import { catalogueFor as engineCatalogue, recordShippedOrder, popularFor } from '../lib/shop-engine.js';
 import {
   ORDER_ID_RE, hex, newOrderId, priceCart, sha256Hex, timingSafeEqualHex, upiIntent,
   validateCustomer, validateShipTo,
@@ -70,7 +70,8 @@ export function createShopHandlers(overrides) {
     catalogue: SHOP_CATALOGUE, context: serviceContext,
     /* Static catalogue plus live shop-engine designs (identical to `catalogue` while the engine is off). */
     loadCatalogue: (env, opts) => engineCatalogue(env, deps.catalogue, opts),
-    recordShipped: (env, order) => recordShippedOrder(env, order), getDoc, createDocIfAbsent, updateDoc, queryEqualsString,
+    recordShipped: (env, order) => recordShippedOrder(env, order),
+    popular: (env) => popularFor(env), getDoc, createDocIfAbsent, updateDoc, queryEqualsString,
     qikinkFetch: (...a) => fetch(...a),
     fetchImpl: (...a) => fetch(...a),
     now: () => new Date(),
@@ -137,7 +138,8 @@ export function createShopHandlers(overrides) {
         checkoutOpen = m.cashfree || m.upi;
       }
     } catch (_) { checkoutOpen = false; }
-    return new Response(JSON.stringify({ ...publicCatalogue(await deps.loadCatalogue(env)), checkoutOpen }), {
+    const popular = await deps.popular(env).catch(() => []);
+    return new Response(JSON.stringify({ ...publicCatalogue(await deps.loadCatalogue(env)), popular, checkoutOpen }), {
       status: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60', ...CORS },
     });
   }

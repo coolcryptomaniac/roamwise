@@ -1,7 +1,7 @@
-/* Shop engine storage glue (D1 `shop_designs`, `shop_sales_lines`; R2 MEDIA for the promotion plan).
+/* Shop engine storage glue (D1 `shop_designs`, `shop_sales_lines`, `shop_clicks`).
  * Everything is a no-op unless env.DB exists AND env.SHOP_ENGINE_ENABLED === 'true', so the existing shop
  * behaves exactly as before until the founder switches the engine on. Rules live in shop-engine-core.js. */
-import { LIMITS, istDay, lifecycle, mergeCatalogue, promotionPlan, rankProducts, salesStats } from './shop-engine-core.js';
+import { LIMITS, istDay, lifecycle, mergeCatalogue, popularity, salesStats } from './shop-engine-core.js';
 import { SHOP_ENGINE_BLANKS } from './shop-engine-blanks.js';
 
 export const enabled = (env) => !!(env && env.DB && env.SHOP_ENGINE_ENABLED === 'true');
@@ -46,14 +46,13 @@ export async function recordShippedOrder(env, order, nowMs = Date.now()) {
   } catch (_) { return false; }
 }
 
-/* Daily cron: promote reviewed designs (autopublish), retire unsold ones, write the promotion plan. */
-export async function runShopEngineCron(env, base, nowMs = Date.now()) {
+/* Daily cron: promote reviewed designs (autopublish), retire unsold ones. */
+export async function runShopEngineCron(env, base, nowMs = Date.now(), blanks = SHOP_ENGINE_BLANKS) {
   if (!enabled(env)) return { skipped: 'engine_off' };
   const all = ((await env.DB.prepare('SELECT * FROM shop_designs ORDER BY created_at DESC LIMIT 1000').all()) || {}).results || [];
   const since = istDay(nowMs - 365 * 86400000);
   const lines = ((await env.DB.prepare('SELECT product_id, units, revenue_paise, day FROM shop_sales_lines WHERE day >= ?').bind(since).all()) || {}).results || [];
-  const stats = salesStats(lines, nowMs);
-  const decision = lifecycle(all, stats, nowMs, { autopublish: env.SHOP_ENGINE_AUTOPUBLISH === 'true' });
+  const decision = lifecycle(all, salesStats(lines, nowMs), nowMs, { autopublish: env.SHOP_ENGINE_AUTOPUBLISH === 'true', blanks });
   const at = new Date(nowMs).toISOString().replace('T', ' ').slice(0, 19);
   const stmts = [
     ...decision.promote.map((id) => env.DB.prepare("UPDATE shop_designs SET status = 'live', live_at = ? WHERE id = ? AND status = 'review'").bind(at, id)),
@@ -61,14 +60,44 @@ export async function runShopEngineCron(env, base, nowMs = Date.now()) {
   ];
   if (stmts.length) await env.DB.batch(stmts);
   cache = {};
-  const catalogue = await catalogueFor(env, base, { now: () => nowMs });
-  const byId = Object.fromEntries(all.map((d) => [d.id, d]));
-  const ranked = rankProducts(catalogue.products, stats, byId, nowMs);
-  const plan = promotionPlan(catalogue, ranked, nowMs, env.SHOP_ADS_DAILY_CAP_INR);
-  if (env.MEDIA) {
-    try { await env.MEDIA.put('shop/engine/promo.json', JSON.stringify(plan, null, 1), { httpMetadata: { contentType: 'application/json', cacheControl: 'public, max-age=300' } }); } catch (_) { /* next run */ }
-  }
-  return { promoted: decision.promote.length, retired: decision.retire.length, featured: plan.featured.map((f) => f.id) };
+  return { promoted: decision.promote.length, retired: decision.retire.length };
+}
+
+/* "Popular now" on the shop page: product ids ranked by on-site clicks and purchases (cached 5 min). */
+export async function popularFor(env, nowMs = Date.now()) {
+  if (!enabled(env)) return [];
+  const hit = cache.popular;
+  if (hit && nowMs - hit.at < 5 * 60 * 1000) return hit.ids;
+  try {
+    const since = istDay(nowMs - 30 * 86400000);
+    const clicks = ((await env.DB.prepare('SELECT product_id, day, clicks FROM shop_clicks WHERE day >= ?').bind(since).all()) || {}).results || [];
+    const lines = ((await env.DB.prepare('SELECT product_id, units, revenue_paise, day FROM shop_sales_lines WHERE day >= ?').bind(since).all()) || {}).results || [];
+    const ids = popularity(clicks, salesStats(lines, nowMs), nowMs);
+    cache.popular = { at: nowMs, ids };
+    return ids;
+  } catch (_) { return []; }
+}
+
+const PRODUCT_ID = /^[a-z0-9-]{1,60}$/;
+/* POST /shop/click {id}: one anonymous click on a product card / Buy now. Counts only real catalogue ids;
+ * a per-visitor speed bump stops floods. Stores nothing about the visitor. Always 204. */
+export async function handleShopClick(request, env, base, deps = {}) {
+  const done = () => new Response(null, { status: 204, headers: { 'Access-Control-Allow-Origin': '*' } });
+  if (!enabled(env)) return done();
+  let body = null;
+  try { body = await request.json(); } catch (_) { return done(); }
+  const id = body && typeof body.id === 'string' ? body.id : '';
+  if (!PRODUCT_ID.test(id)) return done();
+  try {
+    const cat = await catalogueFor(env, base);
+    if (!cat.products.some((p) => p.id === id)) return done();
+    const ip = request.headers.get('cf-connecting-ip') || 'anon';
+    const limited = deps.overLimit ? await deps.overLimit('shopclick', (await deps.hash(ip + ':' + id)), 3, 3600) : false;
+    if (limited) return done();
+    await env.DB.prepare('INSERT INTO shop_clicks (product_id, day, clicks) VALUES (?, ?, 1) ON CONFLICT(product_id, day) DO UPDATE SET clicks = clicks + 1')
+      .bind(id, istDay((deps.now || Date.now)())).run();
+  } catch (_) { /* best effort */ }
+  return done();
 }
 
 export const _test = { reset: () => { cache = {}; } };
