@@ -1,0 +1,25 @@
+body{margin:0;background:#0b0a12;color:#f5e8fb;font-family:Outfit,system-ui,sans-serif;line-height:1.5}
+main{max-width:1000px;margin:0 auto;padding:0 16px 80px}
+.og-nav{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;max-width:1000px;margin:0 auto}
+.og-nav a{color:#e8c58b;text-decoration:none}.og-brand{font-weight:800;font-size:20px;color:#fff!important}.og-brand span{color:#e8c58b}
+.og-hero{padding:36px 0 18px}.og-hero small{color:#e8c58b;letter-spacing:.12em;font-weight:700;font-size:11px}
+.og-hero h1{font-size:clamp(28px,6vw,46px);line-height:1.1;margin:8px 0 12px}.og-hero em{color:#ffd38f;font-style:normal}
+.og-hero p{max-width:640px;opacity:.85}
+.og-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.og-btn{display:inline-flex;align-items:center;min-height:44px;padding:8px 18px;border-radius:999px;border:1px solid #e8c58b;color:#ffe1ad;text-decoration:none;font-weight:700}
+.og-btn.primary{background:#e8c58b;color:#1b1424}
+h2{font-size:22px;margin:34px 0 12px}.og-sub{opacity:.75;margin-top:-6px}
+.og-table{border:1px solid #3b3354;border-radius:16px;overflow:hidden}
+.og-row{display:grid;grid-template-columns:1.1fr 1fr 1.4fr;gap:10px;padding:11px 14px;border-top:1px solid #2a2440;font-size:14px}
+.og-row:first-child{border-top:0}.og-th{background:#1a1730;font-weight:700;color:#e8c58b}
+.og-row span:nth-child(2){opacity:.6}.og-row span:nth-child(3){color:#bff0d6}
+.og-tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.og-tools a{display:flex;flex-direction:column;padding:14px;border-radius:16px;background:#171a2d;border:1px solid #3b3354;color:#f5e8fb;text-decoration:none}
+.og-tools span{font-size:13px;opacity:.75}
+.og-plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.og-plan{padding:20px;border-radius:20px;background:linear-gradient(160deg,#241c3a,#151829);border:1px solid #4a3f66;display:flex;flex-direction:column}
+.og-plan h3{margin:0;font-size:20px}.og-tag{opacity:.75;margin:2px 0 8px;font-size:14px}
+.og-price{font-size:20px;font-weight:800;color:#ffd38f;margin:0}.og-trial{color:#5de0a1;margin:2px 0 0;font-size:13px}
+.og-plan ul{padding-left:18px;margin:12px 0 16px;flex:1;font-size:14px}
+.og-wed{margin-top:34px;padding:20px;border-radius:20px;border:1px solid rgba(232,197,139,.4);background:#1d1626}
+@media (max-width:600px){.og-row{grid-template-columns:1fr 1fr;}.og-row span:first-child{grid-column:1/-1;font-weight:700}}

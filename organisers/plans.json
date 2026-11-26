@@ -1,0 +1,11 @@
+{
+  "note": "Founder sets prices here. null shows 'Founding price on request'. Amounts in rupees.",
+  "plans": [
+    {"id": "monthly", "name": "Monthly", "tagline": "For companies running trips every month", "priceMonthly": null, "trialDays": null,
+     "points": ["Unlimited group trips and members", "Your brand on trip pages", "Priority support"]},
+    {"id": "per-trip", "name": "Per trip", "tagline": "For occasional organisers", "pricePerTrip": null,
+     "points": ["Pay only when you run a trip", "All organiser tools for that trip", "No monthly commitment"]},
+    {"id": "commission", "name": "Free + commission", "tagline": "Start free, pay only when money moves", "commissionPct": null,
+     "points": ["All organiser tools free", "Small commission on bookings and UPI settle-ups through RoamWise", "Best for new organisers"]}
+  ]
+}
