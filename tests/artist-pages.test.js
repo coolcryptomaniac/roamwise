@@ -28,6 +28,6 @@ test('every /creators/<id>/ page in the data has its static file', () => {
   for (const a of staticArtists(load())) {
     const f = path.join(__dirname, '..', 'creators', a.id, 'index.html');
     assert.ok(fs.existsSync(f), f);
-    assert.match(fs.readFileSync(f, 'utf8'), new RegExp('<link rel="canonical" href="https://www.roamwise.co.in/creators/' + a.id + '/">'));
+    assert.match(fs.readFileSync(f, 'utf8'), new RegExp('<link rel="canonical" href="https://roamwise.co.in/creators/' + a.id + '/">'));
   }
 });

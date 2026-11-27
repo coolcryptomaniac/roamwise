@@ -153,7 +153,7 @@ test('pages: strict CSP, no inline handlers or styles, scripts exist', () => {
     assert.match(html, /script-src 'self'/);
     assert.doesNotMatch(html, /\son[a-z]+="/, p);
     assert.doesNotMatch(html, /\sstyle="/, p);
-    assert.match(html, new RegExp(`<link rel="canonical" href="https://www.roamwise.co.in/${p}/">`));
+    assert.match(html, new RegExp(`<link rel="canonical" href="https://roamwise.co.in/${p}/">`));
     for (const m of html.matchAll(/<script src="\/([^"]+)"/g)) assert.ok(fs.existsSync(m[1]), m[1]);
   }
 });

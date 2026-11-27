@@ -5,7 +5,7 @@
 // An atlas point or AI draft alone never becomes a public SEO URL.
 const fs=require('node:fs'),path=require('node:path');
 const ROOT=path.resolve(__dirname,'..'),SRC=path.join(ROOT,'content/editorial/articles');
-const SITE='https://www.roamwise.co.in',OUT=process.env.RW_PLACES_OUT?path.resolve(process.env.RW_PLACES_OUT):path.join(ROOT,'places') /* tests build into a temp dir */,CHECK=process.argv.includes('--check');
+const SITE='https://roamwise.co.in',OUT=process.env.RW_PLACES_OUT?path.resolve(process.env.RW_PLACES_OUT):path.join(ROOT,'places') /* tests build into a temp dir */,CHECK=process.argv.includes('--check');
 const esc=x=>String(x||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const errors=[],changed=[];
 function save(file,data){if(CHECK){if(!fs.existsSync(file)||fs.readFileSync(file,'utf8')!==data)changed.push(file);}else{fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,data);}}

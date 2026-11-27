@@ -29,7 +29,7 @@ function renderWorks() {
 let buyerCity = '';
 function buyerBrief(b) {
   const a = data.artists[0];
-  return `Hello RoamWise team,\n\nPlease introduce ${a.name} (${a.studio}) to ${b.name} in ${b.city}.\n\nWhy it may fit: ${b.reasons.join('; ')}.\nHer work: https://www.roamwise.co.in/creators/artists.html\nPortfolio: ${safeHttps(a.website)}\n\nNo commitment is implied by either side.`;
+  return `Hello RoamWise team,\n\nPlease introduce ${a.name} (${a.studio}) to ${b.name} in ${b.city}.\n\nWhy it may fit: ${b.reasons.join('; ')}.\nHer work: https://roamwise.co.in/creators/artists.html\nPortfolio: ${safeHttps(a.website)}\n\nNo commitment is implied by either side.`;
 }
 function renderBuyers() {
   const box = $('artBuyers'); if (!box || !data || !data.buyers) return;

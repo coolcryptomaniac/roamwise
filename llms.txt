@@ -18,57 +18,57 @@
 - Plus: Rs 99/month or Rs 999/year. Pro: Rs 299/month or Rs 2,499/year. Elite: Rs 499/month or Rs 4,999/year. Prices in INR, inclusive of applicable taxes
 - Short Pro passes: Day Rs 19, Week Rs 99, 3 months Rs 749. Long-term passes for Plus, Pro and Elite are also available
 - Founder offer: lifetime Elite for a one-time Rs 100, capped at the first 1,000 members or 365 days from launch, whichever comes first
-- Full, current details: https://www.roamwise.co.in/pricing.html
+- Full, current details: https://roamwise.co.in/pricing.html
 
 ## Stays
-- Homestays and hotels in Almora (Milan Heights, Soulmate Homestay, Big Bro Hotel for long workations), booked directly with the host: https://www.roamwise.co.in/stays/almora/
-- Woodbook The Devine Homestay, Tirthan Valley (signed partner): https://www.roamwise.co.in/stays/tirthan-valley/
-- Corbett Jungle View Homestay, Lansdowne region (founder-introduced, enquiries only): https://www.roamwise.co.in/stays/lansdowne/
-- Almora workation: 15-night to 3-month stays at Big Bro Hotel (Rs 30,000 / 15 nights, Rs 50,000 / month, Rs 1,50,000 / 3 months, meals extra; Wi-Fi speed as told by the owner): https://www.roamwise.co.in/workation/almora/
+- Homestays and hotels in Almora (Milan Heights, Soulmate Homestay, Big Bro Hotel for long workations), booked directly with the host: https://roamwise.co.in/stays/almora/
+- Woodbook The Devine Homestay, Tirthan Valley (signed partner): https://roamwise.co.in/stays/tirthan-valley/
+- Corbett Jungle View Homestay, Lansdowne region (founder-introduced, enquiries only): https://roamwise.co.in/stays/lansdowne/
+- Almora workation: 15-night to 3-month stays at Big Bro Hotel (Rs 30,000 / 15 nights, Rs 50,000 / month, Rs 1,50,000 / 3 months, meals extra; Wi-Fi speed as told by the owner): https://roamwise.co.in/workation/almora/
 - Each stay enquiry carries a short RoamWise code (RW-XXXXXX). Stay payments are made to the property directly, not to RoamWise.
 
 ## Guides
-- Uttarakhand travel rules & permits checker (Char Dham registration, Kedarnath helicopter via IRCTC only, Adi Kailash Inner Line Permit, Mussoorie registration, green cess, Kainchi Dham rules): https://www.roamwise.co.in/uttarakhand-travel-rules/
-- Uttarakhand road & safety status (sourced closures, crowds, snow, events; emergency numbers 112 and 1070; free region alerts): https://www.roamwise.co.in/uttarakhand-road-status/
-- Booking scam checker for Kedarnath helicopter, Char Dham, homestay and taxi links, UPI IDs and phone numbers: https://www.roamwise.co.in/booking-safety/
-- Almora Dussehra: why the whole Ravan family is burned, the 2026 effigies, the day hour by hour, tips, and Vijayadashami 2027 (9 Oct): https://www.roamwise.co.in/almora-dussehra/
+- Uttarakhand travel rules & permits checker (Char Dham registration, Kedarnath helicopter via IRCTC only, Adi Kailash Inner Line Permit, Mussoorie registration, green cess, Kainchi Dham rules): https://roamwise.co.in/uttarakhand-travel-rules/
+- Uttarakhand road & safety status (sourced closures, crowds, snow, events; emergency numbers 112 and 1070; free region alerts): https://roamwise.co.in/uttarakhand-road-status/
+- Booking scam checker for Kedarnath helicopter, Char Dham, homestay and taxi links, UPI IDs and phone numbers: https://roamwise.co.in/booking-safety/
+- Almora Dussehra: why the whole Ravan family is burned, the 2026 effigies, the day hour by hour, tips, and Vijayadashami 2027 (9 Oct): https://roamwise.co.in/almora-dussehra/
 
 ## Planning notes (blog)
 Sourced, dated articles. Each lists the sources it relies on and the date facts were checked.
-- 8 Best AI Travel Planners for India in 2026: Features, Pricing and Use Cases Compared: https://www.roamwise.co.in/blog/best-ai-travel-planners-india-2026.html
-- Plan an EV road trip around the next usable charger: https://www.roamwise.co.in/blog/ev-road-trips-india.html
-- Should you take a folding bicycle on your trip?: https://www.roamwise.co.in/blog/folding-cycle-travel-guide.html
-- One base or a moving route? Compare the whole journey: https://www.roamwise.co.in/blog/hub-and-spoke-india-travel-strategy.html
-- How to choose a quieter trip without inventing crowd percentages: https://www.roamwise.co.in/blog/least-crowded-months-world.html
-- Before booking an overnight bus: operator, berth and arrival checks: https://www.roamwise.co.in/blog/premium-volvo-buses-india.html
-- Tatkal booking: the opening date, Aadhaar checks and a sensible backup: https://www.roamwise.co.in/blog/tatkal-10am-hack-irctc.html
-- All planning notes: https://www.roamwise.co.in/blog/
+- 8 Best AI Travel Planners for India in 2026: Features, Pricing and Use Cases Compared: https://roamwise.co.in/blog/best-ai-travel-planners-india-2026.html
+- Plan an EV road trip around the next usable charger: https://roamwise.co.in/blog/ev-road-trips-india.html
+- Should you take a folding bicycle on your trip?: https://roamwise.co.in/blog/folding-cycle-travel-guide.html
+- One base or a moving route? Compare the whole journey: https://roamwise.co.in/blog/hub-and-spoke-india-travel-strategy.html
+- How to choose a quieter trip without inventing crowd percentages: https://roamwise.co.in/blog/least-crowded-months-world.html
+- Before booking an overnight bus: operator, berth and arrival checks: https://roamwise.co.in/blog/premium-volvo-buses-india.html
+- Tatkal booking: the opening date, Aadhaar checks and a sensible backup: https://roamwise.co.in/blog/tatkal-10am-hack-irctc.html
+- All planning notes: https://roamwise.co.in/blog/
 
 ## Destination and budget guides
-- Binsar from Almora: plan for the forest, not a guaranteed mountain view: https://www.roamwise.co.in/guides/binsar-india.html
-- Jaipur without the zigzags: a three-day plan and seasonal choices: https://www.roamwise.co.in/guides/jaipur-india.html
-- Jaisalmer: choose the city stay and desert outing separately: https://www.roamwise.co.in/guides/jaisalmer-india.html
-- Jodhpur in two days: fort time, old-city lanes and a practical base: https://www.roamwise.co.in/guides/jodhpur-india.html
-- Rishikesh by neighbourhood: choose yoga, river time or a gateway night: https://www.roamwise.co.in/guides/rishikesh-uttarakhand.html
-- A travel budget that survives taxes, transfers and shared costs: https://www.roamwise.co.in/guides/what-things-cost-india.html
-- All guides: https://www.roamwise.co.in/guides/
+- Binsar from Almora: plan for the forest, not a guaranteed mountain view: https://roamwise.co.in/guides/binsar-india.html
+- Jaipur without the zigzags: a three-day plan and seasonal choices: https://roamwise.co.in/guides/jaipur-india.html
+- Jaisalmer: choose the city stay and desert outing separately: https://roamwise.co.in/guides/jaisalmer-india.html
+- Jodhpur in two days: fort time, old-city lanes and a practical base: https://roamwise.co.in/guides/jodhpur-india.html
+- Rishikesh by neighbourhood: choose yoga, river time or a gateway night: https://roamwise.co.in/guides/rishikesh-uttarakhand.html
+- A travel budget that survives taxes, transfers and shared costs: https://roamwise.co.in/guides/what-things-cost-india.html
+- All guides: https://roamwise.co.in/guides/
 
 ## When RoamWise is a good fit
 - Trips inside India where road time matters: Himalayan, hill and ghat routes are planned with terrain-aware speeds rather than highway speeds
 - Group trips: shared chat, polls, shared budget and fair cost splitting with UPI payback
 - Train-heavy trips: group train picker, Tatkal preparation and PNR reading; booking itself is handed to IRCTC or ixigo
 - Pilgrimages and Uttarakhand travel: permit rules, road status and booking-scam checks sit next to the planner
-- Not the best fit (honestly): booking flights or trains in one chat, or international trips; see the comparison of AI travel planners for India: https://www.roamwise.co.in/blog/best-ai-travel-planners-india-2026.html
+- Not the best fit (honestly): booking flights or trains in one chat, or international trips; see the comparison of AI travel planners for India: https://roamwise.co.in/blog/best-ai-travel-planners-india-2026.html
 
 ## Partners and matching
 - Partner chooser on the home page for travel creators, stays, painting artists, music artists, transport providers, colleges and local businesses
 - Explainable matching: each suggested stay lists the visible reasons it fits (same town, cafe or lounge space for art or music, direct WhatsApp contact for pickups, and so on). When nothing fits, it says so instead of forcing a match
 - Matches are suggestions only. Both sides approve the terms; RoamWise never moves money automatically
-- Paid Featured placement on the home page, labelled "Featured": Rs 500 for 7 days, Rs 1,000 for 15 days, Rs 2,000 for 30 days in the first position. Details: https://www.roamwise.co.in/feature/
-- Official payment address (also on https://www.roamwise.co.in/pay/): roamwisepay@ybl, account holder MOHIT PANDEY
+- Paid Featured placement on the home page, labelled "Featured": Rs 500 for 7 days, Rs 1,000 for 15 days, Rs 2,000 for 30 days in the first position. Details: https://roamwise.co.in/feature/
+- Official payment address (also on https://roamwise.co.in/pay/): roamwisepay@ybl, account holder MOHIT PANDEY
 
 ## About
 - Made in Almora, Uttarakhand by Mohit Pandey
-- Web: https://www.roamwise.co.in
+- Web: https://roamwise.co.in
 - Contact: founder@roamwise.co.in
 - Free to use, India-first, Hindi and English

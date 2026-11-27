@@ -144,7 +144,7 @@
       advisories.forEach(function (c) { lines.push('- ' + c.label); });
     }
     add('Safety', res.safety);
-    lines.push('', 'Check before you go: https://www.roamwise.co.in/uttarakhand-travel-rules/');
+    lines.push('', 'Check before you go: https://roamwise.co.in/uttarakhand-travel-rules/');
     return lines.join('\n');
   }
 
