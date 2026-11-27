@@ -14,8 +14,9 @@ jobs:
       - name: Generate
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ALT_KEY: ${{ secrets.OPENAI_KEY }}
         run: |
-          python3 tmp-stills/oaimg.py tmp-stills/prompts.json tmp-stills/out high | tee tmp-stills/log.txt
+          echo "key_len=${#OPENAI_API_KEY} alt_len=${#ALT_KEY}" > tmp-stills/log.txt; [ -z "$OPENAI_API_KEY" ] && export OPENAI_API_KEY="$ALT_KEY"; python3 tmp-stills/oaimg.py tmp-stills/prompts.json tmp-stills/out high >> tmp-stills/log.txt 2>&1 || true
           pip install -q pillow
           python3 -c "
           import glob,os
@@ -25,5 +26,5 @@ jobs:
       - name: Commit results
         run: |
           git config user.name "roamwise-bot"; git config user.email "bot@roamwise.co.in"
-          git add tmp-stills/out tmp-stills/log.txt
+          git add -A tmp-stills
           git commit -m "stills output" && git push origin HEAD:tmp/kumaon-stills
