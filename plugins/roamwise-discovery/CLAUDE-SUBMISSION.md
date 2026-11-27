@@ -15,11 +15,11 @@ Reviewed against official Anthropic [submission requirements](https://claude.com
 - Tagline (55 characters max): `Find stays, art & shareable travel itineraries`
 - Category: Travel
 - Developer: RoamWise
-- Website: https://www.roamwise.co.in
-- Docs: https://www.roamwise.co.in (replace with a dedicated docs page when published)
+- Website: https://roamwise.co.in
+- Docs: https://roamwise.co.in (replace with a dedicated docs page when published)
 - Support: support@roamwise.co.in
-- Privacy: https://www.roamwise.co.in/privacy.html
-- Terms: https://www.roamwise.co.in/terms.html
+- Privacy: https://roamwise.co.in/privacy.html
+- Terms: https://roamwise.co.in/terms.html
 - Icon: existing RoamWise logo (obtain source binary from repo `assets/img/roamwise-logo-176.webp`, check portal pixel/format rules before upload)
 
 ## Listing description
@@ -36,7 +36,7 @@ RoamWise shows public listings, not real-time room availability or artwork stock
 5. Preview a server-calculated payment quote without creating any order.
 
 ## Allowed link URIs
-- https://www.roamwise.co.in
+- https://roamwise.co.in
 - https://roamwise.co.in
 
 These are the exact origins currently permitted by the MCP Apps card link allowlist. Do not add Cloudflare, Cashfree, third-party image-CDN or unowned domains to Anthropic's allowed links.

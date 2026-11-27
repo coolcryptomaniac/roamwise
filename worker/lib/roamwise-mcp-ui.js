@@ -56,7 +56,7 @@ h2{margin:0;font-size:18px;letter-spacing:-.035em;line-height:1.17;color:#242039
 <header class="top"><div class="brand"><div class="mark"><img src="https://www.roamwise.co.in/assets/img/roamwise-logo-176.webp" width="35" height="35" alt="RoamWise"></div><div><div class="eyebrow">RoamWise · Curated by people</div><h1 id="headline">Discover the extraordinary.</h1></div></div><div class="nav"><button id="prev" type="button" aria-label="Previous card">‹</button><button id="next" type="button" aria-label="Next card">›</button></div></header>
 <section class="rail" id="rail" aria-label="Listings" aria-live="polite"><p class="small">Loading approved listings…</p></section>
 <section id="panel" class="panel" aria-label="Review quote"></section>
-<p class="footer">Artwork and room availability are not guaranteed by a listing. All purchases require separate approval and secure checkout.</p>
+<p class="footer">Artwork and room availability are not guaranteed by a listing. Bookings and purchases happen only on roamwise.co.in, after you choose to go there.</p>
 </main>
 <script>
 (()=>{'use strict';
@@ -74,15 +74,15 @@ function eligibleImage(url){try{const u=new URL(url);return u.protocol==='https:
 function showPanel(){panel.classList.add('open');panel.replaceChildren()}
 function titleLine(t,sub){panel.append(el('h3','',t),el('p','',sub))}
 function field(name,type,placeholder,required){const label=el('label','',name),control=el('input');control.type=type;control.placeholder=placeholder||'';control.required=!!required;label.append(control);return {label,control}}
-function drawQuote(data,checkoutUrl){
+function drawQuote(data,pageUrl){
  const previous=panel.querySelector('.outcome');if(previous)previous.remove();
  const outcome=el('div','outcome');
  if(!data?.ok){outcome.textContent='Quote unavailable: '+(data?.message||data?.error||'Please continue at RoamWise.');panel.append(outcome);return}
  if(data.listingId){const v=data.quote||{};outcome.textContent='Payment amount: '+money(v.payNowPaise)+'\n'+(v.totalPaise===null?'Final stay total: to be confirmed':'Total quoted: '+money(v.totalPaise))+'\nAvailability: supplier confirmation pending.\nNo room has been held and no payment has been made.'}
  else {outcome.textContent='Merchandise total: '+money(data.quote.totalPaise)+'\nIncluding delivery: '+money(data.quote.shippingPaise)+'\nNo order has been created.'}
  panel.append(outcome);
- const btn=el('button','primary','Continue to secure RoamWise checkout');
- btn.style.width='100%';btn.style.marginTop='9px';btn.onclick=()=>open(data.checkoutUrl||checkoutUrl);panel.append(btn);
+ const btn=el('button','primary','View on RoamWise');
+ btn.style.width='100%';btn.style.marginTop='9px';btn.onclick=()=>open(data.pageUrl||pageUrl);panel.append(btn);
 }
 function stayQuote(i){
  showPanel();titleLine('Check dates · '+i.title,'RoamWise calculates the payment amount. The supplier still confirms the room.');
@@ -148,7 +148,7 @@ function drawCard(i){
 }
 function render(data){
  if(!data)return;
- if(data.quote&&!data.cards){showPanel();titleLine('RoamWise price preview','Server-calculated amount; payment still requires your approval.');drawQuote(data,data.checkoutUrl);return}
+ if(data.quote&&!data.cards){showPanel();titleLine('RoamWise price preview','Server-calculated amount; payment still requires your approval.');drawQuote(data,data.pageUrl);return}
  const cards=Array.isArray(data.cards)?data.cards:data.card?[data.card]:[];
  rail.replaceChildren();
  const headline=document.getElementById('headline');

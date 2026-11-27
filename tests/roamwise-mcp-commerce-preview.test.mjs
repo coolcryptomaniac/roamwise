@@ -35,8 +35,8 @@ test('stay quote relies on server rate; an advance is never called a final price
  assert.equal(res.quote.totalPaise,null);assert.equal(res.availabilityVerified,false);
  assert.equal(res.bookingConfirmed,false);assert.equal(res.paymentStarted,false);
  assert.match(res.quoteScope,/final total is NOT confirmed/);
- assert.match(res.checkoutUrl,/stay=milan/);
- assert.match(res.checkoutUrl,/checkin=2026-12-12/);
+ assert.equal(res.pageUrl,'https://roamwise.co.in/stays/almora/');
+ assert.equal(res.checkoutUrl,undefined); // reviewer rule: no direct checkout links
 });
 test('no rates or partner contacts are leaked and unsupported stays are rejected',async()=>{
  const r=await runCommercePreview('quote_roamwise_stay',{...args,listingId:'private-inventory'}, {},deps);

@@ -2,7 +2,8 @@
  * NEVER create order, start a payment, spend wallet balance, disclose contact,
  * or equate a server price with supplier availability.
  */
-const SITE='https://www.roamwise.co.in';
+const SITE='https://roamwise.co.in';
+const STAY_PAGES=Object.freeze({'milan-heights':'/stays/almora/','soulmate-homestay':'/stays/almora/','big-bro-hotel':'/stays/almora/','woodbook-the-devine':'/stays/tirthan-valley/'});
 const STAYS=Object.freeze({
  'milan-heights':'milan',
  'soulmate-homestay':'soulmate',
@@ -48,7 +49,7 @@ export async function runCommercePreview(name,args,env,deps={}){
    const products=Array.isArray(data.products)?data.products.slice(0,24).filter(p=>typeof p.id==='string'&&ID.test(p.id)).map(p=>({
     id:p.id,name:p.name,description:p.description,type:p.type,image_url:p.image,pricePaise:safeAmount(p.pricePaise),currency:'INR',
     variants:(Array.isArray(p.variants)?p.variants:[]).slice(0,16).map(v=>({id:v.id,label:v.label})),
-    maxQty:p.maxQty||1,url:SITE+'/shop/?buy='+encodeURIComponent(p.id),
+    maxQty:p.maxQty||1,url:SITE+'/shop/',
     price_verified:false,stock_verified:false,requiresFreshQuote:true
    })):[];
    return {ok:true,products,checkoutOpen:data.checkoutOpen===true,cards:products.map(p=>({
@@ -68,9 +69,10 @@ export async function runCommercePreview(name,args,env,deps={}){
   return {
     ok:true,listingId,property:q.property,checkin,checkout,kind:q.kind,
     quote:{currency:'INR',payNowPaise:Math.round(Number(q.amount)*100),totalPaise:total===null?null:Math.round(total*100),balancePaise:safeAmount(q.balance)===null?null:Math.round(Number(q.balance)*100),paymentType:paymentType||'advance'},
-    checkoutUrl:SITE+'/packages/amor-checkout.html?stay='+encodeURIComponent(STAYS[listingId])+'&checkin='+checkin+'&checkout='+checkout,
+    pageUrl:SITE+STAY_PAGES[listingId],
     availabilityVerified:false,supplierConfirmed:false,bookingConfirmed:false,paymentStarted:false,
     userApprovalRequired:true,quoteScope:total===null?'Refundable booking advance only; final total is NOT confirmed':'Server-computed payment quote; room availability remains unconfirmed',
+    nextStep:'To book, the user opens pageUrl on roamwise.co.in and sends a request; the property confirms availability and the total.',
     disclaimer:'A quote does not hold a room. Final booking confirmation requires supplier acceptance and payment reconciliation on RoamWise.'
   };
  }
@@ -81,7 +83,7 @@ export async function runCommercePreview(name,args,env,deps={}){
  return {
    ok:true,quote:{currency:'INR',totalPaise:total,shippingPaise:shipping,subtotalPaise:safeAmount(q.subtotalPaise),
     lines:Array.isArray(q.lines)?q.lines.slice(0,8).map(x=>({id:x.id,name:x.name,variant:x.variant,qty:x.qty})):[]},
-   checkoutUrl:SITE+'/shop/?buy='+encodeURIComponent(args.items[0].id),
+   pageUrl:SITE+'/shop/',
    paymentMethods:{cashfree:q.methods?.cashfree===true,upi:q.methods?.upi===true},
    stockVerified:false,orderCreated:false,paymentStarted:false,paymentConfirmed:false,userApprovalRequired:true,
    disclaimer:'Shipping and retail amounts were computed by RoamWise. Production/stock and delivery require checkout validation; no payment has been made.'
@@ -89,10 +91,10 @@ export async function runCommercePreview(name,args,env,deps={}){
 }
 export const COMMERCE_TOOLS=[
  {name:'browse_roamwise_shop',title:'Browse RoamWise products',description:'Get public RoamWise merchandise and variant information from the existing server catalog; no stock or purchase is guaranteed.',inputSchema:{type:'object',properties:{},additionalProperties:false}},
- {name:'quote_roamwise_stay',title:'Price a RoamWise stay request',description:'Compute the charge amount for a listed RoamWise stay on chosen dates using the existing Worker pricing. This is not availability, room hold or booking confirmation.',inputSchema:{type:'object',properties:{
+ {name:'quote_roamwise_stay',title:'Check a RoamWise stay booking advance',description:'Get the refundable booking advance RoamWise collects for a listed stay on chosen dates, plus the full total when the server has one, and the stay\'s page on roamwise.co.in. Does not check availability, hold a room or confirm a booking.',inputSchema:{type:'object',properties:{
   listingId:{type:'string',enum:Object.keys(STAYS)},checkin:{type:'string',format:'date'},checkout:{type:'string',format:'date'},paymentType:{type:'string',enum:['advance','full']}
  },required:['listingId','checkin','checkout'],additionalProperties:false}},
- {name:'quote_roamwise_shop',title:'Get a RoamWise merchandise delivery quote',description:'Compute shop item and delivery costs for a six-digit Indian shipping PIN through the existing RoamWise server. No order or payment is created.',inputSchema:{type:'object',properties:{
+ {name:'quote_roamwise_shop',title:'Get a RoamWise merchandise delivery quote',description:'Compute RoamWise merchandise item and delivery costs for a six-digit Indian shipping PIN, with a link to the RoamWise shop page. No order or payment is created.',inputSchema:{type:'object',properties:{
   items:{type:'array',minItems:1,maxItems:4,items:{type:'object',properties:{id:{type:'string'},variant:{type:'string'},qty:{type:'integer',minimum:1,maximum:10}},required:['id','variant','qty'],additionalProperties:false}},
   pin:{type:'string',pattern:'^[1-9][0-9]{5}$'}
  },required:['items','pin'],additionalProperties:false}}
