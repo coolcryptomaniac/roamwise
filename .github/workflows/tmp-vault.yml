@@ -1,0 +1,44 @@
+name: tmp vault (one-off)
+on:
+  push:
+    branches: [tmp/vault]
+    paths: [tmp-vault/**, .github/workflows/tmp-vault.yml]
+permissions:
+  contents: write
+jobs:
+  vault:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm i -g wrangler@4 >/dev/null
+      - name: Make or use the vault key, store secrets
+        run: |
+          set -e
+          B=roamwise-records
+          log() { echo "$*" >> tmp-vault/log.txt; }
+          : > tmp-vault/log.txt
+          if [ ! -f tmp-vault/public.pem ]; then
+            openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 -out /tmp/vault.pem 2>/dev/null
+            openssl pkey -in /tmp/vault.pem -pubout -out tmp-vault/public.pem
+            wrangler r2 object put "$B/vault/vault_private.pem" --file /tmp/vault.pem --remote >/dev/null && log "vault key stored"
+            rm -f /tmp/vault.pem
+          fi
+          for f in tmp-vault/*.enc; do
+            [ -f "$f" ] || continue
+            name=$(basename "$f" .enc)
+            wrangler r2 object get "$B/vault/vault_private.pem" --file /tmp/vault.pem --remote >/dev/null
+            base64 -d "$f" | openssl pkeyutl -decrypt -inkey /tmp/vault.pem -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -out /tmp/secret.txt
+            wrangler r2 object put "$B/vault/$name" --file /tmp/secret.txt --content-type text/plain --remote >/dev/null
+            wrangler r2 object get "$B/vault/$name" --file /tmp/check.txt --remote >/dev/null
+            cmp -s /tmp/secret.txt /tmp/check.txt && log "$name stored and read back OK (len $(wc -c < /tmp/check.txt))" || log "$name read-back MISMATCH"
+            rm -f /tmp/vault.pem /tmp/secret.txt /tmp/check.txt "$f"
+          done
+      - name: Commit result
+        run: |
+          git config user.name "roamwise-bot"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A tmp-vault
+          git commit -m "vault: result" && git push origin HEAD:tmp/vault
