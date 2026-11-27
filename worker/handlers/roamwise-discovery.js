@@ -6,7 +6,7 @@ import {publicSearch,publicItem,toCard,CATALOG_VERSION} from '../lib/roamwise-di
 import {ROAMWISE_CARDS_URI,ROAMWISE_CARDS_HTML} from '../lib/roamwise-mcp-ui.js';
 import {publicCapabilities} from '../lib/roamwise-mcp-capabilities.js';
 import {COMMERCE_TOOLS,runCommercePreview,validateCommerceArgs} from '../lib/roamwise-commerce-preview.js';
-const BASE='https://www.roamwise.co.in';
+const BASE='https://roamwise.co.in';
 const SERVER={name:'roamwise-discovery',version:'1.0.0',title:'RoamWise · Himalayan travel and art'};
 const MODERN='2026-07-28';
 const LEGACY=['2025-11-25','2025-03-26'];
@@ -22,7 +22,7 @@ export const DISCOVERY_TOOLS=[
  {name:'search_roamwise',title:'Search RoamWise',description:descriptions.search,inputSchema:{type:'object',properties:{q:{type:'string',maxLength:120,description:'Search by artist, hotel, town, activity or service'},type:{type:'string',enum:TYPES},region:{type:'string',maxLength:100},limit:{type:'integer',minimum:1,maximum:12,default:6}},additionalProperties:false}},
  {name:'get_roamwise_listing',title:'Get RoamWise listing',description:descriptions.detail,inputSchema:{type:'object',properties:{id:{type:'string',pattern:'^[a-z0-9-]{1,80}$'}},required:['id'],additionalProperties:false}},
  {name:'roamwise_enquiry_link',title:'Continue on RoamWise',description:descriptions.handoff,inputSchema:{type:'object',properties:{id:{type:'string',pattern:'^[a-z0-9-]{1,80}$'}},required:['id'],additionalProperties:false}},
- {name:'roamwise_capabilities',title:'RoamWise capabilities',description:'Read public RoamWise connector capabilities and future readiness: public listings, editorial itinerary sharing, merchant checkout, authenticated wallet. Never access a private account or start a payment.',inputSchema:{type:'object',properties:{},additionalProperties:false}}
+ {name:'roamwise_capabilities',title:'RoamWise capabilities',description:'Read what this public RoamWise connector can do today: search public stays, artists, trip routes and packages, share itinerary links, and quote stay booking advances and merchandise delivery. It never accesses a private account or starts a payment.',inputSchema:{type:'object',properties:{},additionalProperties:false}}
 ,...COMMERCE_TOOLS].map(t=>({...t,...(['search_roamwise','browse_roamwise_shop','quote_roamwise_stay','quote_roamwise_shop'].includes(t.name)?{_meta:{ui:{resourceUri:ROAMWISE_CARDS_URI},'openai/outputTemplate':ROAMWISE_CARDS_URI}}:{}),annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false}}));
 const allowedFields={
  search_roamwise:new Set(['q','type','region','limit']),

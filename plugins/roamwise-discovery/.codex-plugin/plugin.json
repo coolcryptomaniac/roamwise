@@ -5,9 +5,9 @@
   "author": {
     "name": "RoamWise",
     "email": "support@roamwise.co.in",
-    "url": "https://www.roamwise.co.in"
+    "url": "https://roamwise.co.in"
   },
-  "homepage": "https://www.roamwise.co.in",
+  "homepage": "https://roamwise.co.in",
   "repository": "https://github.com/coolcryptomaniac/roamwise",
   "keywords": [
     "travel",
@@ -27,9 +27,9 @@
     "capabilities": [
       "Read"
     ],
-    "websiteURL": "https://www.roamwise.co.in",
-    "privacyPolicyURL": "https://www.roamwise.co.in/privacy.html",
-    "termsOfServiceURL": "https://www.roamwise.co.in/terms.html",
+    "websiteURL": "https://roamwise.co.in",
+    "privacyPolicyURL": "https://roamwise.co.in/privacy.html",
+    "termsOfServiceURL": "https://roamwise.co.in/terms.html",
     "defaultPrompt": [
       "Find peaceful RoamWise-listed stays near Almora.",
       "Show Natasha Guleria's public artist profile.",
