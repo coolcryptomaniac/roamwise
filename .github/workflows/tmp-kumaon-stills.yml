@@ -1,0 +1,29 @@
+name: tmp kumaon stills (one-off)
+on:
+  push:
+    branches: [tmp/kumaon-stills]
+    paths: [tmp-stills/prompts.json, .github/workflows/tmp-kumaon-stills.yml]
+permissions:
+  contents: write
+jobs:
+  stills:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python3 tmp-stills/oaimg.py tmp-stills/prompts.json tmp-stills/out high | tee tmp-stills/log.txt
+          pip install -q pillow
+          python3 -c "
+          import glob,os
+          from PIL import Image
+          for p in glob.glob('tmp-stills/out/*.png'):
+              Image.open(p).convert('RGB').save(p[:-4]+'.jpg',quality=92); os.remove(p)"
+      - name: Commit results
+        run: |
+          git config user.name "roamwise-bot"; git config user.email "bot@roamwise.co.in"
+          git add tmp-stills/out tmp-stills/log.txt
+          git commit -m "stills output" && git push origin HEAD:tmp/kumaon-stills
