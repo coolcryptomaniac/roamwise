@@ -10,7 +10,7 @@
    image, imageAlt, faqs[{q,a}], itemList[{name,anchor}], ogTitle, ogKicker. */
 const fs=require('fs'),path=require('path');
 const ROOT=path.resolve(__dirname,'..'), SRC=path.join(ROOT,'content/editorial/articles');
-const SITE='https://www.roamwise.co.in';
+const SITE='https://roamwise.co.in';
 const CHECK=process.argv.includes('--check'), changed=[];
 function output(file,content){if(CHECK){if(!fs.existsSync(file)||fs.readFileSync(file,'utf8')!==content)changed.push(path.relative(ROOT,file));}else fs.writeFileSync(file,content);}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

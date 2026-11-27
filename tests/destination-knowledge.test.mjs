@@ -35,7 +35,7 @@ test('the research candidate scheduler yields exactly 50 deterministic non-publi
 });
 test('Ailon guide bridge is narrow and never steals bookings, refund, or weather questions',async()=>{
  const source=read('js/copilot/knowledge-bridge.js'),out=[];
- const ctx={console,URL,setTimeout:()=>{},window:null,location:{href:'https://www.roamwise.co.in/'},
+ const ctx={console,URL,setTimeout:()=>{},window:null,location:{href:'https://roamwise.co.in/'},
   document:{readyState:'complete',getElementById:()=>null,addEventListener:()=>{}},
   fetch:async()=>({ok:true,json:async()=>({version:1,records:[
     {name:'Rishikesh',region:'Uttarakhand',summary:'A researched destination',url:'/guides/rishikesh-uttarakhand.html',checkedAt:'2026-11-16',aliases:[]}]})}),
@@ -50,7 +50,7 @@ test('Ailon guide bridge is narrow and never steals bookings, refund, or weather
 test('home page links to the public library; no 53k crawlable thin URLs are generated',()=>{
  assert.match(read('index.html'),/knowledge-bridge\.js/);
  assert.match(read('index.html'),/rwOpenSite\('places\/'\)/);
- assert.match(read('sitemap.xml'),/https:\/\/www\.roamwise\.co\.in\/places\//);
+ assert.match(read('sitemap.xml'),/https:\/\/roamwise\.co\.in\/places\//);
  assert.match(read('.github/workflows/static.yml'),/node tools\/build-destination-library\.cjs/);
  const yaml=read('.github/workflows/destination-research.yml');
  assert.match(yaml,/schedule:/);assert.match(yaml,/upload-artifact/);

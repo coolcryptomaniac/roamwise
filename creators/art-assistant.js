@@ -59,7 +59,7 @@
     // Marketer
     else if (/caption|share|post|promote|market|story|status|hashtag|instagram/.test(s)) {
       steps = ['Taking the title, artist and price', 'Writing a caption in plain language']; flair = pick(FLAIR.market);
-      var cap = 'Discover “' + it.title + '” by ' + it.artist + ' (' + it.studio + '), ' + it.price + '. ' + (it.sacred ? 'Original sacred art' : 'Original art') + ', sold directly by the artist. See it on RoamWise: https://www.roamwise.co.in/creators/sacred-art.html #SacredArt #IndianArt #OriginalPainting #RoamWise';
+      var cap = 'Discover “' + it.title + '” by ' + it.artist + ' (' + it.studio + '), ' + it.price + '. ' + (it.sacred ? 'Original sacred art' : 'Original art') + ', sold directly by the artist. See it on RoamWise: https://roamwise.co.in/creators/sacred-art.html #SacredArt #IndianArt #OriginalPainting #RoamWise';
       out = 'Here is a caption you can post or send:<br><i>' + esc(cap) + '</i>';
       acts = '<button type="button" class="sa-btn" data-copy="' + esc(cap) + '">Copy caption</button> ' + link('https://wa.me/?text=' + encodeURIComponent(cap), 'Share on WhatsApp', true);
       if (navigator.share) acts += ' <button type="button" class="sa-btn sa-alt" data-share="' + esc(cap) + '">Share…</button>';

@@ -29,7 +29,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
-const SITE = 'https://www.roamwise.co.in';
+const SITE = 'https://roamwise.co.in';
 const OUT = path.join(ROOT, 'sitemap.xml');
 
 // Carried over verbatim from the sitemap as it existed before this task —
