@@ -112,9 +112,27 @@ function buildUrls() {
   return urls;
 }
 
+// lastmod for editorial articles comes from their source JSON's "updated" date,
+// so search engines re-crawl an article when its facts are rechecked.
+function editorialLastmod() {
+  const dir = path.join(ROOT, 'content', 'editorial', 'articles');
+  const map = new Map();
+  if (!fs.existsSync(dir)) return map;
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.json'))) {
+    const a = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+    if (a.updated) map.set(`${SITE}/${a.section}/${a.slug}.html`, a.updated);
+  }
+  for (const s of SECTION_DIRS) {
+    const dates = [...map].filter(([u]) => u.startsWith(`${SITE}/${s}/`)).map(([, d]) => d).sort();
+    if (dates.length) map.set(`${SITE}/${s}/`, dates[dates.length - 1]);
+  }
+  return map;
+}
+
 function render(urls) {
+  const lastmod = editorialLastmod();
   const body = urls
-    .map((u) => `  <url><loc>${u}</loc><changefreq>${MONTHLY.has(u) ? 'monthly' : 'weekly'}</changefreq></url>`)
+    .map((u) => `  <url><loc>${u}</loc>${lastmod.has(u) ? `<lastmod>${lastmod.get(u)}</lastmod>` : ''}<changefreq>${MONTHLY.has(u) ? 'monthly' : 'weekly'}</changefreq></url>`)
     .join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
 }
