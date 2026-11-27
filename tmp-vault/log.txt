@@ -1,1 +1,1 @@
-vault key stored
+OPENAI_API_KEY stored and read back OK (len 164)
