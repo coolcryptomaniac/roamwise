@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "updatedAt": "2026-11-26",
+  "updatedAt": "2026-11-27",
   "policy": "review-only; never part of checkout or Qikink paid catalogue without explicit approval",
   "products": [
     {
@@ -132,6 +132,32 @@
         "#f2d5ae"
       ],
       "theme": "Almora After Dark"
+    },
+    {
+      "id": "daily-2026-11-27",
+      "name": "Buransh Frequencies · Oversized graphic T-shirt",
+      "type": "Oversized graphic T-shirt",
+      "description": "Himalayan signal waves. Original RoamWise motif, concept only; print placement, garment fabric, sizes, price and Qikink production SKU require approval.",
+      "image": "/shop/img/daily-2026-11-27.svg",
+      "category": "rave",
+      "visual": "tee",
+      "status": "design-review",
+      "live": false,
+      "sizes": true,
+      "price": null,
+      "qikinkSku": null,
+      "inventory": null,
+      "fulfilment": "unapproved",
+      "creativeSource": "Original procedural vector illustration, curated theme rotation, not a supplier SKU",
+      "trendEvidence": "Qualitative design themes; no search volume or sales rank claim",
+      "createdOnIST": "2026-11-27",
+      "rightsStatus": "original_concept_requires_final_review",
+      "palette": [
+        "#e24a4a",
+        "#f8ac66",
+        "#ffe3b3"
+      ],
+      "theme": "Buransh Frequencies"
     }
   ]
 }
