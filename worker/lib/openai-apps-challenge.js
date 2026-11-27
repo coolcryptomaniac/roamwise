@@ -4,7 +4,7 @@
  * Rotate it via OPENAI_APPS_CHALLENGE_TOKEN if the dashboard issues a new one.
  * Do not use this endpoint for authentication, secrets or private account data.
  */
-export const DEFAULT_OPENAI_APPS_CHALLENGE='zW7Q6A_aJzxxiLSyCOKhxrWV4RfwXYg9Fr9_AjbOeIE';
+export const DEFAULT_OPENAI_APPS_CHALLENGE='zW7Q6A_aJzxxiLSyC0KhxrWV4RfwXYg9Fr9_AjbOelE';
 export function handleOpenAIAppsChallenge(request,env={}){
  const headers={
   'Content-Type':'text/plain; charset=utf-8',

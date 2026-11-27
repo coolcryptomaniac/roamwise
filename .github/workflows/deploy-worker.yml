@@ -164,7 +164,7 @@ jobs:
             root+'/.well-known/openai-apps-challenge'],
             text=True,capture_output=True,timeout=35)
           assert verify.returncode==0, 'OpenAI domain challenge endpoint unreachable'
-          assert verify.stdout=='zW7Q6A_aJzxxiLSyCOKhxrWV4RfwXYg9Fr9_AjbOeIE', 'OpenAI domain token mismatch'
+          assert verify.stdout=='zW7Q6A_aJzxxiLSyC0KhxrWV4RfwXYg9Fr9_AjbOelE', 'OpenAI domain token mismatch'
           modern_list=rpc_modern('tools/list')
           modern_resources=rpc_modern('resources/list')
           modern_read=rpc_modern('resources/read',{'uri':modern_resources['resources'][0]['uri']})
