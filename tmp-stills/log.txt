@@ -1,0 +1,2 @@
+key_len=0 alt_len=0
+OPENAI_API_KEY not set
